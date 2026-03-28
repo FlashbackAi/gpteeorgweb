@@ -1,0 +1,115 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Space Grotesk', monospace;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #000000;
+  color: #FFFFFF;
+  overflow-x: hidden;
+}
+
+code {
+  font-family: 'Space Grotesk', monospace;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0A0A0A;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #27c93f;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #1db954;
+}
+
+/* Terminal cursor */
+.terminal-cursor::after {
+  content: '▊';
+  animation: blink 1s step-end infinite;
+  color: #27c93f;
+  margin-left: 2px;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Terminal text effect */
+.terminal-text {
+  font-family: 'Space Grotesk', monospace;
+  letter-spacing: 0.02em;
+}
+
+/* Glow effect */
+.glow-green {
+  text-shadow: 0 0 10px rgba(39, 201, 63, 0.5), 0 0 20px rgba(39, 201, 63, 0.3);
+}
+
+.glow-green-strong {
+  text-shadow: 0 0 10px rgba(39, 201, 63, 0.8), 0 0 20px rgba(39, 201, 63, 0.6), 0 0 30px rgba(39, 201, 63, 0.4);
+}
+
+/* Terminal window */
+.terminal-window {
+  background: #0A0A0A;
+  border: 1px solid #27c93f40;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(39, 201, 63, 0.1);
+}
+
+/* Terminal header dots */
+.terminal-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.terminal-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.terminal-dot.red {
+  background: #ff5f56;
+}
+
+.terminal-dot.yellow {
+  background: #ffbd2e;
+}
+
+.terminal-dot.green {
+  background: #27c93f;
+}
+
+/* Selection */
+::selection {
+  background: rgba(39, 201, 63, 0.3);
+  color: #FFFFFF;
+}
+
+::-moz-selection {
+  background: rgba(39, 201, 63, 0.3);
+  color: #FFFFFF;
+}
