@@ -61,4 +61,4 @@ vercel --prod
 
 ---
 
-**GPTEE_CORE. SYS_ADMIN_ACCESS_ONLY.**
+**gptee.org. sys_admin_access_only.**

@@ -150,7 +150,7 @@ export const Nodes = () => {
       {/* Command Terminal */}
       <div className="mt-8 bg-terminal-black p-6 rounded border border-terminal-green-dim font-mono">
         <div className="flex items-center gap-3">
-          <span className="text-terminal-green">system@gptee_core:~$</span>
+          <span className="text-terminal-green">system@gptee.org:~$</span>
           <input
             type="text"
             value={commandInput}

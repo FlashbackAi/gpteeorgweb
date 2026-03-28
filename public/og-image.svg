@@ -1,0 +1,41 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#000000"/>
+
+  <!-- Grid pattern -->
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(39, 201, 63, 0.1)" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+
+  <!-- Glow effect -->
+  <defs>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Main text -->
+  <text x="600" y="280" font-family="monospace" font-size="96" font-weight="bold" fill="#27c93f" text-anchor="middle" filter="url(#glow)">
+    gptee.org
+  </text>
+
+  <!-- Tagline -->
+  <text x="600" y="350" font-family="monospace" font-size="36" fill="#888888" text-anchor="middle">
+    gpt for everyone, free
+  </text>
+
+  <!-- Terminal prompt -->
+  <text x="600" y="440" font-family="monospace" font-size="24" fill="#27c93f" text-anchor="middle">
+    $ decentralized • private • p2p
+  </text>
+
+  <!-- Bottom border -->
+  <line x1="0" y1="629" x2="1200" y2="629" stroke="#27c93f" stroke-width="2"/>
+</svg>

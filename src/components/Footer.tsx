@@ -6,9 +6,9 @@ export const Footer = () => {
       <div className="px-6 py-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="text-sm font-mono text-terminal-grey lowercase">
-            <span className="text-terminal-green">gptee_core.</span> sys_admin_access_only.
+            <span className="text-terminal-green">gptee.org.</span> sys_admin_access_only.
             <br />
-            <span className="text-terminal-grey-light">© 2024 gptee.core. all system logs archived.</span>
+            <span className="text-terminal-grey-light">© 2024 gptee.org. all system logs archived.</span>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 text-sm lowercase">

@@ -46,7 +46,7 @@ export const TermsAndConditions = () => {
                 <div className="space-y-4 text-terminal-grey text-sm leading-relaxed">
                   <p>
                     <span className="text-terminal-green">101</span> By accessing the{' '}
-                    <span className="text-terminal-green">GPTEE_CORE_NETWORK</span>, you agree to abide by
+                    <span className="text-terminal-green">gptee.org network</span>, you agree to abide by
                     the digital brutalist ethics of decentralized compute.
                   </p>
                 </div>
