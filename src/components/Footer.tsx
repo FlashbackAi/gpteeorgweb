@@ -8,7 +8,7 @@ export const Footer = () => {
           <div className="text-sm font-mono text-terminal-grey lowercase">
             <span className="text-terminal-green">gptee.org.</span> sys_admin_access_only.
             <br />
-            <span className="text-terminal-grey-light">© 2024 gptee.org. all system logs archived.</span>
+            <span className="text-terminal-grey-light">© 2026 gptee.org. all system logs archived.</span>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 text-sm lowercase">
