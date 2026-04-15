@@ -1,7 +1,6 @@
 
 import { GlitchText } from '../components/reactbits/GlitchText';
 import { SplitText } from '../components/reactbits/SplitText';
-import { StarBorder } from '../components/reactbits/StarBorder';
 import { LetterGlitch } from '../components/reactbits/LetterGlitch';
 import Dither from '../components/reactbits/Dither';
 import { Aurora } from '../components/reactbits/Aurora';
@@ -13,6 +12,7 @@ import { Terminal } from '../components/ui/terminal';
 import { NeonButton } from '../components/NeonButton';
 import { ScrollReveal } from '../components/ScrollReveal';
 import { StatsCounter } from '../components/StatsCounter';
+import { CardSpotlight } from '../components/ui/card-spotlight';
 
 export const Home = () => {
 
@@ -545,13 +545,10 @@ export const Home = () => {
               },
             ].map((item, i) => (
               <ScrollReveal key={i} animation="fadeUp" delay={i * 150}>
-                <StarBorder color={item.color} speed="6s">
+                <CardSpotlight color={item.color} className="h-full">
                   <div
                     style={{
-                      padding: '32px',
-                      background: 'rgba(10,10,15,0.9)',
-                      borderRadius: '12px',
-                      minHeight: '220px',
+                      height: '100%',
                       display: 'flex',
                       flexDirection: 'column',
                     }}
@@ -568,7 +565,7 @@ export const Home = () => {
                     <h3
                       style={{
                         fontFamily: 'Orbitron, sans-serif',
-                        fontSize: '14px',
+                        fontSize: '16px',
                         fontWeight: 700,
                         color: '#fff',
                         textTransform: 'lowercase',
@@ -601,7 +598,7 @@ export const Home = () => {
                       module_id: <span style={{ color: item.color }}>{item.moduleId}</span>
                     </div>
                   </div>
-                </StarBorder>
+                </CardSpotlight>
               </ScrollReveal>
             ))}
           </div>
