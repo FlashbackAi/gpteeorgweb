@@ -1,6 +1,16 @@
 import { useState, useEffect } from 'react';
-import { TerminalWindow } from '../components/TerminalWindow';
-import { FeatureCard } from '../components/FeatureCard';
+import { GlitchText } from '../components/reactbits/GlitchText';
+import { SplitText } from '../components/reactbits/SplitText';
+import { StarBorder } from '../components/reactbits/StarBorder';
+import { LetterGlitch } from '../components/reactbits/LetterGlitch';
+import Dither from '../components/reactbits/Dither';
+import { Aurora } from '../components/reactbits/Aurora';
+import { ParticleNetwork } from '../components/ParticleNetwork';
+import { HoloCard } from '../components/HoloCard';
+import { CyberTerminal } from '../components/CyberTerminal';
+import { NeonButton } from '../components/NeonButton';
+import { ScrollReveal } from '../components/ScrollReveal';
+import { StatsCounter } from '../components/StatsCounter';
 
 export const Home = () => {
   const [activeInstances, setActiveInstances] = useState(4921);
@@ -13,170 +23,653 @@ export const Home = () => {
   }, []);
 
   return (
-    <div className="w-full">
-      {/* Hero Section */}
-      <section className="px-6 py-20 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-          {/* Left: Hero Content */}
-          <div className="space-y-8">
-            <div className="inline-block px-4 py-2 border border-terminal-green-dim bg-terminal-black-light rounded text-sm font-mono text-terminal-green lowercase">
-              protocol initiated // [auth_level_0]
+    <div style={{ width: '100%', position: 'relative' }}>
+
+      {/* ═══════════════════════════════════════
+          HERO SECTION — Full Viewport
+          ═══════════════════════════════════════ */}
+      <section
+        style={{
+          position: 'relative',
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'hidden',
+          padding: '120px 24px 80px',
+        }}
+      >
+        {/* Background Layers */}
+        <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
+          <Dither
+            waveColor={[0.0, 1.0, 0.2]} // Neon green
+            disableAnimation={false}
+            enableMouseInteraction={true}
+            mouseRadius={1.0}
+            colorNum={5}
+            waveAmplitude={0.3}
+            waveFrequency={3}
+            waveSpeed={0.05}
+          />
+        </div>
+
+        {/* Vignette overlay */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'radial-gradient(ellipse at center, transparent 30%, rgba(10,10,15,0.8) 100%)',
+            pointerEvents: 'none',
+            zIndex: 1,
+          }}
+        />
+
+        {/* Hero Content */}
+        <div
+          style={{
+            position: 'relative',
+            zIndex: 2,
+            maxWidth: '1200px',
+            width: '100%',
+            display: 'grid',
+            gridTemplateColumns: '1fr',
+            gap: '48px',
+            alignItems: 'center',
+            pointerEvents: 'none',
+          }}
+          className="lg:grid-cols-2"
+        >
+          {/* Left: Text Content */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* Protocol Badge */}
+            <ScrollReveal animation="fadeLeft" delay={300}>
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '6px 16px',
+                  borderRadius: '20px',
+                  border: '1px solid rgba(255,45,123,0.2)',
+                  background: 'rgba(255,45,123,0.05)',
+                  fontFamily: 'JetBrains Mono, monospace',
+                  fontSize: '11px',
+                  color: '#ff2d7b',
+                  textTransform: 'lowercase',
+                  width: 'fit-content',
+                }}
+              >
+                <span
+                  style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    background: '#b8ff00',
+                    boxShadow: '0 0 8px rgba(184,255,0,0.6)',
+                    animation: 'blink 2s ease-in-out infinite',
+                  }}
+                />
+                protocol initiated // [auth_level_0]
+              </div>
+            </ScrollReveal>
+
+            {/* Main Title */}
+            <div>
+              <h1
+                style={{
+                  fontFamily: 'Glitch Goblin, cursive',
+                  fontSize: 'clamp(3rem, 8vw, 6rem)',
+                  fontWeight: 700,
+                  lineHeight: 0.95,
+                  marginBottom: '16px',
+                }}
+              >
+                <GlitchText
+                  text="gptee"
+                  className="text-cyber-magenta text-3d-magenta"
+                  speed={35}
+                  as="span"
+                />
+                <span
+                  style={{
+                    color: '#00f0ff',
+                    textShadow: '0 0 20px rgba(0,240,255,0.5), 0 0 40px rgba(0,240,255,0.2)',
+                  }}
+                >
+                  .org
+                </span>
+              </h1>
+              <SplitText
+                text="gpt for everyone, free"
+                className="text-cyber-grey-light"
+                splitBy="words"
+                animation="fadeUp"
+                trigger="mount"
+                delay={500}
+                staggerDelay={80}
+              />
+              <span className="terminal-cursor" style={{ marginLeft: '4px' }} />
             </div>
 
-            <div className="space-y-4">
-              <h1 className="text-6xl font-bold lowercase">
-                <span className="text-terminal-green glow-green-strong">gptee.org</span>
-              </h1>
-              <p className="text-xl text-terminal-grey-light">
-                gpt for everyone, free<span className="terminal-cursor"></span>
+            {/* Description */}
+            <ScrollReveal animation="fadeUp" delay={700}>
+              <p
+                style={{
+                  fontFamily: 'Space Grotesk, sans-serif',
+                  fontSize: '15px',
+                  lineHeight: 1.7,
+                  color: '#a0a0b5',
+                  maxWidth: '500px',
+                  textTransform: 'lowercase',
+                }}
+              >
+                a decentralized p2p ai network enabling private, encrypted inference
+                on mobile devices. run your own llm or contribute compute to the mesh.
+              </p>
+            </ScrollReveal>
+
+            {/* CTA Buttons */}
+            <ScrollReveal animation="fadeUp" delay={900}>
+              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', pointerEvents: 'auto' }}>
+                <NeonButton variant="magenta" size="lg">
+                  initialize node
+                </NeonButton>
+                <NeonButton variant="cyan" size="lg">
+                  network explorer
+                </NeonButton>
+              </div>
+            </ScrollReveal>
+          </div>
+
+          {/* Right: Terminal */}
+          <ScrollReveal animation="fadeRight" delay={600} className="hidden lg:block" style={{ pointerEvents: 'auto' }}>
+            <CyberTerminal
+              title="active_instances"
+              subtitle={activeInstances.toLocaleString()}
+              accentColor="#ff2d7b"
+            >
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', textTransform: 'lowercase' }}>
+                {[
+                  { num: '01', text: 'connecting to genesis-node-a...', color: '#888899', pulse: true },
+                  { num: '02', text: 'peer handshaking successful.', color: '#b8ff00', pulse: false },
+                  { num: '03', text: 'loading ai weights (decentralized shards)...', color: '#888899', pulse: true },
+                  { num: '04', text: 'webrtc channels encrypted.', color: '#00f0ff', pulse: false },
+                  { num: '05', text: 'gptee.org interface online.', color: '#b8ff00', pulse: false },
+                ].map((line, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ color: '#ff2d7b', fontWeight: 600 }}>{line.num}</span>
+                    <span
+                      style={{
+                        color: line.color,
+                        animation: line.pulse ? 'blink 2s ease-in-out infinite' : 'none',
+                      }}
+                    >
+                      {line.text}
+                    </span>
+                  </div>
+                ))}
+
+                <div
+                  style={{
+                    marginTop: '12px',
+                    paddingLeft: '16px',
+                    borderLeft: '2px solid #ff2d7b',
+                    paddingTop: '8px',
+                    paddingBottom: '8px',
+                  }}
+                >
+                  <p style={{ color: '#a855f7', fontStyle: 'italic', fontSize: '11px', textTransform: 'none' }}>
+                    "decentralization is the only way to ensure ai
+                    <br />
+                    remains a public utility."
+                  </p>
+                </div>
+              </div>
+            </CyberTerminal>
+          </ScrollReveal>
+        </div>
+
+        {/* Scroll indicator */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '30px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '8px',
+            animation: 'float 3s ease-in-out infinite',
+          }}
+        >
+          <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '9px', color: '#555566', textTransform: 'uppercase', letterSpacing: '0.2em' }}>
+            scroll
+          </span>
+          <div style={{ width: '1px', height: '30px', background: 'linear-gradient(to bottom, #ff2d7b, transparent)' }} />
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════
+          STATS BAR — Floating Glassmorphism
+          ═══════════════════════════════════════ */}
+      <section
+        style={{
+          position: 'relative',
+          padding: '0 24px',
+          marginTop: '-40px',
+          zIndex: 10,
+        }}
+      >
+        <div
+          style={{
+            maxWidth: '900px',
+            margin: '0 auto',
+            background: 'rgba(18, 16, 26, 0.7)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            border: '1px solid rgba(255,45,123,0.1)',
+            borderRadius: '12px',
+            padding: '20px',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+            gap: '16px',
+          }}
+        >
+          <StatsCounter value={4921} label="Active Nodes" color="#ff2d7b" suffix="+" />
+          <StatsCounter value={60} label="Countries" color="#00f0ff" suffix="+" />
+          <StatsCounter value={99} label="Uptime" color="#b8ff00" suffix="%" prefix="" />
+          <StatsCounter value={12} label="Models Live" color="#a855f7" />
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════
+          FEATURES SECTION — HoloCards
+          ═══════════════════════════════════════ */}
+      <section style={{ padding: '120px 24px', position: 'relative' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          {/* Section Header */}
+          <ScrollReveal animation="fadeUp">
+            <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+              <div
+                style={{
+                  fontFamily: 'JetBrains Mono, monospace',
+                  fontSize: '10px',
+                  color: '#ff2d7b',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.2em',
+                  marginBottom: '12px',
+                }}
+              >
+                ── core infrastructure ──
+              </div>
+              <h2
+                style={{
+                  fontFamily: 'Orbitron, sans-serif',
+                  fontSize: 'clamp(1.5rem, 3vw, 2.2rem)',
+                  fontWeight: 800,
+                  textTransform: 'uppercase',
+                  background: 'linear-gradient(135deg, #ff2d7b, #00f0ff)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  marginBottom: '12px',
+                }}
+              >
+                Built Different
+              </h2>
+              <p style={{ color: '#888899', fontSize: '14px', maxWidth: '500px', margin: '0 auto', textTransform: 'lowercase' }}>
+                every component of gptee is engineered for decentralization, privacy, and scale.
               </p>
             </div>
+          </ScrollReveal>
 
-            <div className="flex gap-4">
-              <button className="px-6 py-3 bg-terminal-green text-black font-bold hover:shadow-lg hover:shadow-terminal-green/50 transition-all duration-200 animate-glow lowercase">
-                initialize node
-              </button>
-              <button className="px-6 py-3 border-2 border-terminal-green text-terminal-green font-bold hover:bg-terminal-green hover:text-black transition-all duration-200 lowercase">
-                network explorer
-              </button>
-            </div>
-          </div>
-
-          {/* Right: Terminal Window */}
-          <TerminalWindow
-            title="active_instances"
-            subtitle={`${activeInstances.toLocaleString()}`}
+          {/* Feature Cards Grid */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gap: '24px',
+            }}
           >
-            <div className="space-y-2 text-sm font-mono lowercase">
-              <div className="text-terminal-grey flex items-center gap-2">
-                <span className="text-terminal-green">01</span>
-                <span className="animate-pulse">connecting to genesis-node-a...</span>
-              </div>
-              <div className="text-terminal-grey flex items-center gap-2">
-                <span className="text-terminal-green">02</span>
-                <span className="text-terminal-green">peer handshaking successful.</span>
-              </div>
-              <div className="text-terminal-grey flex items-center gap-2">
-                <span className="text-terminal-green">03</span>
-                <span className="animate-pulse">loading ai weights (decentralized shards)...</span>
-              </div>
-              <div className="text-terminal-grey flex items-center gap-2">
-                <span className="text-terminal-green">04</span>
-                <span className="text-terminal-green">gptee.org interface online.</span>
-              </div>
+            <ScrollReveal animation="fadeUp" delay={0}>
+              <HoloCard
+                icon={
+                  <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                  </svg>
+                }
+                title="decentralized ai infrastructure"
+                description="operate on a peer-to-peer mesh where thousands of nodes contribute compute power to run massive ai models without central authority."
+                moduleId="001_core_infra"
+                link="/p2p-network"
+                linkText="read protocol"
+                accentColor="#ff2d7b"
+              />
+            </ScrollReveal>
 
-              <div className="mt-4 pl-4 border-l-2 border-terminal-green py-2">
-                <p className="text-terminal-green italic text-xs normal-case">
-                  "decentralization is the only way to ensure ai<br />
-                  remains a public utility."
+            <ScrollReveal animation="fadeUp" delay={150}>
+              <HoloCard
+                icon={
+                  <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                }
+                title="community powered"
+                description="every node is owned and operated by individuals like you. no corporate gatekeepers, no proprietary black boxes. pure open-source mesh."
+                moduleId="002_community"
+                accentColor="#00f0ff"
+              />
+            </ScrollReveal>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════
+          BENEFITS SECTION — 3 Pillars
+          ═══════════════════════════════════════ */}
+      <section style={{ padding: '80px 24px', position: 'relative' }}>
+        {/* Subtle background */}
+        <div style={{ position: 'absolute', inset: 0, opacity: 0.3 }}>
+          <LetterGlitch
+            glitchColors={['#ff2d7b20', '#00f0ff15', '#a855f710']}
+            glitchSpeed={100}
+            smooth={true}
+          />
+        </div>
+
+        <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+          <ScrollReveal animation="fadeUp">
+            <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+              <div
+                style={{
+                  fontFamily: 'JetBrains Mono, monospace',
+                  fontSize: '10px',
+                  color: '#00f0ff',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.2em',
+                  marginBottom: '12px',
+                }}
+              >
+                ── system capabilities ──
+              </div>
+              <h2
+                style={{
+                  fontFamily: 'Orbitron, sans-serif',
+                  fontSize: 'clamp(1.5rem, 3vw, 2.2rem)',
+                  fontWeight: 800,
+                  textTransform: 'uppercase',
+                  background: 'linear-gradient(135deg, #00f0ff, #a855f7)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}
+              >
+                Three Pillars
+              </h2>
+            </div>
+          </ScrollReveal>
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+              gap: '24px',
+            }}
+          >
+            {[
+              {
+                icon: (
+                  <svg width="36" height="36" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                ),
+                title: 'private by default',
+                desc: 'end-to-end encrypted requests ensure your data never touches a central server in plaintext. zero-knowledge inference.',
+                moduleId: 'privacy_001',
+                color: '#ff2d7b',
+              },
+              {
+                icon: (
+                  <svg width="36" height="36" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                ),
+                title: 'high efficiency',
+                desc: 'optimized model sharding allows gptee to run effectively even on consumer-grade hardware. mobile-first architecture.',
+                moduleId: 'efficiency_002',
+                color: '#00f0ff',
+              },
+              {
+                icon: (
+                  <svg width="36" height="36" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                ),
+                title: 'global scale',
+                desc: 'nodes distributed across 60+ countries ensure low latency and high availability worldwide. resilient mesh topology.',
+                moduleId: 'scale_003',
+                color: '#a855f7',
+              },
+            ].map((item, i) => (
+              <ScrollReveal key={i} animation="fadeUp" delay={i * 150}>
+                <StarBorder color={item.color} speed="6s">
+                  <div
+                    style={{
+                      padding: '32px',
+                      background: 'rgba(10,10,15,0.9)',
+                      borderRadius: '12px',
+                      minHeight: '220px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                    }}
+                  >
+                    <div
+                      style={{
+                        color: item.color,
+                        marginBottom: '16px',
+                        filter: `drop-shadow(0 0 8px ${item.color}50)`,
+                      }}
+                    >
+                      {item.icon}
+                    </div>
+                    <h3
+                      style={{
+                        fontFamily: 'Orbitron, sans-serif',
+                        fontSize: '14px',
+                        fontWeight: 700,
+                        color: '#fff',
+                        textTransform: 'lowercase',
+                        marginBottom: '12px',
+                        letterSpacing: '0.05em',
+                      }}
+                    >
+                      {item.title}
+                    </h3>
+                    <p
+                      style={{
+                        fontSize: '13px',
+                        lineHeight: 1.7,
+                        color: '#a0a0b5',
+                        textTransform: 'lowercase',
+                        flex: 1,
+                      }}
+                    >
+                      {item.desc}
+                    </p>
+                    <div
+                      style={{
+                        fontFamily: 'JetBrains Mono, monospace',
+                        fontSize: '9px',
+                        color: '#555566',
+                        marginTop: '16px',
+                        textTransform: 'lowercase',
+                      }}
+                    >
+                      module_id: <span style={{ color: item.color }}>{item.moduleId}</span>
+                    </div>
+                  </div>
+                </StarBorder>
+              </ScrollReveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════
+          NETWORK VISUALIZATION SECTION
+          ═══════════════════════════════════════ */}
+      <section
+        style={{
+          position: 'relative',
+          padding: '120px 24px',
+          overflow: 'hidden',
+          minHeight: '500px',
+        }}
+      >
+        <ParticleNetwork
+          particleCount={80}
+          connectionDistance={130}
+          speed={0.4}
+          colors={['#ff2d7b', '#00f0ff', '#a855f7', '#b8ff00']}
+        />
+
+        {/* Gradient overlay for readability */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'radial-gradient(ellipse at center, rgba(10,10,15,0.3) 0%, rgba(10,10,15,0.85) 100%)',
+            pointerEvents: 'none',
+          }}
+        />
+
+        <div style={{ position: 'relative', zIndex: 2, maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
+          <ScrollReveal animation="scaleIn">
+            <div
+              style={{
+                fontFamily: 'JetBrains Mono, monospace',
+                fontSize: '10px',
+                color: '#b8ff00',
+                textTransform: 'uppercase',
+                letterSpacing: '0.2em',
+                marginBottom: '16px',
+              }}
+            >
+              ── live network mesh ──
+            </div>
+            <h2
+              style={{
+                fontFamily: 'Orbitron, sans-serif',
+                fontSize: 'clamp(1.8rem, 4vw, 3rem)',
+                fontWeight: 800,
+                textTransform: 'uppercase',
+                marginBottom: '16px',
+              }}
+            >
+              <GlitchText text="THE MESH IS ALIVE" className="text-white" speed={50} enableShadow={false} as="span" />
+            </h2>
+            <p
+              style={{
+                fontSize: '15px',
+                color: '#a0a0b5',
+                lineHeight: 1.7,
+                maxWidth: '600px',
+                margin: '0 auto 32px',
+                textTransform: 'lowercase',
+              }}
+            >
+              every particle you see represents a real node in the gptee network.
+              move your cursor to interact with the decentralized mesh topology.
+            </p>
+            <NeonButton variant="lime" size="md">
+              explore network
+            </NeonButton>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════
+          CTA SECTION — Command Terminal
+          ═══════════════════════════════════════ */}
+      <section style={{ padding: '80px 24px 120px', position: 'relative' }}>
+        <Aurora
+          colors={['#ff2d7b', '#a855f7', '#0a0a2f']}
+          speed={0.5}
+          opacity={0.1}
+        />
+
+        <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative', zIndex: 2 }}>
+          <ScrollReveal animation="fadeUp">
+            <CyberTerminal
+              title="deploy_node"
+              subtitle="READY"
+              accentColor="#b8ff00"
+            >
+              <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                <h2
+                  style={{
+                    fontFamily: 'Orbitron, sans-serif',
+                    fontSize: 'clamp(1.2rem, 2.5vw, 1.8rem)',
+                    fontWeight: 800,
+                    color: '#fff',
+                    textTransform: 'lowercase',
+                    marginBottom: '24px',
+                  }}
+                >
+                  ready to join the network?
+                </h2>
+
+                <div
+                  style={{
+                    background: 'rgba(0,0,0,0.5)',
+                    border: '1px solid rgba(184,255,0,0.15)',
+                    borderRadius: '8px',
+                    padding: '16px 20px',
+                    fontFamily: 'JetBrains Mono, monospace',
+                    fontSize: '13px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    marginBottom: '20px',
+                    flexWrap: 'wrap',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <span style={{ color: '#b8ff00', fontWeight: 700 }}>$</span>
+                  <span style={{ color: '#a0a0b5', wordBreak: 'break-all' }}>curl -sSL https://get.gptee.org | bash</span>
+                  <button
+                    style={{
+                      padding: '6px 16px',
+                      background: '#b8ff00',
+                      color: '#000',
+                      border: 'none',
+                      fontFamily: 'Orbitron, sans-serif',
+                      fontWeight: 700,
+                      fontSize: '10px',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.1em',
+                      cursor: 'pointer',
+                      clipPath: 'polygon(5px 0, 100% 0, calc(100% - 5px) 100%, 0 100%)',
+                      boxShadow: '0 0 15px rgba(184,255,0,0.3)',
+                    }}
+                  >
+                    Execute
+                  </button>
+                </div>
+
+                <p
+                  style={{
+                    fontFamily: 'JetBrains Mono, monospace',
+                    fontSize: '10px',
+                    color: '#555566',
+                    textTransform: 'lowercase',
+                  }}
+                >
+                  supports linux, macos, and windows (wsl2)
                 </p>
               </div>
-            </div>
-          </TerminalWindow>
-        </div>
-      </section>
-
-      {/* Feature Cards */}
-      <section className="px-6 py-16 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Decentralized Infrastructure */}
-          <FeatureCard
-            icon="network"
-            title="decentralized ai infrastructure"
-            description="gptee.org is a breakthrough in distributed computing. we operate on a peer-to-peer network where thousands of individual nodes contribute compute power to run massive ai models without a central authority or censorship."
-            moduleId="001_core_infra"
-            link="/p2p-network"
-            linkText="read protocol"
-          />
-
-          {/* Community Powered */}
-          <FeatureCard
-            icon="community"
-            title="community powered"
-            description="every node in the network is owned and operated by individuals like you. no corporate gatekeepers, no proprietary black boxes."
-            moduleId="002_community"
-          />
-        </div>
-      </section>
-
-      {/* Benefits Section */}
-      <section className="px-6 py-16 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-6 bg-terminal-black-light border border-terminal-green-dim rounded-lg hover:border-terminal-green transition-all duration-200">
-            <div className="text-terminal-green text-3xl mb-4">
-              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
-            </div>
-            <h3 className="text-white font-bold text-lg mb-2 lowercase">private by default</h3>
-            <p className="text-terminal-grey-light text-sm lowercase">
-              end-to-end encrypted requests ensure your data never touches a central server in plaintext.
-            </p>
-            <div className="mt-4 text-xs font-mono text-terminal-grey lowercase">
-              module_id: <span className="text-terminal-green">privacy_001</span>
-            </div>
-          </div>
-
-          <div className="p-6 bg-terminal-black-light border border-terminal-green-dim rounded-lg hover:border-terminal-green transition-all duration-200">
-            <div className="text-terminal-green text-3xl mb-4">
-              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
-            <h3 className="text-white font-bold text-lg mb-2 lowercase">high efficiency</h3>
-            <p className="text-terminal-grey-light text-sm lowercase">
-              optimized model sharding allows gptee to run effectively even on consumer-grade hardware.
-            </p>
-            <div className="mt-4 text-xs font-mono text-terminal-grey lowercase">
-              module_id: <span className="text-terminal-green">efficiency_002</span>
-            </div>
-          </div>
-
-          <div className="p-6 bg-terminal-black-light border border-terminal-green-dim rounded-lg hover:border-terminal-green transition-all duration-200">
-            <div className="text-terminal-green text-3xl mb-4">
-              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <h3 className="text-white font-bold text-lg mb-2 lowercase">global scale</h3>
-            <p className="text-terminal-grey-light text-sm lowercase">
-              nodes distributed across 60+ countries ensure low latency and high availability worldwide.
-            </p>
-            <div className="mt-4 text-xs font-mono text-terminal-grey lowercase">
-              module_id: <span className="text-terminal-green">scale_003</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="px-6 py-16 max-w-5xl mx-auto">
-        <div className="terminal-window p-8">
-          <div className="terminal-dots mb-6">
-            <div className="terminal-dot red"></div>
-            <div className="terminal-dot yellow"></div>
-            <div className="terminal-dot green"></div>
-          </div>
-
-          <div className="text-center space-y-6">
-            <h2 className="text-3xl font-bold text-white lowercase">ready to join the network?</h2>
-
-            <div className="bg-terminal-black p-6 rounded border border-terminal-green-dim font-mono text-left">
-              <div className="flex flex-col sm:flex-row items-start gap-3">
-                <span className="text-terminal-green">$</span>
-                <div className="flex-1 break-all">
-                  <span className="text-terminal-grey">curl -sSL https://get.gptee.org | bash</span>
-                </div>
-                <button className="px-4 py-2 bg-terminal-green text-black text-sm font-bold hover:shadow-lg hover:shadow-terminal-green/50 transition-all lowercase whitespace-nowrap">
-                  execute
-                </button>
-              </div>
-            </div>
-
-            <p className="text-sm text-terminal-grey lowercase">
-              supports linux, macos, and windows (wsl2)
-            </p>
-          </div>
+            </CyberTerminal>
+          </ScrollReveal>
         </div>
       </section>
     </div>

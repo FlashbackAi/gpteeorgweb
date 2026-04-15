@@ -10,10 +10,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-three/fiber": "^8.18.0",
+    "@react-three/postprocessing": "^2.19.1",
+    "@types/three": "^0.183.1",
+    "animejs": "^4.3.6",
+    "postprocessing": "^6.39.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.0",
-    "framer-motion": "^11.0.5"
+    "three": "^0.183.2"
   },
   "devDependencies": {
     "@types/react": "^18.2.55",

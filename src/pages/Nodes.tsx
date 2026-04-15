@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { TerminalWindow } from '../components/TerminalWindow';
+import { CyberTerminal } from '../components/CyberTerminal';
+import { ScrollReveal } from '../components/ScrollReveal';
+import { ParticleNetwork } from '../components/ParticleNetwork';
 
 interface NodeData {
   peerId: string;
@@ -10,7 +12,6 @@ interface NodeData {
   bandwidth: string;
 }
 
-// Mock data - will be replaced with AWS DynamoDB later
 const generateMockNodes = (): NodeData[] => {
   const statuses: ('ACTIVE' | 'REBOOTING' | 'OFFLINE')[] = ['ACTIVE', 'ACTIVE', 'ACTIVE', 'ACTIVE', 'REBOOTING', 'OFFLINE'];
   const names = ['CYBER_PHANTOM_01', 'NEON_VOID_STATION', 'NULL_POINTER_ARCH', 'GHOST_SHELL_99', 'BIT_CRUSHER_MK1', 'QUANTUM_FORGE_7'];
@@ -28,138 +29,176 @@ const generateMockNodes = (): NodeData[] => {
 export const Nodes = () => {
   const [nodes, setNodes] = useState<NodeData[]>([]);
   const [totalNodes, setTotalNodes] = useState(1024);
-  const networkHealth = '99.98%';
-  const traffic24h = '8.42 PB';
   const [commandInput, setCommandInput] = useState('');
 
   useEffect(() => {
-    // Load initial nodes
-    const initialNodes = generateMockNodes();
-    setNodes(initialNodes);
-
-    // Simulate real-time updates
+    setNodes(generateMockNodes());
     const interval = setInterval(() => {
       setTotalNodes(prev => prev + Math.floor(Math.random() * 2));
       setNodes(generateMockNodes());
     }, 10000);
-
     return () => clearInterval(interval);
   }, []);
 
-  const getStatusColor = (status: string) => {
+  const getStatusStyles = (status: string) => {
     switch (status) {
-      case 'ACTIVE':
-        return 'text-terminal-green';
-      case 'REBOOTING':
-        return 'text-yellow-500';
-      case 'OFFLINE':
-        return 'text-red-500';
-      default:
-        return 'text-terminal-grey';
+      case 'ACTIVE': return { color: '#b8ff00', dot: '#b8ff00', glow: 'rgba(184,255,0,0.4)' };
+      case 'REBOOTING': return { color: '#ffbd2e', dot: '#ffbd2e', glow: 'rgba(255,189,46,0.4)' };
+      case 'OFFLINE': return { color: '#ff5f56', dot: '#ff5f56', glow: 'rgba(255,95,86,0.4)' };
+      default: return { color: '#888899', dot: '#888899', glow: 'transparent' };
     }
   };
 
-  const getStatusDot = (status: string) => {
-    const color = getStatusColor(status).replace('text-', 'bg-');
-    return <span className={`inline-block w-2 h-2 rounded-full ${color} mr-2`}></span>;
-  };
-
   return (
-    <div className="w-full px-6 py-12 max-w-7xl mx-auto">
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        <div className="bg-terminal-black-light border-l-4 border-terminal-green p-6">
-          <div className="text-terminal-grey text-sm font-mono mb-2">NETWORK HEALTH</div>
-          <div className="text-5xl font-bold text-terminal-green">{networkHealth}</div>
-          <div className="text-xs text-terminal-grey mt-2 font-mono">UPTIME_INDEX</div>
-        </div>
-
-        <div className="bg-terminal-black-light border-l-4 border-terminal-green p-6">
-          <div className="text-terminal-grey text-sm font-mono mb-2">TOTAL NODES</div>
-          <div className="text-5xl font-bold text-white">{totalNodes.toLocaleString()}</div>
-          <div className="text-xs text-terminal-green mt-2 font-mono">ACTIVE_PEERS</div>
-        </div>
-
-        <div className="bg-terminal-black-light border-l-4 border-terminal-green p-6">
-          <div className="text-terminal-grey text-sm font-mono mb-2">TRAFFIC (24H)</div>
-          <div className="text-5xl font-bold text-white">{traffic24h}</div>
-          <div className="text-xs text-terminal-grey mt-2 font-mono">TX_STREAMS</div>
-        </div>
+    <div style={{ paddingTop: '100px', position: 'relative', minHeight: '100vh' }}>
+      {/* Background */}
+      <div style={{ position: 'fixed', inset: 0, opacity: 0.15, pointerEvents: 'none' }}>
+        <ParticleNetwork particleCount={25} speed={0.2} connectionDistance={100} colors={['#ff2d7b30', '#00f0ff20']} />
       </div>
 
-      {/* Nodes Table */}
-      <TerminalWindow title="GPTEE_NODES_MONITOR --VERBOSE">
-        <div className="overflow-x-auto">
-          <table className="w-full font-mono text-sm">
-            <thead>
-              <tr className="border-b border-terminal-green-dim">
-                <th className="text-left py-3 px-4 text-terminal-grey font-normal">PEERID</th>
-                <th className="text-left py-3 px-4 text-terminal-grey font-normal">NAME</th>
-                <th className="text-left py-3 px-4 text-terminal-grey font-normal">STATUS</th>
-                <th className="text-left py-3 px-4 text-terminal-grey font-normal">UPTIME</th>
-                <th className="text-left py-3 px-4 text-terminal-grey font-normal">LATENCY</th>
-                <th className="text-left py-3 px-4 text-terminal-grey font-normal">BANDWIDTH</th>
-                <th className="text-left py-3 px-4 text-terminal-grey font-normal">ACTIONS</th>
-              </tr>
-            </thead>
-            <tbody>
-              {nodes.map((node, index) => (
-                <tr
-                  key={index}
-                  className="border-b border-terminal-black-lighter hover:bg-terminal-black-light transition-colors"
-                >
-                  <td className="py-3 px-4 text-terminal-green">{node.peerId}</td>
-                  <td className="py-3 px-4 text-white">{node.name}</td>
-                  <td className={`py-3 px-4 ${getStatusColor(node.status)}`}>
-                    <div className="flex items-center">
-                      {getStatusDot(node.status)}
-                      {node.status}
-                    </div>
-                  </td>
-                  <td className="py-3 px-4 text-terminal-grey">{node.uptime}</td>
-                  <td className="py-3 px-4 text-terminal-grey">{node.latency}</td>
-                  <td className="py-3 px-4 text-terminal-grey">{node.bandwidth}</td>
-                  <td className="py-3 px-4">
-                    <button className="text-terminal-green hover:glow-green transition-all">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px 80px', position: 'relative', zIndex: 1 }}>
+        {/* Stats Overview */}
+        <ScrollReveal animation="fadeUp">
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '20px',
+            marginBottom: '48px',
+          }}>
+            {[
+              { label: 'Network Health', color: '#b8ff00' },
+              { label: 'Total Nodes', color: '#ff2d7b' },
+              { label: 'Traffic (24h)', color: '#00f0ff' },
+            ].map((stat, i) => (
+              <div
+                key={i}
+                style={{
+                  background: 'rgba(18,16,26,0.7)',
+                  backdropFilter: 'blur(10px)',
+                  border: `1px solid ${stat.color}20`,
+                  borderLeft: `3px solid ${stat.color}`,
+                  borderRadius: '8px',
+                  padding: '24px',
+                }}
+              >
+                <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '10px', color: '#888899', marginBottom: '8px', textTransform: 'uppercase' }}>
+                  {stat.label}
+                </div>
+                <div style={{
+                  fontFamily: 'Orbitron, sans-serif',
+                  fontSize: '2rem',
+                  fontWeight: 800,
+                  color: stat.color,
+                  textShadow: `0 0 15px ${stat.color}40`,
+                }}>
+                  {i === 0 ? '99.98%' : i === 1 ? totalNodes.toLocaleString() : '8.42 PB'}
+                </div>
+                <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '9px', color: stat.color, marginTop: '4px', opacity: 0.7 }}>
+                  {i === 0 ? 'UPTIME_INDEX' : i === 1 ? 'ACTIVE_PEERS' : 'TX_STREAMS'}
+                </div>
+              </div>
+            ))}
+          </div>
+        </ScrollReveal>
 
-          <div className="flex items-center justify-between mt-6 text-xs text-terminal-grey">
-            <div>TOTAL ENTRIES: {totalNodes.toLocaleString()}</div>
-            <div className="flex gap-2">
-              <button className="px-3 py-1 border border-terminal-green-dim hover:border-terminal-green transition-colors">
-                &lt;
-              </button>
-              <span className="px-3 py-1">PAGE [01] OF [6x]</span>
-              <button className="px-3 py-1 border border-terminal-green-dim hover:border-terminal-green transition-colors">
-                &gt;
-              </button>
+        {/* Nodes Table */}
+        <ScrollReveal animation="fadeUp" delay={200}>
+          <CyberTerminal title="GPTEE_NODES_MONITOR" subtitle="--VERBOSE" accentColor="#ff2d7b">
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid rgba(255,45,123,0.15)' }}>
+                    {['PEERID', 'NAME', 'STATUS', 'UPTIME', 'LATENCY', 'BANDWIDTH'].map(h => (
+                      <th key={h} style={{ textAlign: 'left', padding: '12px 16px', color: '#888899', fontWeight: 400, fontSize: '10px', letterSpacing: '0.1em' }}>
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {nodes.map((node, index) => {
+                    const statusStyle = getStatusStyles(node.status);
+                    return (
+                      <tr
+                        key={index}
+                        style={{
+                          borderBottom: '1px solid rgba(255,255,255,0.03)',
+                          transition: 'background 0.2s',
+                        }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,45,123,0.03)'; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+                      >
+                        <td style={{ padding: '12px 16px', color: '#ff2d7b' }}>{node.peerId}</td>
+                        <td style={{ padding: '12px 16px', color: '#fff' }}>{node.name}</td>
+                        <td style={{ padding: '12px 16px', color: statusStyle.color }}>
+                          <span style={{
+                            display: 'inline-flex', alignItems: 'center', gap: '6px',
+                          }}>
+                            <span style={{
+                              width: '6px', height: '6px', borderRadius: '50%',
+                              background: statusStyle.dot,
+                              boxShadow: `0 0 6px ${statusStyle.glow}`,
+                            }} />
+                            {node.status}
+                          </span>
+                        </td>
+                        <td style={{ padding: '12px 16px', color: '#888899' }}>{node.uptime}</td>
+                        <td style={{ padding: '12px 16px', color: '#888899' }}>{node.latency}</td>
+                        <td style={{ padding: '12px 16px', color: '#888899' }}>{node.bandwidth}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+
+              <div style={{
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                marginTop: '16px', fontSize: '10px', color: '#888899', fontFamily: 'JetBrains Mono, monospace',
+              }}>
+                <span>TOTAL ENTRIES: {totalNodes.toLocaleString()}</span>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button style={{ padding: '4px 12px', border: '1px solid rgba(255,45,123,0.2)', background: 'transparent', color: '#ff2d7b', cursor: 'pointer', fontSize: '10px' }}>&lt;</button>
+                  <span style={{ padding: '4px 8px' }}>PAGE [01] OF [6x]</span>
+                  <button style={{ padding: '4px 12px', border: '1px solid rgba(255,45,123,0.2)', background: 'transparent', color: '#ff2d7b', cursor: 'pointer', fontSize: '10px' }}>&gt;</button>
+                </div>
+              </div>
+            </div>
+          </CyberTerminal>
+        </ScrollReveal>
+
+        {/* Command Terminal */}
+        <ScrollReveal animation="fadeUp" delay={300}>
+          <div
+            style={{
+              marginTop: '32px',
+              background: 'rgba(10,10,15,0.9)',
+              border: '1px solid rgba(255,45,123,0.1)',
+              borderRadius: '8px',
+              padding: '20px',
+              fontFamily: 'JetBrains Mono, monospace',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{ color: '#ff2d7b', fontWeight: 700 }}>system@gptee.org:~$</span>
+              <input
+                type="text"
+                value={commandInput}
+                onChange={(e) => setCommandInput(e.target.value)}
+                placeholder="ENTER_COMMAND_TO_QUERY_NODE..."
+                style={{
+                  flex: 1,
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  color: '#a0a0b5',
+                  fontFamily: 'inherit',
+                  fontSize: '13px',
+                }}
+              />
+              <span className="terminal-cursor" />
             </div>
           </div>
-        </div>
-      </TerminalWindow>
-
-      {/* Command Terminal */}
-      <div className="mt-8 bg-terminal-black p-6 rounded border border-terminal-green-dim font-mono">
-        <div className="flex items-center gap-3">
-          <span className="text-terminal-green">system@gptee.org:~$</span>
-          <input
-            type="text"
-            value={commandInput}
-            onChange={(e) => setCommandInput(e.target.value)}
-            placeholder="ENTER_COMMAND_TO_QUERY_NODE..."
-            className="flex-1 bg-transparent border-none outline-none text-terminal-grey placeholder-terminal-grey/50"
-          />
-          <span className="text-terminal-green animate-terminal-blink">▊</span>
-        </div>
+        </ScrollReveal>
       </div>
     </div>
   );
