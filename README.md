@@ -2,7 +2,7 @@
 
 Official website for GPTEE.ORG - A decentralized P2P AI network.
 
-## Tech Stack
+## Tech Stack:
 
 - **Framework:** React 18 with TypeScript
 - **Build Tool:** Vite
