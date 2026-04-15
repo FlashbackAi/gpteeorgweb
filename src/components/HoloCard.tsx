@@ -25,16 +25,29 @@ export const HoloCard = ({
   const cardRef = useRef<HTMLDivElement>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
+  const rafRef = useRef<number | null>(null);
+  const pendingTiltRef = useRef({ x: 0, y: 0 });
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
-    setTilt({ x: y * -15, y: x * 15 });
+
+    pendingTiltRef.current = { x: y * -10, y: x * 10 };
+
+    if (rafRef.current !== null) return;
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null;
+      setTilt(pendingTiltRef.current);
+    });
   };
 
   const handleMouseLeave = () => {
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
     setTilt({ x: 0, y: 0 });
     setIsHovered(false);
   };
@@ -50,11 +63,16 @@ export const HoloCard = ({
         position: 'relative',
         padding: '2rem',
         borderRadius: '12px',
-        background: 'rgba(18, 16, 26, 0.8)',
-        backdropFilter: 'blur(20px)',
-        border: `1px solid ${isHovered ? accentColor + '60' : 'rgba(255,255,255,0.05)'}`,
-        transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) translateZ(${isHovered ? '10px' : '0px'})`,
-        transition: 'all 0.15s ease-out, border-color 0.3s ease',
+        background:
+          'linear-gradient(180deg, rgba(18, 16, 26, 0.55) 0%, rgba(10, 10, 15, 0.72) 100%)',
+        backdropFilter: 'blur(24px)',
+        border: `1px solid ${isHovered ? accentColor + '55' : 'rgba(255,255,255,0.06)'}`,
+        boxShadow: isHovered
+          ? `0 18px 60px rgba(0,0,0,0.55), 0 0 0 1px ${accentColor}22, 0 0 40px ${accentColor}14`
+          : '0 12px 42px rgba(0,0,0,0.35)',
+        transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) translateZ(${isHovered ? '8px' : '0px'})`,
+        transition:
+          'transform 240ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 280ms ease, border-color 280ms ease',
         cursor: 'default',
         overflow: 'hidden',
         willChange: 'transform',
@@ -65,10 +83,23 @@ export const HoloCard = ({
         style={{
           position: 'absolute',
           inset: 0,
-          background: `linear-gradient(${135 + tilt.y * 5}deg, transparent 0%, ${accentColor}08 30%, transparent 50%, ${accentColor}05 70%, transparent 100%)`,
+          background: `linear-gradient(${135 + tilt.y * 5}deg, transparent 0%, ${accentColor}10 28%, transparent 52%, ${accentColor}08 75%, transparent 100%)`,
           borderRadius: 'inherit',
           pointerEvents: 'none',
-          transition: 'background 0.15s ease',
+          opacity: isHovered ? 0.9 : 0.6,
+          transition: 'background 240ms ease, opacity 240ms ease',
+        }}
+      />
+
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          borderRadius: 'inherit',
+          border: '1px solid rgba(255,255,255,0.04)',
+          pointerEvents: 'none',
+          opacity: isHovered ? 1 : 0.7,
+          transition: 'opacity 280ms ease',
         }}
       />
 

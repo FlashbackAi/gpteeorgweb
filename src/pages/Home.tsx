@@ -1,26 +1,20 @@
-import { useState, useEffect } from 'react';
+
 import { GlitchText } from '../components/reactbits/GlitchText';
 import { SplitText } from '../components/reactbits/SplitText';
 import { StarBorder } from '../components/reactbits/StarBorder';
 import { LetterGlitch } from '../components/reactbits/LetterGlitch';
 import Dither from '../components/reactbits/Dither';
 import { Aurora } from '../components/reactbits/Aurora';
+import MagicRings from '../components/reactbits/MagicRings';
 import { ParticleNetwork } from '../components/ParticleNetwork';
 import { HoloCard } from '../components/HoloCard';
 import { CyberTerminal } from '../components/CyberTerminal';
+import { Terminal } from '../components/ui/terminal';
 import { NeonButton } from '../components/NeonButton';
 import { ScrollReveal } from '../components/ScrollReveal';
 import { StatsCounter } from '../components/StatsCounter';
 
 export const Home = () => {
-  const [activeInstances, setActiveInstances] = useState(4921);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveInstances(prev => prev + Math.floor(Math.random() * 3));
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <div style={{ width: '100%', position: 'relative' }}>
@@ -31,7 +25,8 @@ export const Home = () => {
       <section
         style={{
           position: 'relative',
-          minHeight: '100vh',
+          minHeight: '110vh',
+          height: 'auto',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -71,16 +66,16 @@ export const Home = () => {
             zIndex: 2,
             maxWidth: '1200px',
             width: '100%',
-            display: 'grid',
-            gridTemplateColumns: '1fr',
-            gap: '48px',
-            alignItems: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '64px',
+            alignItems: 'flex-start',
             pointerEvents: 'none',
+            textAlign: 'left',
           }}
-          className="lg:grid-cols-2"
         >
-          {/* Left: Text Content */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          {/* Top: Text Content */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', alignItems: 'flex-start' }}>
             {/* Protocol Badge */}
             <ScrollReveal animation="fadeLeft" delay={300}>
               <div
@@ -170,7 +165,7 @@ export const Home = () => {
 
             {/* CTA Buttons */}
             <ScrollReveal animation="fadeUp" delay={900}>
-              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', pointerEvents: 'auto' }}>
+              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', pointerEvents: 'auto', justifyContent: 'flex-start' }}>
                 <NeonButton variant="magenta" size="lg">
                   initialize node
                 </NeonButton>
@@ -181,51 +176,35 @@ export const Home = () => {
             </ScrollReveal>
           </div>
 
-          {/* Right: Terminal */}
-          <ScrollReveal animation="fadeRight" delay={600} className="hidden lg:block">
-            <CyberTerminal
-              title="active_instances"
-              subtitle={activeInstances.toLocaleString()}
-              accentColor="#ff2d7b"
-            >
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', textTransform: 'lowercase', pointerEvents: 'auto' }}>
-                {[
-                  { num: '01', text: 'connecting to genesis-node-a...', color: '#888899', pulse: true },
-                  { num: '02', text: 'peer handshaking successful.', color: '#b8ff00', pulse: false },
-                  { num: '03', text: 'loading ai weights (decentralized shards)...', color: '#888899', pulse: true },
-                  { num: '04', text: 'webrtc channels encrypted.', color: '#00f0ff', pulse: false },
-                  { num: '05', text: 'gptee.org interface online.', color: '#b8ff00', pulse: false },
-                ].map((line, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ color: '#ff2d7b', fontWeight: 600 }}>{line.num}</span>
-                    <span
-                      style={{
-                        color: line.color,
-                        animation: line.pulse ? 'blink 2s ease-in-out infinite' : 'none',
-                      }}
-                    >
-                      {line.text}
-                    </span>
-                  </div>
-                ))}
-
-                <div
-                  style={{
-                    marginTop: '12px',
-                    paddingLeft: '16px',
-                    borderLeft: '2px solid #ff2d7b',
-                    paddingTop: '8px',
-                    paddingBottom: '8px',
-                  }}
-                >
-                  <p style={{ color: '#a855f7', fontStyle: 'italic', fontSize: '11px', textTransform: 'none' }}>
-                    "decentralization is the only way to ensure ai
-                    <br />
-                    remains a public utility."
-                  </p>
-                </div>
-              </div>
-            </CyberTerminal>
+          {/* Bottom: Terminal */}
+          <ScrollReveal animation="fadeUp" delay={600} className="w-full max-w-[900px]">
+            <div style={{ pointerEvents: 'auto' }}>
+              <Terminal
+              commands={[
+                "npx gptee@latest init",
+                "npm install motion",
+                "npx gptee@latest compile",
+                "establishing p2p mesh connection...",
+                "connecting to genesis-node-01...",
+                "establishing shard replication...",
+                "Start P2P Node",
+              ]}
+              outputs={{
+                0: [
+                  "✔ Distributed network checks passed.",
+                  "✔ Created components.json",
+                  "✔ Initialized GPTEE node.",
+                ],
+                1: ["added 1 package in 2.1s"],
+                2: ["✔ Done. Compiled ZK-proofs, model weights."],
+                3: ["looking for peers..."],
+                4: ["connected. latency: 24ms"],
+                5: ["replication successful.", "syncing state root: 0x9f8...a1b"],
+              }}
+              typingSpeed={45}
+              delayBetweenCommands={1000}
+            />
+            </div>
           </ScrollReveal>
         </div>
 
@@ -288,7 +267,18 @@ export const Home = () => {
           FEATURES SECTION — HoloCards
           ═══════════════════════════════════════ */}
       <section style={{ padding: '120px 24px', position: 'relative' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <Aurora colors={['#ff2d7b', '#00f0ff', '#a855f7']} speed={0.5} opacity={0.12} />
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background:
+              'radial-gradient(ellipse at center, rgba(10,10,15,0.35) 0%, rgba(10,10,15,0.9) 75%, rgba(10,10,15,0.98) 100%)',
+            pointerEvents: 'none',
+          }}
+        />
+
+        <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
           {/* Section Header */}
           <ScrollReveal animation="fadeUp">
             <div style={{ textAlign: 'center', marginBottom: '64px' }}>
@@ -316,7 +306,13 @@ export const Home = () => {
                   marginBottom: '12px',
                 }}
               >
-                Built Different
+                <SplitText
+                  text="Built Different"
+                  splitBy="chars"
+                  animation="perspective"
+                  trigger="scroll"
+                  staggerDelay={28}
+                />
               </h2>
               <p style={{ color: '#888899', fontSize: '14px', maxWidth: '500px', margin: '0 auto', textTransform: 'lowercase' }}>
                 every component of gptee is engineered for decentralization, privacy, and scale.
@@ -352,7 +348,7 @@ export const Home = () => {
               <HoloCard
                 icon={
                   <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 0 0 014 0z" />
                   </svg>
                 }
                 title="community powered"
