@@ -182,13 +182,13 @@ export const Home = () => {
           </div>
 
           {/* Right: Terminal */}
-          <ScrollReveal animation="fadeRight" delay={600} className="hidden lg:block" style={{ pointerEvents: 'auto' }}>
+          <ScrollReveal animation="fadeRight" delay={600} className="hidden lg:block">
             <CyberTerminal
               title="active_instances"
               subtitle={activeInstances.toLocaleString()}
               accentColor="#ff2d7b"
             >
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', textTransform: 'lowercase' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', textTransform: 'lowercase', pointerEvents: 'auto' }}>
                 {[
                   { num: '01', text: 'connecting to genesis-node-a...', color: '#888899', pulse: true },
                   { num: '02', text: 'peer handshaking successful.', color: '#b8ff00', pulse: false },

@@ -8,6 +8,7 @@ import { Nodes } from './pages/Nodes';
 import { P2PNetwork } from './pages/P2PNetwork';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { TermsAndConditions } from './pages/TermsAndConditions';
+import GradualBlur from './components/reactbits/GradualBlur';
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -42,6 +43,17 @@ function App() {
             </Routes>
           </main>
           <Footer />
+          <GradualBlur
+            target="page"
+            position="bottom"
+            height="7rem"
+            strength={2}
+            divCount={5}
+            curve="bezier"
+            exponential={true}
+            opacity={1}
+            zIndex={50}
+          />
         </div>
       </Router>
     </>
