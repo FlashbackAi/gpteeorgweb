@@ -362,6 +362,103 @@ export const Home = () => {
       </section>
 
       {/* ═══════════════════════════════════════
+          PRIVACY SECTION — Magic Rings
+          ═══════════════════════════════════════ */}
+      <section
+        style={{
+          position: 'relative',
+          height: '100vh',
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'hidden',
+          background: '#0a0a0f',
+        }}
+      >
+        <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
+          <MagicRings
+            color="#A855F7"
+            colorTwo="#6366F1"
+            ringCount={6}
+            speed={1}
+            attenuation={10}
+            lineThickness={2}
+            baseRadius={0.35}
+            radiusStep={0.1}
+            scaleRate={0.1}
+            opacity={1}
+            blur={0}
+            noiseAmount={0.1}
+            rotation={0}
+            ringGap={1.5}
+            fadeIn={0.7}
+            fadeOut={0.5}
+            followMouse={true}
+            mouseInfluence={0.2}
+            hoverScale={1.2}
+            parallax={0.05}
+            clickBurst={true}
+          />
+        </div>
+
+        {/* Animated Privacy Text */}
+        <div
+          style={{
+            position: 'relative',
+            zIndex: 1,
+            textAlign: 'center',
+            pointerEvents: 'none',
+          }}
+        >
+          <ScrollReveal animation="scaleIn" duration={1200}>
+            <h2
+              style={{
+                fontFamily: 'Orbitron, sans-serif',
+                fontSize: 'clamp(3rem, 10vw, 8rem)',
+                fontWeight: 900,
+                textTransform: 'uppercase',
+                letterSpacing: '0.4em',
+                margin: 0,
+                paddingLeft: '0.4em', // Offset for letter spacing centering
+              }}
+            >
+              <GlitchText
+                text="PRIVACY"
+                speed={80}
+                enableShadow={true}
+                className="text-white opacity-90"
+              />
+            </h2>
+            <div
+              style={{
+                fontFamily: 'JetBrains Mono, monospace',
+                fontSize: '12px',
+                color: '#a0a0b5',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5em',
+                marginTop: '20px',
+                opacity: 0.6,
+              }}
+            >
+              ── zero knowledge inference ──
+            </div>
+          </ScrollReveal>
+        </div>
+
+        {/* Subtle overlay to blend rings */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'radial-gradient(circle at center, transparent 0%, rgba(10,10,15,0.4) 100%)',
+            pointerEvents: 'none',
+            zIndex: 0,
+          }}
+        />
+      </section>
+
+      {/* ═══════════════════════════════════════
           BENEFITS SECTION — 3 Pillars
           ═══════════════════════════════════════ */}
       <section style={{ padding: '80px 24px', position: 'relative' }}>
