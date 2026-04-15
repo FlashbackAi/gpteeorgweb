@@ -13,6 +13,7 @@ import { NeonButton } from '../components/NeonButton';
 import { ScrollReveal } from '../components/ScrollReveal';
 import { StatsCounter } from '../components/StatsCounter';
 import { CardSpotlight } from '../components/ui/card-spotlight';
+import { NetworkGlobeSection } from '../components/NetworkGlobeSection';
 
 export const Home = () => {
 
@@ -604,6 +605,11 @@ export const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* ═══════════════════════════════════════
+          GLOBAL NETWORK GLOBE SECTION
+          ═══════════════════════════════════════ */}
+      <NetworkGlobeSection />
 
       {/* ═══════════════════════════════════════
           NETWORK VISUALIZATION SECTION
