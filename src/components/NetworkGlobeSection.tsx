@@ -73,9 +73,10 @@ interface StatBoxProps {
   color: string;
   visible: boolean;
   delay?: number;
+  offset?: number;
 }
 
-function StatBox({ value, suffix, label, color, visible, delay = 0 }: StatBoxProps) {
+function StatBox({ value, suffix, label, color, visible, delay = 0, offset = 0 }: StatBoxProps) {
   const [triggered, setTriggered] = useState(false);
 
   useEffect(() => {
@@ -91,18 +92,82 @@ function StatBox({ value, suffix, label, color, visible, delay = 0 }: StatBoxPro
         flexDirection: 'column',
         alignItems: 'center',
         padding: '16px 20px',
-        background: 'rgba(255,255,255,0.03)',
-        border: `1px solid ${color}25`,
+        background: 'rgba(255,255,255,0.02)',
+        border: `1px solid ${color}30`,
         borderRadius: '8px',
         position: 'relative',
         flex: 1,
+        boxShadow: `0 0 20px ${color}10, inset 0 0 20px ${color}05`,
+        transition: 'all 0.3s ease',
+        transform: `translateY(${offset}px)`,
       }}
     >
+      {/* Top glow line */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: '10%',
+          right: '10%',
+          height: '1px',
+          background: `linear-gradient(90deg, transparent, ${color}, transparent)`,
+          opacity: 0.6,
+        }}
+      />
+      {/* Corner accents */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '-1px',
+          left: '-1px',
+          width: '8px',
+          height: '8px',
+          borderTop: `1px solid ${color}`,
+          borderLeft: `1px solid ${color}`,
+          borderRadius: '2px 0 0 0',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          top: '-1px',
+          right: '-1px',
+          width: '8px',
+          height: '8px',
+          borderTop: `1px solid ${color}`,
+          borderRight: `1px solid ${color}`,
+          borderRadius: '0 2px 0 0',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '-1px',
+          left: '-1px',
+          width: '8px',
+          height: '8px',
+          borderBottom: `1px solid ${color}`,
+          borderLeft: `1px solid ${color}`,
+          borderRadius: '0 0 0 2px',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '-1px',
+          right: '-1px',
+          width: '8px',
+          height: '8px',
+          borderBottom: `1px solid ${color}`,
+          borderRight: `1px solid ${color}`,
+          borderRadius: '0 0 2px 0',
+        }}
+      />
       <div
         style={{
           position: 'absolute',
           inset: 0,
-          background: `radial-gradient(ellipse at center top, ${color}08 0%, transparent 70%)`,
+          background: `radial-gradient(ellipse at center top, ${color}10 0%, transparent 60%)`,
           borderRadius: '8px',
           pointerEvents: 'none',
         }}
@@ -282,6 +347,50 @@ export function NetworkGlobeSection() {
         }}
       />
 
+      {/* Massive ambient glow spanning entire section */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          width: '1200px',
+          height: '1000px',
+          transform: 'translate(-50%, -50%)',
+          background: 'radial-gradient(ellipse at center, rgba(0,240,255,0.15) 0%, rgba(168,85,247,0.1) 40%, transparent 70%)',
+          pointerEvents: 'none',
+          filter: 'blur(80px)',
+        }}
+      />
+
+      {/* Bridge glow - connects left to right */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '30%',
+          right: '30%',
+          height: '600px',
+          transform: 'translateY(-50%)',
+          background: 'linear-gradient(90deg, rgba(0,240,255,0.08) 0%, rgba(168,85,247,0.12) 50%, rgba(0,240,255,0.08) 100%)',
+          pointerEvents: 'none',
+          filter: 'blur(60px)',
+        }}
+      />
+
+      {/* Vertical blend gradient */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '0',
+          bottom: '0',
+          left: '45%',
+          width: '200px',
+          background: 'linear-gradient(90deg, transparent 0%, rgba(0,240,255,0.06) 50%, transparent 100%)',
+          pointerEvents: 'none',
+          filter: 'blur(30px)',
+        }}
+      />
+
       {/* Top edge glow - REMOVED border by commenting out or removing */}
       {/* 
       <div
@@ -378,11 +487,15 @@ export function NetworkGlobeSection() {
           <ScrollReveal animation="fadeUp" delay={160}>
             <p
               style={{
-                fontSize: '14px',
-                lineHeight: 1.8,
-                color: '#a0a0b5',
-                textTransform: 'lowercase',
+                fontFamily: 'Space Grotesk, sans-serif',
+                fontSize: '15px',
+                lineHeight: 1.7,
+                letterSpacing: '0.02em',
                 maxWidth: '440px',
+                background: 'linear-gradient(135deg, #c0c0d0 0%, #a0a0b5 50%, #8888a0 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                textShadow: '0 0 30px rgba(0,240,255,0.1)',
               }}
             >
               powering the next generation of ai with a globally distributed 
@@ -401,6 +514,7 @@ export function NetworkGlobeSection() {
                 color="#00f0ff"
                 visible={sectionVisible}
                 delay={0}
+                offset={0}
               />
               <StatBox
                 value={63}
@@ -409,6 +523,7 @@ export function NetworkGlobeSection() {
                 color="#a855f7"
                 visible={sectionVisible}
                 delay={200}
+                offset={-28}
               />
               <StatBox
                 value={99}
@@ -417,6 +532,7 @@ export function NetworkGlobeSection() {
                 color="#b8ff00"
                 visible={sectionVisible}
                 delay={400}
+                offset={20}
               />
             </div>
           </ScrollReveal>
@@ -433,10 +549,118 @@ export function NetworkGlobeSection() {
             <div
               style={{
                 position: 'absolute',
-                inset: '-20px',
-                background: 'radial-gradient(ellipse at center, #00f0ff08 0%, #a855f705 40%, transparent 70%)',
+                inset: '-40px',
+                background: 'radial-gradient(ellipse at center, #00f0ff15 0%, #a855f710 30%, transparent 70%)',
                 pointerEvents: 'none',
                 borderRadius: '50%',
+              }}
+            />
+
+            {/* Blend glow - connects globe to text section */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '-200px',
+                width: '400px',
+                height: '600px',
+                transform: 'translateY(-50%)',
+                background: 'linear-gradient(90deg, rgba(0,240,255,0.12) 0%, rgba(168,85,247,0.08) 50%, transparent 100%)',
+                pointerEvents: 'none',
+                filter: 'blur(60px)',
+              }}
+            />
+
+            {/* Secondary blend from globe */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '20%',
+                left: '-150px',
+                width: '300px',
+                height: '300px',
+                background: 'radial-gradient(ellipse at center, rgba(0,240,255,0.15) 0%, transparent 70%)',
+                pointerEvents: 'none',
+                filter: 'blur(40px)',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                bottom: '20%',
+                left: '-150px',
+                width: '300px',
+                height: '300px',
+                background: 'radial-gradient(ellipse at center, rgba(168,85,247,0.12) 0%, transparent 70%)',
+                pointerEvents: 'none',
+                filter: 'blur(40px)',
+              }}
+            />
+
+            {/* Floating data particles - span blend area */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '15%',
+                left: '-120px',
+                width: '4px',
+                height: '4px',
+                background: '#00f0ff',
+                borderRadius: '50%',
+                boxShadow: '0 0 15px #00f0ff',
+                animation: 'floatParticleWide 5s ease-in-out infinite',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                top: '55%',
+                left: '-100px',
+                width: '3px',
+                height: '3px',
+                background: '#a855f7',
+                borderRadius: '50%',
+                boxShadow: '0 0 12px #a855f7',
+                animation: 'floatParticleWide 6s ease-in-out infinite 1s',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                top: '35%',
+                left: '-140px',
+                width: '2px',
+                height: '2px',
+                background: '#b8ff00',
+                borderRadius: '50%',
+                boxShadow: '0 0 10px #b8ff00',
+                animation: 'floatParticleWide 4.5s ease-in-out infinite 0.5s',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                top: '75%',
+                left: '-90px',
+                width: '3px',
+                height: '3px',
+                background: '#00f0ff',
+                borderRadius: '50%',
+                boxShadow: '0 0 8px #00f0ff',
+                animation: 'floatParticleWide 5.5s ease-in-out infinite 2s',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                top: '25%',
+                left: '-70px',
+                width: '2px',
+                height: '2px',
+                background: '#ff2d7b',
+                borderRadius: '50%',
+                boxShadow: '0 0 10px #ff2d7b',
+                animation: 'floatParticleWide 4s ease-in-out infinite 1.5s',
               }}
             />
 
@@ -531,7 +755,7 @@ export function NetworkGlobeSection() {
             <Globe3D
               markers={networkNodes}
               config={globeConfig}
-              className="h-[620px] w-full"
+              className="h-[560px] w-full"
               onMarkerHover={setHoveredMarker}
               onMarkerClick={(marker) => {
                 const node = networkNodes.find((n) => n.label === marker.label);
@@ -547,6 +771,26 @@ export function NetworkGlobeSection() {
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(4px); }
           to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes floatParticle {
+          0%, 100% {
+            opacity: 0.3;
+            transform: translateX(0) translateY(0) scale(1);
+          }
+          50% {
+            opacity: 1;
+            transform: translateX(-20px) translateY(-10px) scale(1.2);
+          }
+        }
+        @keyframes floatParticleWide {
+          0%, 100% {
+            opacity: 0.2;
+            transform: translateX(0) translateY(0) scale(1);
+          }
+          50% {
+            opacity: 0.9;
+            transform: translateX(-80px) translateY(-20px) scale(1.3);
+          }
         }
         @media (max-width: 768px) {
           .network-globe-grid {
