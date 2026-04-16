@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { animate } from 'animejs';
+import Counter from './Counter';
 
 interface StatsCounterProps {
   value: number;
@@ -18,9 +19,9 @@ export const StatsCounter = ({
   color = '#ff2d7b',
   duration = 2000,
 }: StatsCounterProps) => {
-  const [displayValue, setDisplayValue] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const hasAnimated = useRef(false);
+  const [isIntersecting, setIsIntersecting] = useState(false);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -30,14 +31,7 @@ export const StatsCounter = ({
         entries.forEach((entry) => {
           if (entry.isIntersecting && !hasAnimated.current) {
             hasAnimated.current = true;
-
-            const counter = { val: 0 };
-            animate(counter, {
-              val: value,
-              duration,
-              easing: 'easeOutExpo',
-              onUpdate: () => setDisplayValue(Math.round(counter.val)),
-            });
+            setIsIntersecting(true);
 
             // Entrance animation
             animate(containerRef.current!, {
@@ -65,20 +59,51 @@ export const StatsCounter = ({
         textAlign: 'center',
         opacity: 0,
         padding: '1rem',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
       }}
     >
       <div
         style={{
-          fontFamily: 'Orbitron, sans-serif',
-          fontSize: 'clamp(1.5rem, 3vw, 2.5rem)',
-          fontWeight: 800,
+          display: 'flex',
+          alignItems: 'baseline',
           color,
           textShadow: `0 0 10px ${color}60, 0 0 20px ${color}30`,
           lineHeight: 1,
           marginBottom: '0.5rem',
         }}
       >
-        {prefix}{displayValue.toLocaleString()}{suffix}
+        {prefix && (
+          <span style={{ 
+            fontFamily: 'Nevera, Orbitron, sans-serif', 
+            fontSize: 'clamp(2rem, 4vw, 3rem)',
+            fontWeight: 900 
+          }}>
+            {prefix}
+          </span>
+        )}
+        <Counter
+          value={isIntersecting ? value : 0}
+          fontSize={60} // Matches the screenshot better
+          padding={0}
+          gap={2}
+          textColor={color}
+          fontWeight={900}
+          containerStyle={{ fontFamily: 'Nevera, Orbitron, sans-serif' }}
+          gradientFrom="rgba(18, 16, 26, 0.7)"
+          gradientTo="transparent"
+        />
+        {suffix && (
+          <span style={{ 
+            fontFamily: 'Nevera, Orbitron, sans-serif', 
+            fontSize: 'clamp(2rem, 4vw, 3rem)',
+            fontWeight: 900 
+          }}>
+            {suffix}
+          </span>
+        )}
       </div>
       <div
         style={{

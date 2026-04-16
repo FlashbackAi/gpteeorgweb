@@ -1,18 +1,20 @@
-
 import { GlitchText } from '../components/reactbits/GlitchText';
 import { SplitText } from '../components/reactbits/SplitText';
-import { LetterGlitch } from '../components/reactbits/LetterGlitch';
 import Dither from '../components/reactbits/Dither';
 import { Aurora } from '../components/reactbits/Aurora';
+import FuzzyText from '../components/FuzzyText';
+import GridMotion from '../components/reactbits/GridMotion';
+import ScrollFloat from '../components/reactbits/ScrollFloat';
+import Noise from '../components/reactbits/Noise';
 import MagicRings from '../components/reactbits/MagicRings';
 import { ParticleNetwork } from '../components/ParticleNetwork';
-import { HoloCard } from '../components/HoloCard';
+import DecayCard from '../components/DecayCard';
+import ElectricBorder from '../components/ElectricBorder';
 import { CyberTerminal } from '../components/CyberTerminal';
 import { Terminal } from '../components/ui/terminal';
 import { NeonButton } from '../components/NeonButton';
 import { ScrollReveal } from '../components/ScrollReveal';
 import { StatsCounter } from '../components/StatsCounter';
-import { CardSpotlight } from '../components/ui/card-spotlight';
 import { NetworkGlobeSection } from '../components/NetworkGlobeSection';
 
 export const Home = () => {
@@ -179,7 +181,7 @@ export const Home = () => {
 
           {/* Bottom: Terminal */}
           <ScrollReveal animation="fadeUp" delay={600} className="w-full max-w-[900px]">
-            <div style={{ pointerEvents: 'auto' }}>
+            <div style={{ pointerEvents: 'auto', marginBottom: '40px' }}>
               <Terminal
               commands={[
                 "npx gptee@latest init",
@@ -207,6 +209,51 @@ export const Home = () => {
             />
             </div>
           </ScrollReveal>
+
+          {/* ═══════════════════════════════════════
+              STATS BAR — Integrated into Hero
+              ═══════════════════════════════════════ */}
+          <ScrollReveal animation="fadeUp" delay={800} className="w-full">
+            <div
+              style={{
+                position: 'relative',
+                maxWidth: '1000px',
+                width: '100%',
+                pointerEvents: 'auto',
+              }}
+            >
+              {/* Angled Border Glow */}
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: '-1px',
+                  background: 'linear-gradient(90deg, transparent, rgba(255,45,123,0.3), rgba(0,240,255,0.3), transparent)',
+                  clipPath: 'polygon(5% 0, 95% 0, 100% 50%, 95% 100%, 5% 100%, 0 50%)',
+                  zIndex: -1,
+                }}
+              />
+              
+              <div
+                style={{
+                  background: 'rgba(10, 10, 15, 0.6)',
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255,45,123,0.15)',
+                  clipPath: 'polygon(5% 0, 95% 0, 100% 50%, 95% 100%, 5% 100%, 0 50%)',
+                  padding: '20px 60px',
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(4, 1fr)',
+                  gap: '20px',
+                  position: 'relative',
+                }}
+              >
+                <StatsCounter value={4921} label="Active Nodes" color="#ff2d7b" suffix="+" />
+                <StatsCounter value={60} label="Countries" color="#00f0ff" suffix="+" />
+                <StatsCounter value={99} label="Uptime" color="#b8ff00" suffix="%" prefix="" />
+                <StatsCounter value={12} label="Models Live" color="#a855f7" />
+              </div>
+            </div>
+          </ScrollReveal>
         </div>
 
         {/* Scroll indicator */}
@@ -232,39 +279,6 @@ export const Home = () => {
       </section>
 
       {/* ═══════════════════════════════════════
-          STATS BAR — Floating Glassmorphism
-          ═══════════════════════════════════════ */}
-      <section
-        style={{
-          position: 'relative',
-          padding: '0 24px',
-          marginTop: '-40px',
-          zIndex: 10,
-        }}
-      >
-        <div
-          style={{
-            maxWidth: '900px',
-            margin: '0 auto',
-            background: 'rgba(18, 16, 26, 0.7)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            border: '1px solid rgba(255,45,123,0.1)',
-            borderRadius: '12px',
-            padding: '20px',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-            gap: '16px',
-          }}
-        >
-          <StatsCounter value={4921} label="Active Nodes" color="#ff2d7b" suffix="+" />
-          <StatsCounter value={60} label="Countries" color="#00f0ff" suffix="+" />
-          <StatsCounter value={99} label="Uptime" color="#b8ff00" suffix="%" prefix="" />
-          <StatsCounter value={12} label="Models Live" color="#a855f7" />
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════
           FEATURES SECTION — HoloCards
           ═══════════════════════════════════════ */}
       <section style={{ padding: '120px 24px', position: 'relative' }}>
@@ -282,40 +296,53 @@ export const Home = () => {
         <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
           {/* Section Header */}
           <ScrollReveal animation="fadeUp">
-            <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '80px' }}>
               <div
                 style={{
                   fontFamily: 'JetBrains Mono, monospace',
-                  fontSize: '10px',
+                  fontSize: '11px',
                   color: '#ff2d7b',
                   textTransform: 'uppercase',
-                  letterSpacing: '0.2em',
-                  marginBottom: '12px',
+                  letterSpacing: '0.3em',
+                  marginBottom: '16px',
+                  opacity: 0.8,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '12px'
                 }}
               >
-                ── core infrastructure ──
+                <span style={{ width: '20px', height: '1px', background: 'linear-gradient(90deg, transparent, #ff2d7b)' }} />
+                decentralized stack
+                <span style={{ width: '20px', height: '1px', background: 'linear-gradient(90deg, #ff2d7b, transparent)' }} />
               </div>
-              <h2
+              <div
                 style={{
-                  fontFamily: 'Orbitron, sans-serif',
-                  fontSize: 'clamp(1.5rem, 3vw, 2.2rem)',
-                  fontWeight: 800,
-                  textTransform: 'uppercase',
-                  background: 'linear-gradient(135deg, #ff2d7b, #00f0ff)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  marginBottom: '12px',
+                  marginBottom: '20px',
+                  display: 'flex',
+                  justifyContent: 'center',
                 }}
               >
-                <SplitText
-                  text="Built Different"
-                  splitBy="chars"
-                  animation="perspective"
-                  trigger="scroll"
-                  staggerDelay={28}
-                />
-              </h2>
-              <p style={{ color: '#888899', fontSize: '14px', maxWidth: '500px', margin: '0 auto', textTransform: 'lowercase' }}>
+                <FuzzyText 
+                  baseIntensity={0.50}
+                  hoverIntensity={0.5}
+                  enableHover
+                  fontFamily="Nevera"
+                  fontSize="clamp(2rem, 5vw, 4rem)"
+                  color="#fff"
+                >
+                  CORE INFRASTRUCTURE
+                </FuzzyText>
+              </div>
+              <p style={{ 
+                color: '#a0a0b5', 
+                fontSize: '15px', 
+                maxWidth: '600px', 
+                margin: '0 auto', 
+                textTransform: 'lowercase',
+                lineHeight: 1.7,
+                fontFamily: 'Space Grotesk, sans-serif'
+              }}>
                 every component of gptee is engineered for decentralization, privacy, and scale.
               </p>
             </div>
@@ -325,38 +352,118 @@ export const Home = () => {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-              gap: '24px',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+              gap: '32px',
+              maxWidth: '1200px',
+              margin: '0 auto',
+              width: '100%',
+              justifyContent: 'center'
             }}
           >
             <ScrollReveal animation="fadeUp" delay={0}>
-              <HoloCard
-                icon={
-                  <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                  </svg>
-                }
-                title="decentralized ai infrastructure"
-                description="operate on a peer-to-peer mesh where thousands of nodes contribute compute power to run massive ai models without central authority."
-                moduleId="001_core_infra"
-                link="/p2p-network"
-                linkText="read protocol"
-                accentColor="#ff2d7b"
-              />
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <ElectricBorder
+                  color="#ff2d7b"
+                  speed={1}
+                  chaos={0.12}
+                  borderRadius={12}
+                  style={{ transform: 'translateY(40px) rotate(-3deg)' }}
+                >
+                  <DecayCard 
+                    width={340} 
+                    height={460} 
+                    image="/P2P.png"
+                    baseFrequency={0.012}
+                    numOctaves={6}
+                    maxDisplacement={300}
+                  >
+                    <div style={{ color: 'white' }}>
+                      <h3 style={{ 
+                        fontFamily: 'Nevera, sans-serif', 
+                        fontSize: '2.2rem', 
+                        lineHeight: 1.1,
+                        marginBottom: '0.75rem',
+                        color: '#ff2d7b'
+                      }}>
+                        P2P<br/>MESH
+                      </h3>
+                      <p style={{ fontSize: '13px', color: '#a0a0b5', textTransform: 'lowercase', lineHeight: 1.6 }}>
+                        decentralized infrastructure where nodes contribute compute power directly.
+                      </p>
+                    </div>
+                  </DecayCard>
+                </ElectricBorder>
+              </div>
             </ScrollReveal>
 
             <ScrollReveal animation="fadeUp" delay={150}>
-              <HoloCard
-                icon={
-                  <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 0 0 014 0z" />
-                  </svg>
-                }
-                title="community powered"
-                description="every node is owned and operated by individuals like you. no corporate gatekeepers, no proprietary black boxes. pure open-source mesh."
-                moduleId="002_community"
-                accentColor="#00f0ff"
-              />
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <ElectricBorder
+                  color="#00f0ff"
+                  speed={1}
+                  chaos={0.12}
+                  borderRadius={12}
+                  style={{ transform: 'translateY(-35px) rotate(2.5deg)' }}
+                >
+                  <DecayCard 
+                    width={340} 
+                    height={460} 
+                    image="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop"
+                    baseFrequency={0.015}
+                    seed={42}
+                  >
+                    <div style={{ color: 'white' }}>
+                      <h3 style={{ 
+                        fontFamily: 'Nevera, sans-serif', 
+                        fontSize: '2.2rem', 
+                        lineHeight: 1.1,
+                        marginBottom: '0.75rem',
+                        color: '#00f0ff'
+                      }}>
+                        GLOBAL<br/>NODES
+                      </h3>
+                      <p style={{ fontSize: '13px', color: '#a0a0b5', textTransform: 'lowercase', lineHeight: 1.6 }}>
+                        thousands of community-operated nodes across 60+ countries.
+                      </p>
+                    </div>
+                  </DecayCard>
+                </ElectricBorder>
+              </div>
+            </ScrollReveal>
+
+            <ScrollReveal animation="fadeUp" delay={300}>
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <ElectricBorder
+                  color="#b8ff00"
+                  speed={1}
+                  chaos={0.12}
+                  borderRadius={12}
+                  style={{ transform: 'translateY(55px) rotate(-1.5deg)' }}
+                >
+                  <DecayCard 
+                    width={340} 
+                    height={460} 
+                    image="https://images.unsplash.com/photo-1639322537228-f710d846310a?q=80&w=2070&auto=format&fit=crop"
+                    baseFrequency={0.02}
+                    numOctaves={4}
+                  >
+                    <div style={{ color: 'white' }}>
+                      <h3 style={{ 
+                      fontFamily: 'Nevera, sans-serif', 
+                        fontSize: '2.2rem', 
+                        lineHeight: 1.1,
+                        marginBottom: '0.75rem',
+                        color: '#b8ff00'
+                      }}>
+                        ZK<br/>PROOF
+                      </h3>
+                      <p style={{ fontSize: '13px', color: '#a0a0b5', textTransform: 'lowercase', lineHeight: 1.6 }}>
+                        zero-knowledge encrypted inference ensuring total data privacy.
+                      </p>
+                    </div>
+                  </DecayCard>
+                </ElectricBorder>
+              </div>
             </ScrollReveal>
           </div>
         </div>
@@ -460,156 +567,218 @@ export const Home = () => {
       </section>
 
       {/* ═══════════════════════════════════════
-          BENEFITS SECTION — 3 Pillars
+          SYSTEM CAPABILITIES — Grid Motion
           ═══════════════════════════════════════ */}
-      <section style={{ padding: '80px 24px', position: 'relative' }}>
-        {/* Subtle background */}
-        <div style={{ position: 'absolute', inset: 0, opacity: 0.3 }}>
-          <LetterGlitch
-            glitchColors={['#ff2d7b20', '#00f0ff15', '#a855f710']}
-            glitchSpeed={100}
-            smooth={true}
+      <section style={{ position: 'relative', minHeight: '100vh', height: 'auto', overflow: 'hidden', background: '#0a0a0f', padding: '100px 0' }}>
+        {/* Top Transition Gradient */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '200px', background: 'linear-gradient(to bottom, #0a0a0f, transparent)', zIndex: 10, pointerEvents: 'none' }} />
+        
+        {/* Full-section noise overlay - subtle base layer */}
+        <div style={{ position: 'absolute', inset: 0, zIndex: 5, pointerEvents: 'none' }}>
+          <Noise 
+            patternRefreshInterval={1} 
+            patternAlpha={25} 
+            patternScaleX={2} 
+            patternScaleY={2} 
+            patternSize={250} 
+          />
+        </div>
+        <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
+          <GridMotion 
+            items={[
+              // Row 1: Privacy Theme (Repeated)
+              <div key="p1" style={{ textAlign: 'left', padding: '20px' }}>
+                <div style={{ fontFamily: 'Nevera', color: '#ff2d7b', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>PRIVATE BY DEFAULT</div>
+                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>end-to-end encrypted requests ensure your data never touches a central server.</p>
+              </div>,
+              <div key="p2" style={{ textAlign: 'left', padding: '20px' }}>
+                <div style={{ fontFamily: 'Nevera', color: '#ff2d7b', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>PRIVATE BY DEFAULT</div>
+                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>end-to-end encrypted requests ensure your data never touches a central server.</p>
+              </div>,
+              <div key="p3" style={{ textAlign: 'left', padding: '20px' }}>
+                <div style={{ fontFamily: 'Nevera', color: '#ff2d7b', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>PRIVATE BY DEFAULT</div>
+                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>end-to-end encrypted requests ensure your data never touches a central server.</p>
+              </div>,
+              <div key="p4" style={{ textAlign: 'left', padding: '20px' }}>
+                <div style={{ fontFamily: 'Nevera', color: '#ff2d7b', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>PRIVATE BY DEFAULT</div>
+                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>end-to-end encrypted requests ensure your data never touches a central server.</p>
+              </div>,
+              <div key="p5" style={{ textAlign: 'left', padding: '20px' }}>
+                <div style={{ fontFamily: 'Nevera', color: '#ff2d7b', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>PRIVATE BY DEFAULT</div>
+                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>end-to-end encrypted requests ensure your data never touches a central server.</p>
+              </div>,
+              <div key="p6" style={{ textAlign: 'left', padding: '20px' }}>
+                <div style={{ fontFamily: 'Nevera', color: '#ff2d7b', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>PRIVATE BY DEFAULT</div>
+                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>end-to-end encrypted requests ensure your data never touches a central server.</p>
+              </div>,
+              <div key="p7" style={{ textAlign: 'left', padding: '20px' }}>
+                <div style={{ fontFamily: 'Nevera', color: '#ff2d7b', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>PRIVATE BY DEFAULT</div>
+                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>end-to-end encrypted requests ensure your data never touches a central server.</p>
+              </div>,
+              
+              // Row 2: Efficiency Theme (Repeated)
+              <div key="e1" style={{ textAlign: 'left', padding: '20px' }}>
+                <div style={{ fontFamily: 'Nevera', color: '#00f0ff', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>HIGH EFFICIENCY</div>
+                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>optimized model sharding allows gptee to run effectively even on consumer-grade hardware.</p>
+              </div>,
+              <div key="e2" style={{ textAlign: 'left', padding: '20px' }}>
+                <div style={{ fontFamily: 'Nevera', color: '#00f0ff', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>HIGH EFFICIENCY</div>
+                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>optimized model sharding allows gptee to run effectively even on consumer-grade hardware.</p>
+              </div>,
+              <div key="e3" style={{ textAlign: 'left', padding: '20px' }}>
+                <div style={{ fontFamily: 'Nevera', color: '#00f0ff', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>HIGH EFFICIENCY</div>
+                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>optimized model sharding allows gptee to run effectively even on consumer-grade hardware.</p>
+              </div>,
+              <div key="e4" style={{ textAlign: 'left', padding: '20px' }}>
+                <div style={{ fontFamily: 'Nevera', color: '#00f0ff', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>HIGH EFFICIENCY</div>
+                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>optimized model sharding allows gptee to run effectively even on consumer-grade hardware.</p>
+              </div>,
+              <div key="e5" style={{ textAlign: 'left', padding: '20px' }}>
+                <div style={{ fontFamily: 'Nevera', color: '#00f0ff', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>HIGH EFFICIENCY</div>
+                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>optimized model sharding allows gptee to run effectively even on consumer-grade hardware.</p>
+              </div>,
+              <div key="e6" style={{ textAlign: 'left', padding: '20px' }}>
+                <div style={{ fontFamily: 'Nevera', color: '#00f0ff', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>HIGH EFFICIENCY</div>
+                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>optimized model sharding allows gptee to run effectively even on consumer-grade hardware.</p>
+              </div>,
+              <div key="e7" style={{ textAlign: 'left', padding: '20px' }}>
+                <div style={{ fontFamily: 'Nevera', color: '#00f0ff', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>HIGH EFFICIENCY</div>
+                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>optimized model sharding allows gptee to run effectively even on consumer-grade hardware.</p>
+              </div>,
+
+              // Row 3: Scale Theme (Repeated)
+              <div key="s1" style={{ textAlign: 'left', padding: '20px' }}>
+                <div style={{ fontFamily: 'Nevera', color: '#b8ff00', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>GLOBAL SCALE</div>
+                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>nodes distributed across 60+ countries ensure low latency and high availability.</p>
+              </div>,
+              <div key="s2" style={{ textAlign: 'left', padding: '20px' }}>
+                <div style={{ fontFamily: 'Nevera', color: '#b8ff00', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>GLOBAL SCALE</div>
+                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>nodes distributed across 60+ countries ensure low latency and high availability.</p>
+              </div>,
+              <div key="s3" style={{ textAlign: 'left', padding: '20px' }}>
+                <div style={{ fontFamily: 'Nevera', color: '#b8ff00', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>GLOBAL SCALE</div>
+                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>nodes distributed across 60+ countries ensure low latency and high availability.</p>
+              </div>,
+              <div key="s4" style={{ textAlign: 'left', padding: '20px' }}>
+                <div style={{ fontFamily: 'Nevera', color: '#b8ff00', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>GLOBAL SCALE</div>
+                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>nodes distributed across 60+ countries ensure low latency and high availability.</p>
+              </div>,
+              <div key="s5" style={{ textAlign: 'left', padding: '20px' }}>
+                <div style={{ fontFamily: 'Nevera', color: '#b8ff00', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>GLOBAL SCALE</div>
+                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>nodes distributed across 60+ countries ensure low latency and high availability.</p>
+              </div>,
+              <div key="s6" style={{ textAlign: 'left', padding: '20px' }}>
+                <div style={{ fontFamily: 'Nevera', color: '#b8ff00', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>GLOBAL SCALE</div>
+                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>nodes distributed across 60+ countries ensure low latency and high availability.</p>
+              </div>,
+              <div key="s7" style={{ textAlign: 'left', padding: '20px' }}>
+                <div style={{ fontFamily: 'Nevera', color: '#b8ff00', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>GLOBAL SCALE</div>
+                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>nodes distributed across 60+ countries ensure low latency and high availability.</p>
+              </div>,
+
+              // Row 4: Network Theme (Repeated)
+              <div key="n1" style={{ textAlign: 'left', padding: '20px' }}>
+                <div style={{ fontFamily: 'Nevera', color: '#a855f7', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>GPTEE.ORG</div>
+                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>the leading decentralized p2p ai network for private inference.</p>
+              </div>,
+              <div key="n2" style={{ textAlign: 'left', padding: '20px' }}>
+                <div style={{ fontFamily: 'Nevera', color: '#a855f7', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>GPTEE.ORG</div>
+                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>the leading decentralized p2p ai network for private inference.</p>
+              </div>,
+              <div key="n3" style={{ textAlign: 'left', padding: '20px' }}>
+                <div style={{ fontFamily: 'Nevera', color: '#a855f7', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>GPTEE.ORG</div>
+                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>the leading decentralized p2p ai network for private inference.</p>
+              </div>,
+              <div key="n4" style={{ textAlign: 'left', padding: '20px' }}>
+                <div style={{ fontFamily: 'Nevera', color: '#a855f7', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>GPTEE.ORG</div>
+                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>the leading decentralized p2p ai network for private inference.</p>
+              </div>,
+              <div key="n5" style={{ textAlign: 'left', padding: '20px' }}>
+                <div style={{ fontFamily: 'Nevera', color: '#a855f7', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>GPTEE.ORG</div>
+                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>the leading decentralized p2p ai network for private inference.</p>
+              </div>,
+              <div key="n6" style={{ textAlign: 'left', padding: '20px' }}>
+                <div style={{ fontFamily: 'Nevera', color: '#a855f7', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>GPTEE.ORG</div>
+                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>the leading decentralized p2p ai network for private inference.</p>
+              </div>,
+              <div key="n7" style={{ textAlign: 'left', padding: '20px' }}>
+                <div style={{ fontFamily: 'Nevera', color: '#a855f7', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>GPTEE.ORG</div>
+                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>the leading decentralized p2p ai network for private inference.</p>
+              </div>
+            ]}
           />
         </div>
 
-        <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+        {/* Content Overlay - Much subtler for visibility */}
+        <div style={{ position: 'absolute', inset: 0, zIndex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', pointerEvents: 'none' }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at center, transparent 0%, rgba(10,10,15,0.8) 100%)', zIndex: -1 }} />
+          
+          {/* Glassmorphism Backdrop for Text */}
+          <div 
+            style={{
+              position: 'absolute',
+              width: '100%',
+              height: '240px',
+              background: 'rgba(10, 10, 15, 0.4)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              zIndex: -1,
+              maskImage: 'linear-gradient(to bottom, transparent, black 20%, black 80%, transparent)',
+              WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 20%, black 80%, transparent)',
+              overflow: 'hidden'
+            }}
+          >
+          </div>
+
           <ScrollReveal animation="fadeUp">
-            <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+            <div style={{ textAlign: 'center' }}>
               <div
                 style={{
                   fontFamily: 'JetBrains Mono, monospace',
-                  fontSize: '10px',
+                  fontSize: '11px',
                   color: '#00f0ff',
                   textTransform: 'uppercase',
-                  letterSpacing: '0.2em',
-                  marginBottom: '12px',
+                  letterSpacing: '0.4em',
+                  marginBottom: '24px',
+                  opacity: 0.9,
+                  textShadow: '0 0 10px rgba(0,240,255,0.5)'
                 }}
               >
-                ── system capabilities ──
+                // [system_capabilities_active]
               </div>
-              <h2
+              <div
                 style={{
-                  fontFamily: 'Orbitron, sans-serif',
-                  fontSize: 'clamp(1.5rem, 3vw, 2.2rem)',
-                  fontWeight: 800,
-                  textTransform: 'uppercase',
-                  background: 'linear-gradient(135deg, #00f0ff, #a855f7)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
+                  marginBottom: '20px',
+                  display: 'flex',
+                  justifyContent: 'center',
                 }}
               >
-                Three Pillars
-              </h2>
+                <ScrollFloat
+                  animationDuration={1}
+                  ease='power2.out'
+                  scrollStart='top 90%'
+                  scrollEnd='top 50%'
+                  stagger={0.03}
+                  textClassName="text-white font-['Nevera']"
+                  containerClassName="my-0"
+                >
+                  THREE PILLARS
+                </ScrollFloat>
+              </div>
             </div>
           </ScrollReveal>
-
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: '24px',
-            }}
-          >
-            {[
-              {
-                icon: (
-                  <svg width="36" height="36" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                  </svg>
-                ),
-                title: 'private by default',
-                desc: 'end-to-end encrypted requests ensure your data never touches a central server in plaintext. zero-knowledge inference.',
-                moduleId: 'privacy_001',
-                color: '#ff2d7b',
-              },
-              {
-                icon: (
-                  <svg width="36" height="36" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                ),
-                title: 'high efficiency',
-                desc: 'optimized model sharding allows gptee to run effectively even on consumer-grade hardware. mobile-first architecture.',
-                moduleId: 'efficiency_002',
-                color: '#00f0ff',
-              },
-              {
-                icon: (
-                  <svg width="36" height="36" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                ),
-                title: 'global scale',
-                desc: 'nodes distributed across 60+ countries ensure low latency and high availability worldwide. resilient mesh topology.',
-                moduleId: 'scale_003',
-                color: '#a855f7',
-              },
-            ].map((item, i) => (
-              <ScrollReveal key={i} animation="fadeUp" delay={i * 150}>
-                <CardSpotlight color={item.color} className="h-full">
-                  <div
-                    style={{
-                      height: '100%',
-                      display: 'flex',
-                      flexDirection: 'column',
-                    }}
-                  >
-                    <div
-                      style={{
-                        color: item.color,
-                        marginBottom: '16px',
-                        filter: `drop-shadow(0 0 8px ${item.color}50)`,
-                      }}
-                    >
-                      {item.icon}
-                    </div>
-                    <h3
-                      style={{
-                        fontFamily: 'Orbitron, sans-serif',
-                        fontSize: '16px',
-                        fontWeight: 700,
-                        color: '#fff',
-                        textTransform: 'lowercase',
-                        marginBottom: '12px',
-                        letterSpacing: '0.05em',
-                      }}
-                    >
-                      {item.title}
-                    </h3>
-                    <p
-                      style={{
-                        fontSize: '13px',
-                        lineHeight: 1.7,
-                        color: '#a0a0b5',
-                        textTransform: 'lowercase',
-                        flex: 1,
-                      }}
-                    >
-                      {item.desc}
-                    </p>
-                    <div
-                      style={{
-                        fontFamily: 'JetBrains Mono, monospace',
-                        fontSize: '9px',
-                        color: '#555566',
-                        marginTop: '16px',
-                        textTransform: 'lowercase',
-                      }}
-                    >
-                      module_id: <span style={{ color: item.color }}>{item.moduleId}</span>
-                    </div>
-                  </div>
-                </CardSpotlight>
-              </ScrollReveal>
-            ))}
-          </div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════
           GLOBAL NETWORK GLOBE SECTION
           ═══════════════════════════════════════ */}
-      <NetworkGlobeSection />
+      <div style={{ position: 'relative', marginTop: '-100px', zIndex: 20 }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '200px', background: 'linear-gradient(to bottom, transparent, #0a0a0f)', transform: 'translateY(-100%)', pointerEvents: 'none' }} />
+        <div style={{ background: '#0a0a0f' }}>
+          <NetworkGlobeSection />
+        </div>
+      </div>
 
       {/* ═══════════════════════════════════════
           NETWORK VISUALIZATION SECTION

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Globe3D, GlobeMarker } from './ui/3d-globe';
 import { ScrollReveal } from './ScrollReveal';
+import Counter from './Counter';
 
 // ============================================================================
 // Marker image: SVG data URIs for cyberpunk node types
@@ -62,136 +63,7 @@ const networkNodes: Array<GlobeMarker & { type: keyof typeof NODE_ICONS; city: s
 ];
 
 // ============================================================================
-// Animated counter hook
-// ============================================================================
-
-function useCountUp(target: number, duration: number = 2000, trigger: boolean = false) {
-  const [value, setValue] = useState(0);
-
-  useEffect(() => {
-    if (!trigger) return;
-    const start = Date.now();
-    const tick = () => {
-      const elapsed = Date.now() - start;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setValue(Math.floor(eased * target));
-      if (progress < 1) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-  }, [target, duration, trigger]);
-
-  return value;
-}
-
-// ============================================================================
-// NodeTypeBadge
-// ============================================================================
-
-interface NodeTypeBadgeProps {
-  color: string;
-  label: string;
-  count: string;
-  percent: number;
-  delay?: number;
-  visible: boolean;
-}
-
-function NodeTypeBadge({ color, label, count, percent, delay = 0, visible }: NodeTypeBadgeProps) {
-  const [barWidth, setBarWidth] = useState(0);
-
-  useEffect(() => {
-    if (!visible) return;
-    const timer = setTimeout(() => setBarWidth(percent), delay + 400);
-    return () => clearTimeout(timer);
-  }, [visible, percent, delay]);
-
-  return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '6px',
-        padding: '12px 16px',
-        background: 'rgba(255,255,255,0.03)',
-        border: `1px solid ${color}20`,
-        borderRadius: '6px',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
-      {/* Left accent */}
-      <div
-        style={{
-          position: 'absolute',
-          left: 0,
-          top: 0,
-          bottom: 0,
-          width: '2px',
-          background: color,
-          boxShadow: `0 0 8px ${color}`,
-        }}
-      />
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div
-            style={{
-              width: '6px',
-              height: '6px',
-              borderRadius: '50%',
-              background: color,
-              boxShadow: `0 0 6px ${color}`,
-              animation: 'pulse 2s infinite',
-            }}
-          />
-          <span
-            style={{
-              fontFamily: 'JetBrains Mono, monospace',
-              fontSize: '11px',
-              color: '#a0a0b5',
-              textTransform: 'lowercase',
-            }}
-          >
-            {label}
-          </span>
-        </div>
-        <span
-          style={{
-            fontFamily: 'Orbitron, sans-serif',
-            fontSize: '11px',
-            fontWeight: 700,
-            color,
-          }}
-        >
-          {count}
-        </span>
-      </div>
-      {/* Progress bar */}
-      <div
-        style={{
-          height: '2px',
-          background: 'rgba(255,255,255,0.06)',
-          borderRadius: '1px',
-          overflow: 'hidden',
-        }}
-      >
-        <div
-          style={{
-            height: '100%',
-            width: `${barWidth}%`,
-            background: `linear-gradient(90deg, ${color}80, ${color})`,
-            borderRadius: '1px',
-            transition: 'width 1.2s cubic-bezier(0.23, 1, 0.32, 1)',
-            boxShadow: `0 0 8px ${color}60`,
-          }}
-        />
-      </div>
-    </div>
-  );
-}
-
-// ============================================================================
-// StatBox
+// Main Section
 // ============================================================================
 
 interface StatBoxProps {
@@ -201,11 +73,11 @@ interface StatBoxProps {
   color: string;
   visible: boolean;
   delay?: number;
+  offset?: number;
 }
 
-function StatBox({ value, suffix, label, color, visible, delay = 0 }: StatBoxProps) {
+function StatBox({ value, suffix, label, color, visible, delay = 0, offset = 0 }: StatBoxProps) {
   const [triggered, setTriggered] = useState(false);
-  const count = useCountUp(value, 1800, triggered);
 
   useEffect(() => {
     if (!visible) return;
@@ -220,37 +92,122 @@ function StatBox({ value, suffix, label, color, visible, delay = 0 }: StatBoxPro
         flexDirection: 'column',
         alignItems: 'center',
         padding: '16px 20px',
-        background: 'rgba(255,255,255,0.03)',
-        border: `1px solid ${color}25`,
+        background: 'rgba(255,255,255,0.02)',
+        border: `1px solid ${color}30`,
         borderRadius: '8px',
         position: 'relative',
         flex: 1,
+        boxShadow: `0 0 20px ${color}10, inset 0 0 20px ${color}05`,
+        transition: 'all 0.3s ease',
+        transform: `translateY(${offset}px)`,
       }}
     >
+      {/* Top glow line */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: '10%',
+          right: '10%',
+          height: '1px',
+          background: `linear-gradient(90deg, transparent, ${color}, transparent)`,
+          opacity: 0.6,
+        }}
+      />
+      {/* Corner accents */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '-1px',
+          left: '-1px',
+          width: '8px',
+          height: '8px',
+          borderTop: `1px solid ${color}`,
+          borderLeft: `1px solid ${color}`,
+          borderRadius: '2px 0 0 0',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          top: '-1px',
+          right: '-1px',
+          width: '8px',
+          height: '8px',
+          borderTop: `1px solid ${color}`,
+          borderRight: `1px solid ${color}`,
+          borderRadius: '0 2px 0 0',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '-1px',
+          left: '-1px',
+          width: '8px',
+          height: '8px',
+          borderBottom: `1px solid ${color}`,
+          borderLeft: `1px solid ${color}`,
+          borderRadius: '0 0 0 2px',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '-1px',
+          right: '-1px',
+          width: '8px',
+          height: '8px',
+          borderBottom: `1px solid ${color}`,
+          borderRight: `1px solid ${color}`,
+          borderRadius: '0 0 2px 0',
+        }}
+      />
       <div
         style={{
           position: 'absolute',
           inset: 0,
-          background: `radial-gradient(ellipse at center top, ${color}08 0%, transparent 70%)`,
+          background: `radial-gradient(ellipse at center top, ${color}10 0%, transparent 60%)`,
           borderRadius: '8px',
           pointerEvents: 'none',
         }}
       />
       <div
         style={{
-          fontFamily: 'Orbitron, sans-serif',
-          fontSize: 'clamp(1.4rem, 2.5vw, 1.8rem)',
-          fontWeight: 800,
+          display: 'flex',
+          alignItems: 'baseline',
           color,
           textShadow: `0 0 20px ${color}60`,
           lineHeight: 1,
         }}
       >
-        {count.toLocaleString()}{suffix}
+        <Counter
+          value={triggered ? value : 0}
+          fontSize={32}
+          padding={0}
+          gap={2}
+          textColor={color}
+          fontWeight={800}
+          containerStyle={{ fontFamily: 'Nevera, sans-serif' }}
+          gradientFrom="transparent"
+          gradientTo="transparent"
+        />
+        {suffix && (
+          <span
+            style={{
+              fontFamily: 'Nevera, sans-serif',
+              fontSize: '24px',
+              fontWeight: 800,
+              marginLeft: '2px',
+            }}
+          >
+            {suffix}
+          </span>
+        )}
       </div>
       <div
         style={{
-          fontFamily: 'JetBrains Mono, monospace',
+          fontFamily: 'Space Grotesk, sans-serif',
           fontSize: '9px',
           color: '#555566',
           textTransform: 'uppercase',
@@ -304,7 +261,7 @@ function HoveredNodeInfo({ node }: HoveredNodeInfoProps) {
       <div>
         <div
           style={{
-            fontFamily: 'Orbitron, sans-serif',
+            fontFamily: 'Nevera, sans-serif',
             fontSize: '11px',
             fontWeight: 700,
             color: '#fff',
@@ -315,7 +272,7 @@ function HoveredNodeInfo({ node }: HoveredNodeInfoProps) {
         </div>
         <div
           style={{
-            fontFamily: 'JetBrains Mono, monospace',
+            fontFamily: 'Space Grotesk, sans-serif',
             fontSize: '9px',
             color: typeColor,
             textTransform: 'lowercase',
@@ -390,7 +347,52 @@ export function NetworkGlobeSection() {
         }}
       />
 
-      {/* Top edge glow */}
+      {/* Massive ambient glow spanning entire section */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          width: '1200px',
+          height: '1000px',
+          transform: 'translate(-50%, -50%)',
+          background: 'radial-gradient(ellipse at center, rgba(0,240,255,0.15) 0%, rgba(168,85,247,0.1) 40%, transparent 70%)',
+          pointerEvents: 'none',
+          filter: 'blur(80px)',
+        }}
+      />
+
+      {/* Bridge glow - connects left to right */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '30%',
+          right: '30%',
+          height: '600px',
+          transform: 'translateY(-50%)',
+          background: 'linear-gradient(90deg, rgba(0,240,255,0.08) 0%, rgba(168,85,247,0.12) 50%, rgba(0,240,255,0.08) 100%)',
+          pointerEvents: 'none',
+          filter: 'blur(60px)',
+        }}
+      />
+
+      {/* Vertical blend gradient */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '0',
+          bottom: '0',
+          left: '45%',
+          width: '200px',
+          background: 'linear-gradient(90deg, transparent 0%, rgba(0,240,255,0.06) 50%, transparent 100%)',
+          pointerEvents: 'none',
+          filter: 'blur(30px)',
+        }}
+      />
+
+      {/* Top edge glow - REMOVED border by commenting out or removing */}
+      {/* 
       <div
         style={{
           position: 'absolute',
@@ -401,8 +403,10 @@ export function NetworkGlobeSection() {
           background: 'linear-gradient(90deg, transparent, #00f0ff40, #a855f740, transparent)',
         }}
       />
+      */}
 
-      {/* Bottom edge glow */}
+      {/* Bottom edge glow - REMOVED border by commenting out or removing */}
+      {/*
       <div
         style={{
           position: 'absolute',
@@ -413,6 +417,7 @@ export function NetworkGlobeSection() {
           background: 'linear-gradient(90deg, transparent, #ff2d7b40, #00f0ff40, transparent)',
         }}
       />
+      */}
 
       <div
         style={{
@@ -429,41 +434,12 @@ export function NetworkGlobeSection() {
         {/* ── LEFT: Text content ── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
 
-          {/* Label */}
-          <ScrollReveal animation="fadeUp">
-            <div
-              style={{
-                fontFamily: 'JetBrains Mono, monospace',
-                fontSize: '10px',
-                color: '#00f0ff',
-                textTransform: 'uppercase',
-                letterSpacing: '0.2em',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-              }}
-            >
-              <span
-                style={{
-                  display: 'inline-block',
-                  width: '6px',
-                  height: '6px',
-                  borderRadius: '50%',
-                  background: '#00f0ff',
-                  boxShadow: '0 0 8px #00f0ff',
-                  animation: 'pulse 1.5s ease-in-out infinite',
-                }}
-              />
-              live network status
-            </div>
-          </ScrollReveal>
-
           {/* Headline */}
           <ScrollReveal animation="fadeUp" delay={80}>
             <div>
               <h2
                 style={{
-                  fontFamily: 'Orbitron, sans-serif',
+                  fontFamily: 'Nevera, sans-serif',
                   fontSize: 'clamp(1.8rem, 3.5vw, 2.8rem)',
                   fontWeight: 900,
                   lineHeight: 1.1,
@@ -479,12 +455,12 @@ export function NetworkGlobeSection() {
                     WebkitTextFillColor: 'transparent',
                   }}
                 >
-                  real devices.
+                  DECENTRALIZED COMPUTE.
                 </span>
               </h2>
               <h2
                 style={{
-                  fontFamily: 'Orbitron, sans-serif',
+                  fontFamily: 'Nevera, sans-serif',
                   fontSize: 'clamp(1.8rem, 3.5vw, 2.8rem)',
                   fontWeight: 900,
                   lineHeight: 1.1,
@@ -501,7 +477,7 @@ export function NetworkGlobeSection() {
                     filter: 'drop-shadow(0 0 20px #00f0ff40)',
                   }}
                 >
-                  global reach.
+                  ZERO OVERHEAD.
                 </span>
               </h2>
             </div>
@@ -511,17 +487,20 @@ export function NetworkGlobeSection() {
           <ScrollReveal animation="fadeUp" delay={160}>
             <p
               style={{
-                fontSize: '14px',
-                lineHeight: 1.8,
-                color: '#a0a0b5',
-                textTransform: 'lowercase',
+                fontFamily: 'Space Grotesk, sans-serif',
+                fontSize: '15px',
+                lineHeight: 1.7,
+                letterSpacing: '0.02em',
                 maxWidth: '440px',
+                background: 'linear-gradient(135deg, #c0c0d0 0%, #a0a0b5 50%, #8888a0 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                textShadow: '0 0 30px rgba(0,240,255,0.1)',
               }}
             >
-              every pin on this globe is a real device running the gptee network.
-              from consumer gpus in tokyo to mobile nodes in lagos — the compute
-              is owned by the people, not a corporation. decentralized, encrypted,
-              and always on.
+              powering the next generation of ai with a globally distributed 
+              p2p network. rent high-performance gpus or contribute your 
+              idle compute — encrypted, trustless, and permissionless.
             </p>
           </ScrollReveal>
 
@@ -535,6 +514,7 @@ export function NetworkGlobeSection() {
                 color="#00f0ff"
                 visible={sectionVisible}
                 delay={0}
+                offset={0}
               />
               <StatBox
                 value={63}
@@ -543,6 +523,7 @@ export function NetworkGlobeSection() {
                 color="#a855f7"
                 visible={sectionVisible}
                 delay={200}
+                offset={-28}
               />
               <StatBox
                 value={99}
@@ -551,53 +532,11 @@ export function NetworkGlobeSection() {
                 color="#b8ff00"
                 visible={sectionVisible}
                 delay={400}
+                offset={20}
               />
             </div>
           </ScrollReveal>
 
-          {/* Node type breakdown */}
-          <ScrollReveal animation="fadeUp" delay={320}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div
-                style={{
-                  fontFamily: 'JetBrains Mono, monospace',
-                  fontSize: '9px',
-                  color: '#444455',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.15em',
-                  marginBottom: '4px',
-                }}
-              >
-                node distribution
-              </div>
-              <NodeTypeBadge
-                color="#00f0ff"
-                label="consumer gpu nodes"
-                count="8,412"
-                percent={59}
-                delay={0}
-                visible={sectionVisible}
-              />
-              <NodeTypeBadge
-                color="#b8ff00"
-                label="mobile devices"
-                count="4,231"
-                percent={30}
-                delay={100}
-                visible={sectionVisible}
-              />
-              <NodeTypeBadge
-                color="#ff2d7b"
-                label="data center nodes"
-                count="1,640"
-                percent={11}
-                delay={200}
-                visible={sectionVisible}
-              />
-            </div>
-          </ScrollReveal>
-
-          {/* Hovered node info */}
           <div style={{ minHeight: '48px' }}>
             {hoveredNode && <HoveredNodeInfo node={hoveredNode} />}
           </div>
@@ -610,10 +549,118 @@ export function NetworkGlobeSection() {
             <div
               style={{
                 position: 'absolute',
-                inset: '-20px',
-                background: 'radial-gradient(ellipse at center, #00f0ff08 0%, #a855f705 40%, transparent 70%)',
+                inset: '-40px',
+                background: 'radial-gradient(ellipse at center, #00f0ff15 0%, #a855f710 30%, transparent 70%)',
                 pointerEvents: 'none',
                 borderRadius: '50%',
+              }}
+            />
+
+            {/* Blend glow - connects globe to text section */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '-200px',
+                width: '400px',
+                height: '600px',
+                transform: 'translateY(-50%)',
+                background: 'linear-gradient(90deg, rgba(0,240,255,0.12) 0%, rgba(168,85,247,0.08) 50%, transparent 100%)',
+                pointerEvents: 'none',
+                filter: 'blur(60px)',
+              }}
+            />
+
+            {/* Secondary blend from globe */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '20%',
+                left: '-150px',
+                width: '300px',
+                height: '300px',
+                background: 'radial-gradient(ellipse at center, rgba(0,240,255,0.15) 0%, transparent 70%)',
+                pointerEvents: 'none',
+                filter: 'blur(40px)',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                bottom: '20%',
+                left: '-150px',
+                width: '300px',
+                height: '300px',
+                background: 'radial-gradient(ellipse at center, rgba(168,85,247,0.12) 0%, transparent 70%)',
+                pointerEvents: 'none',
+                filter: 'blur(40px)',
+              }}
+            />
+
+            {/* Floating data particles - span blend area */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '15%',
+                left: '-120px',
+                width: '4px',
+                height: '4px',
+                background: '#00f0ff',
+                borderRadius: '50%',
+                boxShadow: '0 0 15px #00f0ff',
+                animation: 'floatParticleWide 5s ease-in-out infinite',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                top: '55%',
+                left: '-100px',
+                width: '3px',
+                height: '3px',
+                background: '#a855f7',
+                borderRadius: '50%',
+                boxShadow: '0 0 12px #a855f7',
+                animation: 'floatParticleWide 6s ease-in-out infinite 1s',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                top: '35%',
+                left: '-140px',
+                width: '2px',
+                height: '2px',
+                background: '#b8ff00',
+                borderRadius: '50%',
+                boxShadow: '0 0 10px #b8ff00',
+                animation: 'floatParticleWide 4.5s ease-in-out infinite 0.5s',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                top: '75%',
+                left: '-90px',
+                width: '3px',
+                height: '3px',
+                background: '#00f0ff',
+                borderRadius: '50%',
+                boxShadow: '0 0 8px #00f0ff',
+                animation: 'floatParticleWide 5.5s ease-in-out infinite 2s',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                top: '25%',
+                left: '-70px',
+                width: '2px',
+                height: '2px',
+                background: '#ff2d7b',
+                borderRadius: '50%',
+                boxShadow: '0 0 10px #ff2d7b',
+                animation: 'floatParticleWide 4s ease-in-out infinite 1.5s',
               }}
             />
 
@@ -647,7 +694,7 @@ export function NetworkGlobeSection() {
               />
               <span
                 style={{
-                  fontFamily: 'JetBrains Mono, monospace',
+                  fontFamily: 'Space Grotesk, sans-serif',
                   fontSize: '9px',
                   color: '#00f0ff',
                   textTransform: 'uppercase',
@@ -693,7 +740,7 @@ export function NetworkGlobeSection() {
                   />
                   <span
                     style={{
-                      fontFamily: 'JetBrains Mono, monospace',
+                      fontFamily: 'Space Grotesk, sans-serif',
                       fontSize: '9px',
                       color: '#666677',
                       textTransform: 'lowercase',
@@ -724,6 +771,26 @@ export function NetworkGlobeSection() {
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(4px); }
           to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes floatParticle {
+          0%, 100% {
+            opacity: 0.3;
+            transform: translateX(0) translateY(0) scale(1);
+          }
+          50% {
+            opacity: 1;
+            transform: translateX(-20px) translateY(-10px) scale(1.2);
+          }
+        }
+        @keyframes floatParticleWide {
+          0%, 100% {
+            opacity: 0.2;
+            transform: translateX(0) translateY(0) scale(1);
+          }
+          50% {
+            opacity: 0.9;
+            transform: translateX(-80px) translateY(-20px) scale(1.3);
+          }
         }
         @media (max-width: 768px) {
           .network-globe-grid {
