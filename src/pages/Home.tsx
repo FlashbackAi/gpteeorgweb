@@ -179,7 +179,7 @@ export const Home = () => {
 
           {/* Bottom: Terminal */}
           <ScrollReveal animation="fadeUp" delay={600} className="w-full max-w-[900px]">
-            <div style={{ pointerEvents: 'auto' }}>
+            <div style={{ pointerEvents: 'auto', marginBottom: '40px' }}>
               <Terminal
               commands={[
                 "npx gptee@latest init",
@@ -207,6 +207,51 @@ export const Home = () => {
             />
             </div>
           </ScrollReveal>
+
+          {/* ═══════════════════════════════════════
+              STATS BAR — Integrated into Hero
+              ═══════════════════════════════════════ */}
+          <ScrollReveal animation="fadeUp" delay={800} className="w-full">
+            <div
+              style={{
+                position: 'relative',
+                maxWidth: '1000px',
+                width: '100%',
+                pointerEvents: 'auto',
+              }}
+            >
+              {/* Angled Border Glow */}
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: '-1px',
+                  background: 'linear-gradient(90deg, transparent, rgba(255,45,123,0.3), rgba(0,240,255,0.3), transparent)',
+                  clipPath: 'polygon(5% 0, 95% 0, 100% 50%, 95% 100%, 5% 100%, 0 50%)',
+                  zIndex: -1,
+                }}
+              />
+              
+              <div
+                style={{
+                  background: 'rgba(10, 10, 15, 0.6)',
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255,45,123,0.15)',
+                  clipPath: 'polygon(5% 0, 95% 0, 100% 50%, 95% 100%, 5% 100%, 0 50%)',
+                  padding: '20px 60px',
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(4, 1fr)',
+                  gap: '20px',
+                  position: 'relative',
+                }}
+              >
+                <StatsCounter value={4921} label="Active Nodes" color="#ff2d7b" suffix="+" />
+                <StatsCounter value={60} label="Countries" color="#00f0ff" suffix="+" />
+                <StatsCounter value={99} label="Uptime" color="#b8ff00" suffix="%" prefix="" />
+                <StatsCounter value={12} label="Models Live" color="#a855f7" />
+              </div>
+            </div>
+          </ScrollReveal>
         </div>
 
         {/* Scroll indicator */}
@@ -228,39 +273,6 @@ export const Home = () => {
             scroll
           </span>
           <div style={{ width: '1px', height: '30px', background: 'linear-gradient(to bottom, #ff2d7b, transparent)' }} />
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════
-          STATS BAR — Floating Glassmorphism
-          ═══════════════════════════════════════ */}
-      <section
-        style={{
-          position: 'relative',
-          padding: '0 24px',
-          marginTop: '-40px',
-          zIndex: 10,
-        }}
-      >
-        <div
-          style={{
-            maxWidth: '900px',
-            margin: '0 auto',
-            background: 'rgba(18, 16, 26, 0.7)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            border: '1px solid rgba(255,45,123,0.1)',
-            borderRadius: '12px',
-            padding: '20px',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-            gap: '16px',
-          }}
-        >
-          <StatsCounter value={4921} label="Active Nodes" color="#ff2d7b" suffix="+" />
-          <StatsCounter value={60} label="Countries" color="#00f0ff" suffix="+" />
-          <StatsCounter value={99} label="Uptime" color="#b8ff00" suffix="%" prefix="" />
-          <StatsCounter value={12} label="Models Live" color="#a855f7" />
         </div>
       </section>
 
