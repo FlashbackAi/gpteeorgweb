@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Globe3D, GlobeMarker } from './ui/3d-globe';
 import { ScrollReveal } from './ScrollReveal';
+import Counter from './Counter';
 
 // ============================================================================
 // Marker image: SVG data URIs for cyberpunk node types
@@ -62,136 +63,7 @@ const networkNodes: Array<GlobeMarker & { type: keyof typeof NODE_ICONS; city: s
 ];
 
 // ============================================================================
-// Animated counter hook
-// ============================================================================
-
-function useCountUp(target: number, duration: number = 2000, trigger: boolean = false) {
-  const [value, setValue] = useState(0);
-
-  useEffect(() => {
-    if (!trigger) return;
-    const start = Date.now();
-    const tick = () => {
-      const elapsed = Date.now() - start;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setValue(Math.floor(eased * target));
-      if (progress < 1) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-  }, [target, duration, trigger]);
-
-  return value;
-}
-
-// ============================================================================
-// NodeTypeBadge
-// ============================================================================
-
-interface NodeTypeBadgeProps {
-  color: string;
-  label: string;
-  count: string;
-  percent: number;
-  delay?: number;
-  visible: boolean;
-}
-
-function NodeTypeBadge({ color, label, count, percent, delay = 0, visible }: NodeTypeBadgeProps) {
-  const [barWidth, setBarWidth] = useState(0);
-
-  useEffect(() => {
-    if (!visible) return;
-    const timer = setTimeout(() => setBarWidth(percent), delay + 400);
-    return () => clearTimeout(timer);
-  }, [visible, percent, delay]);
-
-  return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '6px',
-        padding: '12px 16px',
-        background: 'rgba(255,255,255,0.03)',
-        border: `1px solid ${color}20`,
-        borderRadius: '6px',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
-      {/* Left accent */}
-      <div
-        style={{
-          position: 'absolute',
-          left: 0,
-          top: 0,
-          bottom: 0,
-          width: '2px',
-          background: color,
-          boxShadow: `0 0 8px ${color}`,
-        }}
-      />
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div
-            style={{
-              width: '6px',
-              height: '6px',
-              borderRadius: '50%',
-              background: color,
-              boxShadow: `0 0 6px ${color}`,
-              animation: 'pulse 2s infinite',
-            }}
-          />
-          <span
-            style={{
-              fontFamily: 'JetBrains Mono, monospace',
-              fontSize: '11px',
-              color: '#a0a0b5',
-              textTransform: 'lowercase',
-            }}
-          >
-            {label}
-          </span>
-        </div>
-        <span
-          style={{
-            fontFamily: 'Orbitron, sans-serif',
-            fontSize: '11px',
-            fontWeight: 700,
-            color,
-          }}
-        >
-          {count}
-        </span>
-      </div>
-      {/* Progress bar */}
-      <div
-        style={{
-          height: '2px',
-          background: 'rgba(255,255,255,0.06)',
-          borderRadius: '1px',
-          overflow: 'hidden',
-        }}
-      >
-        <div
-          style={{
-            height: '100%',
-            width: `${barWidth}%`,
-            background: `linear-gradient(90deg, ${color}80, ${color})`,
-            borderRadius: '1px',
-            transition: 'width 1.2s cubic-bezier(0.23, 1, 0.32, 1)',
-            boxShadow: `0 0 8px ${color}60`,
-          }}
-        />
-      </div>
-    </div>
-  );
-}
-
-// ============================================================================
-// StatBox
+// Main Section
 // ============================================================================
 
 interface StatBoxProps {
@@ -205,7 +77,6 @@ interface StatBoxProps {
 
 function StatBox({ value, suffix, label, color, visible, delay = 0 }: StatBoxProps) {
   const [triggered, setTriggered] = useState(false);
-  const count = useCountUp(value, 1800, triggered);
 
   useEffect(() => {
     if (!visible) return;
@@ -238,19 +109,40 @@ function StatBox({ value, suffix, label, color, visible, delay = 0 }: StatBoxPro
       />
       <div
         style={{
-          fontFamily: 'Orbitron, sans-serif',
-          fontSize: 'clamp(1.4rem, 2.5vw, 1.8rem)',
-          fontWeight: 800,
+          display: 'flex',
+          alignItems: 'baseline',
           color,
           textShadow: `0 0 20px ${color}60`,
           lineHeight: 1,
         }}
       >
-        {count.toLocaleString()}{suffix}
+        <Counter
+          value={triggered ? value : 0}
+          fontSize={32}
+          padding={0}
+          gap={2}
+          textColor={color}
+          fontWeight={800}
+          containerStyle={{ fontFamily: 'Nevera, sans-serif' }}
+          gradientFrom="transparent"
+          gradientTo="transparent"
+        />
+        {suffix && (
+          <span
+            style={{
+              fontFamily: 'Nevera, sans-serif',
+              fontSize: '24px',
+              fontWeight: 800,
+              marginLeft: '2px',
+            }}
+          >
+            {suffix}
+          </span>
+        )}
       </div>
       <div
         style={{
-          fontFamily: 'JetBrains Mono, monospace',
+          fontFamily: 'Space Grotesk, sans-serif',
           fontSize: '9px',
           color: '#555566',
           textTransform: 'uppercase',
@@ -304,7 +196,7 @@ function HoveredNodeInfo({ node }: HoveredNodeInfoProps) {
       <div>
         <div
           style={{
-            fontFamily: 'Orbitron, sans-serif',
+            fontFamily: 'Nevera, sans-serif',
             fontSize: '11px',
             fontWeight: 700,
             color: '#fff',
@@ -315,7 +207,7 @@ function HoveredNodeInfo({ node }: HoveredNodeInfoProps) {
         </div>
         <div
           style={{
-            fontFamily: 'JetBrains Mono, monospace',
+            fontFamily: 'Space Grotesk, sans-serif',
             fontSize: '9px',
             color: typeColor,
             textTransform: 'lowercase',
@@ -433,41 +325,12 @@ export function NetworkGlobeSection() {
         {/* ── LEFT: Text content ── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
 
-          {/* Label */}
-          <ScrollReveal animation="fadeUp">
-            <div
-              style={{
-                fontFamily: 'JetBrains Mono, monospace',
-                fontSize: '10px',
-                color: '#00f0ff',
-                textTransform: 'uppercase',
-                letterSpacing: '0.2em',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-              }}
-            >
-              <span
-                style={{
-                  display: 'inline-block',
-                  width: '6px',
-                  height: '6px',
-                  borderRadius: '50%',
-                  background: '#00f0ff',
-                  boxShadow: '0 0 8px #00f0ff',
-                  animation: 'pulse 1.5s ease-in-out infinite',
-                }}
-              />
-              live network status
-            </div>
-          </ScrollReveal>
-
           {/* Headline */}
           <ScrollReveal animation="fadeUp" delay={80}>
             <div>
               <h2
                 style={{
-                  fontFamily: 'Orbitron, sans-serif',
+                  fontFamily: 'Nevera, sans-serif',
                   fontSize: 'clamp(1.8rem, 3.5vw, 2.8rem)',
                   fontWeight: 900,
                   lineHeight: 1.1,
@@ -483,12 +346,12 @@ export function NetworkGlobeSection() {
                     WebkitTextFillColor: 'transparent',
                   }}
                 >
-                  real devices.
+                  DECENTRALIZED COMPUTE.
                 </span>
               </h2>
               <h2
                 style={{
-                  fontFamily: 'Orbitron, sans-serif',
+                  fontFamily: 'Nevera, sans-serif',
                   fontSize: 'clamp(1.8rem, 3.5vw, 2.8rem)',
                   fontWeight: 900,
                   lineHeight: 1.1,
@@ -505,7 +368,7 @@ export function NetworkGlobeSection() {
                     filter: 'drop-shadow(0 0 20px #00f0ff40)',
                   }}
                 >
-                  global reach.
+                  ZERO OVERHEAD.
                 </span>
               </h2>
             </div>
@@ -522,10 +385,9 @@ export function NetworkGlobeSection() {
                 maxWidth: '440px',
               }}
             >
-              every pin on this globe is a real device running the gptee network.
-              from consumer gpus in tokyo to mobile nodes in lagos — the compute
-              is owned by the people, not a corporation. decentralized, encrypted,
-              and always on.
+              powering the next generation of ai with a globally distributed 
+              p2p network. rent high-performance gpus or contribute your 
+              idle compute — encrypted, trustless, and permissionless.
             </p>
           </ScrollReveal>
 
@@ -559,49 +421,6 @@ export function NetworkGlobeSection() {
             </div>
           </ScrollReveal>
 
-          {/* Node type breakdown */}
-          <ScrollReveal animation="fadeUp" delay={320}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div
-                style={{
-                  fontFamily: 'JetBrains Mono, monospace',
-                  fontSize: '9px',
-                  color: '#444455',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.15em',
-                  marginBottom: '4px',
-                }}
-              >
-                node distribution
-              </div>
-              <NodeTypeBadge
-                color="#00f0ff"
-                label="consumer gpu nodes"
-                count="8,412"
-                percent={59}
-                delay={0}
-                visible={sectionVisible}
-              />
-              <NodeTypeBadge
-                color="#b8ff00"
-                label="mobile devices"
-                count="4,231"
-                percent={30}
-                delay={100}
-                visible={sectionVisible}
-              />
-              <NodeTypeBadge
-                color="#ff2d7b"
-                label="data center nodes"
-                count="1,640"
-                percent={11}
-                delay={200}
-                visible={sectionVisible}
-              />
-            </div>
-          </ScrollReveal>
-
-          {/* Hovered node info */}
           <div style={{ minHeight: '48px' }}>
             {hoveredNode && <HoveredNodeInfo node={hoveredNode} />}
           </div>
@@ -651,7 +470,7 @@ export function NetworkGlobeSection() {
               />
               <span
                 style={{
-                  fontFamily: 'JetBrains Mono, monospace',
+                  fontFamily: 'Space Grotesk, sans-serif',
                   fontSize: '9px',
                   color: '#00f0ff',
                   textTransform: 'uppercase',
@@ -697,7 +516,7 @@ export function NetworkGlobeSection() {
                   />
                   <span
                     style={{
-                      fontFamily: 'JetBrains Mono, monospace',
+                      fontFamily: 'Space Grotesk, sans-serif',
                       fontSize: '9px',
                       color: '#666677',
                       textTransform: 'lowercase',
@@ -712,7 +531,7 @@ export function NetworkGlobeSection() {
             <Globe3D
               markers={networkNodes}
               config={globeConfig}
-              className="h-[560px] w-full"
+              className="h-[620px] w-full"
               onMarkerHover={setHoveredMarker}
               onMarkerClick={(marker) => {
                 const node = networkNodes.find((n) => n.label === marker.label);
