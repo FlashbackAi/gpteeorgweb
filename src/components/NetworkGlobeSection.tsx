@@ -390,7 +390,8 @@ export function NetworkGlobeSection() {
         }}
       />
 
-      {/* Top edge glow */}
+      {/* Top edge glow - REMOVED border by commenting out or removing */}
+      {/* 
       <div
         style={{
           position: 'absolute',
@@ -401,8 +402,10 @@ export function NetworkGlobeSection() {
           background: 'linear-gradient(90deg, transparent, #00f0ff40, #a855f740, transparent)',
         }}
       />
+      */}
 
-      {/* Bottom edge glow */}
+      {/* Bottom edge glow - REMOVED border by commenting out or removing */}
+      {/*
       <div
         style={{
           position: 'absolute',
@@ -413,6 +416,7 @@ export function NetworkGlobeSection() {
           background: 'linear-gradient(90deg, transparent, #ff2d7b40, #00f0ff40, transparent)',
         }}
       />
+      */}
 
       <div
         style={{

@@ -2,12 +2,14 @@ import { GlitchText } from '../components/reactbits/GlitchText';
 import { SplitText } from '../components/reactbits/SplitText';
 import Dither from '../components/reactbits/Dither';
 import { Aurora } from '../components/reactbits/Aurora';
-import MagicRings from '../components/reactbits/MagicRings';
+import FuzzyText from '../components/FuzzyText';
 import GridMotion from '../components/reactbits/GridMotion';
+import ScrollFloat from '../components/reactbits/ScrollFloat';
+import Noise from '../components/reactbits/Noise';
+import MagicRings from '../components/reactbits/MagicRings';
 import { ParticleNetwork } from '../components/ParticleNetwork';
 import DecayCard from '../components/DecayCard';
 import ElectricBorder from '../components/ElectricBorder';
-import FuzzyText from '../components/FuzzyText';
 import { CyberTerminal } from '../components/CyberTerminal';
 import { Terminal } from '../components/ui/terminal';
 import { NeonButton } from '../components/NeonButton';
@@ -568,6 +570,19 @@ export const Home = () => {
           SYSTEM CAPABILITIES — Grid Motion
           ═══════════════════════════════════════ */}
       <section style={{ position: 'relative', minHeight: '100vh', height: 'auto', overflow: 'hidden', background: '#0a0a0f', padding: '100px 0' }}>
+        {/* Top Transition Gradient */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '200px', background: 'linear-gradient(to bottom, #0a0a0f, transparent)', zIndex: 10, pointerEvents: 'none' }} />
+        
+        {/* Full-section noise overlay - subtle base layer */}
+        <div style={{ position: 'absolute', inset: 0, zIndex: 5, pointerEvents: 'none' }}>
+          <Noise 
+            patternRefreshInterval={1} 
+            patternAlpha={25} 
+            patternScaleX={2} 
+            patternScaleY={2} 
+            patternSize={250} 
+          />
+        </div>
         <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
           <GridMotion 
             items={[
@@ -696,7 +711,25 @@ export const Home = () => {
 
         {/* Content Overlay - Much subtler for visibility */}
         <div style={{ position: 'absolute', inset: 0, zIndex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', pointerEvents: 'none' }}>
-          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at center, transparent 0%, rgba(10,10,15,0.4) 100%)', zIndex: -1 }} />
+          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at center, transparent 0%, rgba(10,10,15,0.8) 100%)', zIndex: -1 }} />
+          
+          {/* Glassmorphism Backdrop for Text */}
+          <div 
+            style={{
+              position: 'absolute',
+              width: '100%',
+              height: '240px',
+              background: 'rgba(10, 10, 15, 0.4)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              zIndex: -1,
+              maskImage: 'linear-gradient(to bottom, transparent, black 20%, black 80%, transparent)',
+              WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 20%, black 80%, transparent)',
+              overflow: 'hidden'
+            }}
+          >
+          </div>
+
           <ScrollReveal animation="fadeUp">
             <div style={{ textAlign: 'center' }}>
               <div
@@ -720,16 +753,17 @@ export const Home = () => {
                   justifyContent: 'center',
                 }}
               >
-                <FuzzyText 
-                  baseIntensity={0.4}
-                  hoverIntensity={0.6}
-                  enableHover
-                  fontFamily="Nevera"
-                  fontSize="clamp(4rem, 10vw, 8rem)"
-                  color="#fff"
+                <ScrollFloat
+                  animationDuration={1}
+                  ease='power2.out'
+                  scrollStart='top 90%'
+                  scrollEnd='top 50%'
+                  stagger={0.03}
+                  textClassName="text-white font-['Nevera']"
+                  containerClassName="my-0"
                 >
                   THREE PILLARS
-                </FuzzyText>
+                </ScrollFloat>
               </div>
             </div>
           </ScrollReveal>
@@ -739,7 +773,12 @@ export const Home = () => {
       {/* ═══════════════════════════════════════
           GLOBAL NETWORK GLOBE SECTION
           ═══════════════════════════════════════ */}
-      <NetworkGlobeSection />
+      <div style={{ position: 'relative', marginTop: '-100px', zIndex: 20 }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '200px', background: 'linear-gradient(to bottom, transparent, #0a0a0f)', transform: 'translateY(-100%)', pointerEvents: 'none' }} />
+        <div style={{ background: '#0a0a0f' }}>
+          <NetworkGlobeSection />
+        </div>
+      </div>
 
       {/* ═══════════════════════════════════════
           NETWORK VISUALIZATION SECTION
