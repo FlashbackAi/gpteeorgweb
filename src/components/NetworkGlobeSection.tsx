@@ -232,7 +232,7 @@ interface HoveredNodeInfoProps {
 function HoveredNodeInfo({ node }: HoveredNodeInfoProps) {
   if (!node) return null;
   const typeColor = { gpu: '#00f0ff', datacenter: '#ff2d7b', mobile: '#b8ff00' }[node.type];
-  const typeLabel = { gpu: 'GPU Device', datacenter: 'Data Center', mobile: 'Mobile Node' }[node.type];
+  const typeLabel = { gpu: 'GPU Node', datacenter: 'Home Companion', mobile: 'Mobile Node' }[node.type];
 
   return (
     <div
@@ -455,7 +455,7 @@ export function NetworkGlobeSection() {
                     WebkitTextFillColor: 'transparent',
                   }}
                 >
-                  DECENTRALIZED COMPUTE.
+                  DISTRIBUTED COMPUTE.
                 </span>
               </h2>
               <h2
@@ -477,7 +477,7 @@ export function NetworkGlobeSection() {
                     filter: 'drop-shadow(0 0 20px #00f0ff40)',
                   }}
                 >
-                  ZERO OVERHEAD.
+                  ZERO CLOUD.
                 </span>
               </h2>
             </div>
@@ -498,9 +498,10 @@ export function NetworkGlobeSection() {
                 textShadow: '0 0 30px rgba(0,240,255,0.1)',
               }}
             >
-              powering the next generation of ai with a globally distributed 
-              p2p network. rent high-performance gpus or contribute your 
-              idle compute — encrypted, trustless, and permissionless.
+              teepin orchestrates hardware people already own. costs drop as
+              the network grows. more devices means more distributed compute,
+              lower gpu fallback dependency, better margins at scale.
+              no infrastructure purchased. ever.
             </p>
           </ScrollReveal>
 
@@ -701,7 +702,7 @@ export function NetworkGlobeSection() {
                   letterSpacing: '0.1em',
                 }}
               >
-                live · {networkNodes.length} nodes
+                live · nodes
               </span>
             </div>
 
@@ -726,7 +727,7 @@ export function NetworkGlobeSection() {
               {[
                 { color: '#00f0ff', label: 'GPU node' },
                 { color: '#b8ff00', label: 'Mobile node' },
-                { color: '#ff2d7b', label: 'Data center' },
+                { color: '#ff2d7b', label: 'Home companion' },
               ].map(({ color, label }) => (
                 <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <div

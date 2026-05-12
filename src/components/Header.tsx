@@ -114,7 +114,7 @@ export const Header = () => {
               fontWeight: 700,
             }}
           >
-            <GlitchText text="gptee.org" className="text-cyber-magenta" speed={40} />
+            <GlitchText text="TEEPIN" className="text-cyber-magenta" speed={40} />
           </span>
         </Link>
 

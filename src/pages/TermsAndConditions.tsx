@@ -91,7 +91,7 @@ export const TermsAndConditions = () => {
           {/* Main Content */}
           <div className="lg:col-span-3">
             <ScrollReveal animation="fadeUp">
-              <CyberTerminal title="GPTEE_TERMS_V1.0.SH" subtitle="READ-ONLY" accentColor="#00f0ff">
+              <CyberTerminal title="TEEPIN_TERMS_V1.0.SH" subtitle="READ-ONLY" accentColor="#00f0ff">
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
 
                   <section id="terms">
@@ -99,7 +99,7 @@ export const TermsAndConditions = () => {
                     <LegalText>
                       <p>
                         <span style={{ color: '#ff2d7b', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px' }}>101</span>{' '}
-                        By accessing the <span style={{ color: '#ff2d7b' }}>gptee.org network</span>, you agree to abide by
+                        By accessing the <span style={{ color: '#ff2d7b' }}>teepin network</span>, you agree to abide by
                         the digital brutalist ethics of decentralized compute.
                       </p>
                     </LegalText>
@@ -108,7 +108,7 @@ export const TermsAndConditions = () => {
                   <section id="acceptable-use">
                     <SectionTitle color="#00f0ff">02 // Acceptable Use Matrix</SectionTitle>
                     <LegalText>
-                      <p>You may <span style={{ color: '#ff5f56' }}>NOT</span> use GPTEE for:</p>
+                      <p>You may <span style={{ color: '#ff5f56' }}>NOT</span> use TEEPIN for:</p>
                       <div style={{
                         background: 'rgba(0,0,0,0.3)',
                         border: '1px solid rgba(255,95,86,0.15)',
@@ -124,7 +124,7 @@ export const TermsAndConditions = () => {
                         <ListItem allowed={false}>DDoS attacks or network disruption</ListItem>
                       </div>
 
-                      <p style={{ marginTop: '12px' }}>You <span style={{ color: '#b8ff00' }}>MAY</span> use GPTEE for:</p>
+                      <p style={{ marginTop: '12px' }}>You <span style={{ color: '#b8ff00' }}>MAY</span> use TEEPIN for:</p>
                       <div style={{
                         background: 'rgba(0,0,0,0.3)',
                         border: '1px solid rgba(184,255,0,0.15)',
@@ -145,7 +145,7 @@ export const TermsAndConditions = () => {
                   <section id="node-operators">
                     <SectionTitle color="#a855f7">03 // Node Operator Responsibilities</SectionTitle>
                     <LegalText>
-                      <p>By running a GPTEE node, you agree to:</p>
+                      <p>By running a TEEPIN node, you agree to:</p>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingLeft: '8px' }}>
                         <BulletItem>Maintain minimum uptime of 95% for provider nodes</BulletItem>
                         <BulletItem>Process inference requests in good faith</BulletItem>
@@ -179,7 +179,7 @@ export const TermsAndConditions = () => {
                   <section id="liability">
                     <SectionTitle>05 // Liability Limitations</SectionTitle>
                     <LegalText>
-                      <p>GPTEE.ORG is provided "AS IS" without warranties. We are not liable for:</p>
+                      <p>TEEPIN is provided "AS IS" without warranties. We are not liable for:</p>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingLeft: '8px' }}>
                         <BulletItem>Network downtime or service interruptions</BulletItem>
                         <BulletItem>Loss of rewards due to node misconfiguration</BulletItem>

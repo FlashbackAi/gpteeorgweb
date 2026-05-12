@@ -80,7 +80,7 @@ export const CyberLoader = ({ onComplete, duration = 3500 }: CyberLoaderProps) =
           animation: 'glitch 3s infinite',
         }}
       >
-        gptee.org
+        teepin
       </div>
 
       <style>{`

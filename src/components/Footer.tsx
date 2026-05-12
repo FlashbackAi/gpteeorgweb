@@ -60,7 +60,7 @@ export const Footer = () => {
             <div>
               <div style={{ marginBottom: '8px' }}>
                 <GlitchText
-                  text="gptee.org"
+                  text="TEEPIN"
                   className="text-cyber-magenta"
                   as="span"
                   speed={60}
@@ -77,9 +77,9 @@ export const Footer = () => {
                   lineHeight: 1.6,
                 }}
               >
-                decentralized p2p ai network. gpt for everyone, free.
+                distributed compute network. user-owned ai inference. no cloud. no compromise.
                 <br />
-                <span style={{ color: '#a855f7' }}>© 2026 gptee.org. all system logs archived.</span>
+                <span style={{ color: '#a855f7' }}>© 2026 teepin. all compute actions verified on-chain.</span>
               </p>
             </div>
 

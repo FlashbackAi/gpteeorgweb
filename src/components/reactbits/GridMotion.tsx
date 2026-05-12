@@ -42,12 +42,29 @@ const GridMotion: FC<GridMotionProps> = ({ items = [] }) => {
       });
     };
 
-    const removeAnimationLoop = gsap.ticker.add(updateMotion);
+    let removeAnimationLoop: (() => void) | null = gsap.ticker.add(updateMotion);
     window.addEventListener('mousemove', handleMouseMove);
+
+    const grid = gridRef.current;
+    const observer = grid
+      ? new IntersectionObserver(
+          ([entry]) => {
+            if (entry.isIntersecting) {
+              if (!removeAnimationLoop) removeAnimationLoop = gsap.ticker.add(updateMotion);
+            } else if (removeAnimationLoop) {
+              removeAnimationLoop();
+              removeAnimationLoop = null;
+            }
+          },
+          { rootMargin: '600px' }
+        )
+      : null;
+    if (observer && grid) observer.observe(grid);
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
-      removeAnimationLoop();
+      if (removeAnimationLoop) removeAnimationLoop();
+      observer?.disconnect();
     };
   }, []);
 
@@ -117,7 +134,7 @@ const GridMotion: FC<GridMotionProps> = ({ items = [] }) => {
 
                       {/* Hardware Tag Label */}
                       <div className="absolute top-2 right-4 text-[8px] font-mono text-white/20 uppercase tracking-[0.2em] group-hover:text-white/40">SYS_UNIT_808</div>
-                      <div className="absolute bottom-2 left-4 text-[8px] font-mono text-white/20 uppercase tracking-[0.2em] group-hover:text-white/40">GPTEE_MESH_V1</div>
+                      <div className="absolute bottom-2 left-4 text-[8px] font-mono text-white/20 uppercase tracking-[0.2em] group-hover:text-white/40">TEEPIN_MESH_V1</div>
 
                       {/* Corner Brackets with Glow */}
                       <div className="absolute top-0 left-[15%] w-4 h-[2px] bg-white/30 group-hover:bg-white/60 group-hover:shadow-[0_0_10px_rgba(255,255,255,0.5)] transition-all"></div>

@@ -65,7 +65,9 @@ export const ParticleNetwork = ({
 
     canvas.addEventListener('mousemove', handleMouse);
 
+    let visible = true;
     const draw = (time: number) => {
+      if (!visible) { animRef.current = 0; return; }
       ctx.clearRect(0, 0, width, height);
       const particles = particlesRef.current;
 
@@ -138,6 +140,17 @@ export const ParticleNetwork = ({
 
     animRef.current = requestAnimationFrame(draw);
 
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        visible = entry.isIntersecting;
+        if (visible && !animRef.current) {
+          animRef.current = requestAnimationFrame(draw);
+        }
+      },
+      { rootMargin: '600px' }
+    );
+    observer.observe(canvas);
+
     const handleResize = () => {
       width = canvas.offsetWidth;
       height = canvas.offsetHeight;
@@ -150,6 +163,7 @@ export const ParticleNetwork = ({
 
     return () => {
       cancelAnimationFrame(animRef.current);
+      observer.disconnect();
       window.removeEventListener('resize', handleResize);
       canvas.removeEventListener('mousemove', handleMouse);
     };

@@ -103,7 +103,7 @@ export const Nodes = () => {
 
         {/* Nodes Table */}
         <ScrollReveal animation="fadeUp" delay={200}>
-          <CyberTerminal title="GPTEE_NODES_MONITOR" subtitle="--VERBOSE" accentColor="#ff2d7b">
+          <CyberTerminal title="TEEPIN_NODES_MONITOR" subtitle="--VERBOSE" accentColor="#ff2d7b">
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', borderCollapse: 'collapse' }}>
                 <thead>
@@ -179,7 +179,7 @@ export const Nodes = () => {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ color: '#ff2d7b', fontWeight: 700 }}>system@gptee.org:~$</span>
+              <span style={{ color: '#ff2d7b', fontWeight: 700 }}>system@teepin:~$</span>
               <input
                 type="text"
                 value={commandInput}

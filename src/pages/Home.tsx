@@ -123,22 +123,14 @@ export const Home = () => {
                 }}
               >
                 <GlitchText
-                  text="gptee"
+                  text="TEEPIN"
                   className="text-cyber-magenta text-3d-magenta"
                   speed={35}
                   as="span"
                 />
-                <span
-                  style={{
-                    color: '#00f0ff',
-                    textShadow: '0 0 20px rgba(0,240,255,0.5), 0 0 40px rgba(0,240,255,0.2)',
-                  }}
-                >
-                  .org
-                </span>
               </h1>
               <SplitText
-                text="gpt for everyone, free"
+                text="your compute. your ai. no cloud."
                 className="text-cyber-grey-light"
                 splitBy="words"
                 animation="fadeUp"
@@ -161,8 +153,9 @@ export const Home = () => {
                   textTransform: 'lowercase',
                 }}
               >
-                a decentralized p2p ai network enabling private, encrypted inference
-                on mobile devices. run your own llm or contribute compute to the mesh.
+                a distributed compute network built on trusted execution environments.
+                install teepin mobile, become a node. run open source llms privately.
+                no servers. no cloud. no one else's terms.
               </p>
             </ScrollReveal>
 
@@ -170,7 +163,7 @@ export const Home = () => {
             <ScrollReveal animation="fadeUp" delay={900}>
               <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', pointerEvents: 'auto', justifyContent: 'flex-start' }}>
                 <NeonButton variant="magenta" size="lg">
-                  initialize node
+                  start p2p node
                 </NeonButton>
                 <NeonButton variant="cyan" size="lg">
                   network explorer
@@ -184,9 +177,9 @@ export const Home = () => {
             <div style={{ pointerEvents: 'auto', marginBottom: '40px' }}>
               <Terminal
               commands={[
-                "npx gptee@latest init",
+                "npx teepin@latest init",
                 "npm install motion",
-                "npx gptee@latest compile",
+                "npx teepin@latest compile",
                 "establishing p2p mesh connection...",
                 "connecting to genesis-node-01...",
                 "establishing shard replication...",
@@ -196,7 +189,7 @@ export const Home = () => {
                 0: [
                   "✔ Distributed network checks passed.",
                   "✔ Created components.json",
-                  "✔ Initialized GPTEE node.",
+                  "✔ Initialized TEEPIN node.",
                 ],
                 1: ["added 1 package in 2.1s"],
                 2: ["✔ Done. Compiled ZK-proofs, model weights."],
@@ -343,7 +336,7 @@ export const Home = () => {
                 lineHeight: 1.7,
                 fontFamily: 'Space Grotesk, sans-serif'
               }}>
-                every component of gptee is engineered for decentralization, privacy, and scale.
+                every layer of teepin is engineered for hardware-level privacy, peer-to-peer inference, and scale without infrastructure.
               </p>
             </div>
           </ScrollReveal>
@@ -387,8 +380,8 @@ export const Home = () => {
                       }}>
                         P2P<br/>MESH
                       </h3>
-                      <p style={{ fontSize: '13px', color: '#a0a0b5', textTransform: 'lowercase', lineHeight: 1.6 }}>
-                        decentralized infrastructure where nodes contribute compute power directly.
+                      <p style={{ fontSize: '13px', color: '#a0a0b5', lineHeight: 1.6 }}>
+                        phones, laptops, gaming PCs - every device is a node. compute routes peer-to-peer, never through a central server.
                       </p>
                     </div>
                   </DecayCard>
@@ -423,7 +416,7 @@ export const Home = () => {
                         GLOBAL<br/>NODES
                       </h3>
                       <p style={{ fontSize: '13px', color: '#a0a0b5', textTransform: 'lowercase', lineHeight: 1.6 }}>
-                        thousands of community-operated nodes across 60+ countries.
+                        thousands of devices contributing compute across the teepin network. every install strengthens the mesh.
                       </p>
                     </div>
                   </DecayCard>
@@ -455,10 +448,10 @@ export const Home = () => {
                         marginBottom: '0.75rem',
                         color: '#b8ff00'
                       }}>
-                        ZK<br/>PROOF
+                        TEE<br/>PROTECTED
                       </h3>
                       <p style={{ fontSize: '13px', color: '#a0a0b5', textTransform: 'lowercase', lineHeight: 1.6 }}>
-                        zero-knowledge encrypted inference ensuring total data privacy.
+                        every inference runs inside a trusted execution environment. private on your device. private on theirs. hardware-guaranteed.
                       </p>
                     </div>
                   </DecayCard>
@@ -549,7 +542,7 @@ export const Home = () => {
                 opacity: 0.6,
               }}
             >
-              ── zero knowledge inference ──
+              ── hardware-level inference ──
             </div>
           </ScrollReveal>
         </div>
@@ -586,125 +579,49 @@ export const Home = () => {
         <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
           <GridMotion 
             items={[
-              // Row 1: Privacy Theme (Repeated)
-              <div key="p1" style={{ textAlign: 'left', padding: '20px' }}>
-                <div style={{ fontFamily: 'Nevera', color: '#ff2d7b', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>PRIVATE BY DEFAULT</div>
-                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>end-to-end encrypted requests ensure your data never touches a central server.</p>
-              </div>,
-              <div key="p2" style={{ textAlign: 'left', padding: '20px' }}>
-                <div style={{ fontFamily: 'Nevera', color: '#ff2d7b', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>PRIVATE BY DEFAULT</div>
-                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>end-to-end encrypted requests ensure your data never touches a central server.</p>
-              </div>,
-              <div key="p3" style={{ textAlign: 'left', padding: '20px' }}>
-                <div style={{ fontFamily: 'Nevera', color: '#ff2d7b', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>PRIVATE BY DEFAULT</div>
-                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>end-to-end encrypted requests ensure your data never touches a central server.</p>
-              </div>,
-              <div key="p4" style={{ textAlign: 'left', padding: '20px' }}>
-                <div style={{ fontFamily: 'Nevera', color: '#ff2d7b', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>PRIVATE BY DEFAULT</div>
-                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>end-to-end encrypted requests ensure your data never touches a central server.</p>
-              </div>,
-              <div key="p5" style={{ textAlign: 'left', padding: '20px' }}>
-                <div style={{ fontFamily: 'Nevera', color: '#ff2d7b', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>PRIVATE BY DEFAULT</div>
-                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>end-to-end encrypted requests ensure your data never touches a central server.</p>
-              </div>,
-              <div key="p6" style={{ textAlign: 'left', padding: '20px' }}>
-                <div style={{ fontFamily: 'Nevera', color: '#ff2d7b', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>PRIVATE BY DEFAULT</div>
-                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>end-to-end encrypted requests ensure your data never touches a central server.</p>
-              </div>,
-              <div key="p7" style={{ textAlign: 'left', padding: '20px' }}>
-                <div style={{ fontFamily: 'Nevera', color: '#ff2d7b', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>PRIVATE BY DEFAULT</div>
-                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>end-to-end encrypted requests ensure your data never touches a central server.</p>
-              </div>,
-              
-              // Row 2: Efficiency Theme (Repeated)
-              <div key="e1" style={{ textAlign: 'left', padding: '20px' }}>
-                <div style={{ fontFamily: 'Nevera', color: '#00f0ff', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>HIGH EFFICIENCY</div>
-                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>optimized model sharding allows gptee to run effectively even on consumer-grade hardware.</p>
-              </div>,
-              <div key="e2" style={{ textAlign: 'left', padding: '20px' }}>
-                <div style={{ fontFamily: 'Nevera', color: '#00f0ff', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>HIGH EFFICIENCY</div>
-                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>optimized model sharding allows gptee to run effectively even on consumer-grade hardware.</p>
-              </div>,
-              <div key="e3" style={{ textAlign: 'left', padding: '20px' }}>
-                <div style={{ fontFamily: 'Nevera', color: '#00f0ff', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>HIGH EFFICIENCY</div>
-                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>optimized model sharding allows gptee to run effectively even on consumer-grade hardware.</p>
-              </div>,
-              <div key="e4" style={{ textAlign: 'left', padding: '20px' }}>
-                <div style={{ fontFamily: 'Nevera', color: '#00f0ff', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>HIGH EFFICIENCY</div>
-                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>optimized model sharding allows gptee to run effectively even on consumer-grade hardware.</p>
-              </div>,
-              <div key="e5" style={{ textAlign: 'left', padding: '20px' }}>
-                <div style={{ fontFamily: 'Nevera', color: '#00f0ff', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>HIGH EFFICIENCY</div>
-                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>optimized model sharding allows gptee to run effectively even on consumer-grade hardware.</p>
-              </div>,
-              <div key="e6" style={{ textAlign: 'left', padding: '20px' }}>
-                <div style={{ fontFamily: 'Nevera', color: '#00f0ff', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>HIGH EFFICIENCY</div>
-                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>optimized model sharding allows gptee to run effectively even on consumer-grade hardware.</p>
-              </div>,
-              <div key="e7" style={{ textAlign: 'left', padding: '20px' }}>
-                <div style={{ fontFamily: 'Nevera', color: '#00f0ff', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>HIGH EFFICIENCY</div>
-                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>optimized model sharding allows gptee to run effectively even on consumer-grade hardware.</p>
-              </div>,
+              // Row 1: LAYER 01 — HOUSEHOLD MESH
+              ...Array.from({ length: 7 }, (_, i) => (
+                <div key={`l1-${i}`} style={{ textAlign: 'left', padding: '20px' }}>
+                  <div style={{ fontFamily: 'JetBrains Mono, monospace', color: '#ff2d7b', fontSize: '0.7rem', letterSpacing: '0.25em', marginBottom: '6px', opacity: 0.85 }}>LAYER 01</div>
+                  <div style={{ fontFamily: 'Nevera', color: '#ff2d7b', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>HOUSEHOLD MESH</div>
+                  <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>your devices talk first. phone, laptop, home companion. everything stays inside your home. maximum privacy. zero network dependency.</p>
+                </div>
+              )),
 
-              // Row 3: Scale Theme (Repeated)
-              <div key="s1" style={{ textAlign: 'left', padding: '20px' }}>
-                <div style={{ fontFamily: 'Nevera', color: '#b8ff00', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>GLOBAL SCALE</div>
-                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>nodes distributed across 60+ countries ensure low latency and high availability.</p>
-              </div>,
-              <div key="s2" style={{ textAlign: 'left', padding: '20px' }}>
-                <div style={{ fontFamily: 'Nevera', color: '#b8ff00', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>GLOBAL SCALE</div>
-                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>nodes distributed across 60+ countries ensure low latency and high availability.</p>
-              </div>,
-              <div key="s3" style={{ textAlign: 'left', padding: '20px' }}>
-                <div style={{ fontFamily: 'Nevera', color: '#b8ff00', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>GLOBAL SCALE</div>
-                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>nodes distributed across 60+ countries ensure low latency and high availability.</p>
-              </div>,
-              <div key="s4" style={{ textAlign: 'left', padding: '20px' }}>
-                <div style={{ fontFamily: 'Nevera', color: '#b8ff00', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>GLOBAL SCALE</div>
-                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>nodes distributed across 60+ countries ensure low latency and high availability.</p>
-              </div>,
-              <div key="s5" style={{ textAlign: 'left', padding: '20px' }}>
-                <div style={{ fontFamily: 'Nevera', color: '#b8ff00', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>GLOBAL SCALE</div>
-                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>nodes distributed across 60+ countries ensure low latency and high availability.</p>
-              </div>,
-              <div key="s6" style={{ textAlign: 'left', padding: '20px' }}>
-                <div style={{ fontFamily: 'Nevera', color: '#b8ff00', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>GLOBAL SCALE</div>
-                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>nodes distributed across 60+ countries ensure low latency and high availability.</p>
-              </div>,
-              <div key="s7" style={{ textAlign: 'left', padding: '20px' }}>
-                <div style={{ fontFamily: 'Nevera', color: '#b8ff00', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>GLOBAL SCALE</div>
-                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>nodes distributed across 60+ countries ensure low latency and high availability.</p>
-              </div>,
+              // Row 2: LAYER 02 — TEEPIN NETWORK
+              ...Array.from({ length: 7 }, (_, i) => (
+                <div key={`l2-${i}`} style={{ textAlign: 'left', padding: '20px' }}>
+                  <div style={{ fontFamily: 'JetBrains Mono, monospace', color: '#00f0ff', fontSize: '0.7rem', letterSpacing: '0.25em', marginBottom: '6px', opacity: 0.85 }}>LAYER 02</div>
+                  <div style={{ fontFamily: 'Nevera', color: '#00f0ff', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>TEEPIN NETWORK</div>
+                  <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>spills to thousands of teepin nodes. every inference runs inside a tee. you never see their data. they never see yours.</p>
+                </div>
+              )),
 
-              // Row 4: Network Theme (Repeated)
-              <div key="n1" style={{ textAlign: 'left', padding: '20px' }}>
-                <div style={{ fontFamily: 'Nevera', color: '#a855f7', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>GPTEE.ORG</div>
-                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>the leading decentralized p2p ai network for private inference.</p>
-              </div>,
-              <div key="n2" style={{ textAlign: 'left', padding: '20px' }}>
-                <div style={{ fontFamily: 'Nevera', color: '#a855f7', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>GPTEE.ORG</div>
-                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>the leading decentralized p2p ai network for private inference.</p>
-              </div>,
-              <div key="n3" style={{ textAlign: 'left', padding: '20px' }}>
-                <div style={{ fontFamily: 'Nevera', color: '#a855f7', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>GPTEE.ORG</div>
-                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>the leading decentralized p2p ai network for private inference.</p>
-              </div>,
-              <div key="n4" style={{ textAlign: 'left', padding: '20px' }}>
-                <div style={{ fontFamily: 'Nevera', color: '#a855f7', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>GPTEE.ORG</div>
-                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>the leading decentralized p2p ai network for private inference.</p>
-              </div>,
-              <div key="n5" style={{ textAlign: 'left', padding: '20px' }}>
-                <div style={{ fontFamily: 'Nevera', color: '#a855f7', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>GPTEE.ORG</div>
-                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>the leading decentralized p2p ai network for private inference.</p>
-              </div>,
-              <div key="n6" style={{ textAlign: 'left', padding: '20px' }}>
-                <div style={{ fontFamily: 'Nevera', color: '#a855f7', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>GPTEE.ORG</div>
-                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>the leading decentralized p2p ai network for private inference.</p>
-              </div>,
-              <div key="n7" style={{ textAlign: 'left', padding: '20px' }}>
-                <div style={{ fontFamily: 'Nevera', color: '#a855f7', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>GPTEE.ORG</div>
-                <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>the leading decentralized p2p ai network for private inference.</p>
-              </div>
+              // Row 3: LAYER 03 — ENTERPRISE GPU
+              ...Array.from({ length: 7 }, (_, i) => (
+                <div key={`l3-${i}`} style={{ textAlign: 'left', padding: '20px' }}>
+                  <div style={{ fontFamily: 'JetBrains Mono, monospace', color: '#b8ff00', fontSize: '0.7rem', letterSpacing: '0.25em', marginBottom: '6px', opacity: 0.85 }}>LAYER 03</div>
+                  <div style={{ fontFamily: 'Nevera', color: '#b8ff00', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>ENTERPRISE GPU</div>
+                  <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>zero gravity h100s and h200s as fallback. enterprise-grade. fully auditable on-chain. no centralized cloud dependency.</p>
+                </div>
+              )),
+
+              // Row 4: Cycle through all three layers to fill the grid
+              ...Array.from({ length: 7 }, (_, i) => {
+                const layers = [
+                  { num: '01', color: '#ff2d7b', title: 'HOUSEHOLD MESH', body: 'your devices talk first. phone, laptop, home companion. everything stays inside your home.' },
+                  { num: '02', color: '#00f0ff', title: 'TEEPIN NETWORK', body: 'spills to thousands of teepin nodes. every inference runs inside a tee.' },
+                  { num: '03', color: '#b8ff00', title: 'ENTERPRISE GPU', body: 'zero gravity h100s and h200s as fallback. enterprise-grade. fully auditable on-chain.' },
+                ];
+                const l = layers[i % 3];
+                return (
+                  <div key={`l4-${i}`} style={{ textAlign: 'left', padding: '20px' }}>
+                    <div style={{ fontFamily: 'JetBrains Mono, monospace', color: l.color, fontSize: '0.7rem', letterSpacing: '0.25em', marginBottom: '6px', opacity: 0.85 }}>LAYER {l.num}</div>
+                    <div style={{ fontFamily: 'Nevera', color: l.color, fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>{l.title}</div>
+                    <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>{l.body}</p>
+                  </div>
+                );
+              })
             ]}
           />
         </div>
@@ -762,7 +679,7 @@ export const Home = () => {
                   textClassName="text-white font-['Nevera']"
                   containerClassName="my-0"
                 >
-                  THREE PILLARS
+                  THREE LAYERS
                 </ScrollFloat>
               </div>
             </div>
@@ -820,7 +737,7 @@ export const Home = () => {
                 marginBottom: '16px',
               }}
             >
-              ── live network mesh ──
+              — live network mesh —
             </div>
             <h2
               style={{
@@ -831,7 +748,7 @@ export const Home = () => {
                 marginBottom: '16px',
               }}
             >
-              <GlitchText text="THE MESH IS ALIVE" className="text-white" speed={50} enableShadow={false} as="span" />
+              <GlitchText text="TEEPIN NETWORK" className="text-white" speed={50} enableShadow={false} as="span" />
             </h2>
             <p
               style={{
@@ -843,8 +760,8 @@ export const Home = () => {
                 textTransform: 'lowercase',
               }}
             >
-              every particle you see represents a real node in the gptee network.
-              move your cursor to interact with the decentralized mesh topology.
+              every particle represents a real teepin node. move your cursor
+              to interact with the live peer-to-peer mesh.
             </p>
             <NeonButton variant="lime" size="md">
               explore network
@@ -881,7 +798,7 @@ export const Home = () => {
                     marginBottom: '24px',
                   }}
                 >
-                  ready to join the network?
+                  ready to become a node?
                 </h2>
 
                 <div
@@ -901,7 +818,7 @@ export const Home = () => {
                   }}
                 >
                   <span style={{ color: '#b8ff00', fontWeight: 700 }}>$</span>
-                  <span style={{ color: '#a0a0b5', wordBreak: 'break-all' }}>curl -sSL https://get.gptee.org | bash</span>
+                  <span style={{ color: '#a0a0b5', wordBreak: 'break-word', flex: 1, textAlign: 'left' }}>install teepin mobile on android to join the network. ios coming soon.</span>
                   <button
                     style={{
                       padding: '6px 16px',
@@ -918,7 +835,7 @@ export const Home = () => {
                       boxShadow: '0 0 15px rgba(184,255,0,0.3)',
                     }}
                   >
-                    Execute
+                    Download App
                   </button>
                 </div>
 
@@ -930,7 +847,7 @@ export const Home = () => {
                     textTransform: 'lowercase',
                   }}
                 >
-                  supports linux, macos, and windows (wsl2)
+                  android · ios coming · laptops · gaming pcs
                 </p>
               </div>
             </CyberTerminal>

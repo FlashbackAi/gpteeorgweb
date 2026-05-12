@@ -89,7 +89,7 @@ export const PrivacyPolicy = () => {
           {/* Main Content */}
           <div className="lg:col-span-3">
             <ScrollReveal animation="fadeUp">
-              <CyberTerminal title="GPTEE_LEGAL_DOCS_V1.0.SH" subtitle="READ-ONLY" accentColor="#ff2d7b">
+              <CyberTerminal title="TEEPIN_LEGAL_DOCS_V1.0.SH" subtitle="READ-ONLY" accentColor="#ff2d7b">
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
 
                   <section id="privacy">
@@ -97,7 +97,7 @@ export const PrivacyPolicy = () => {
                     <LegalText>
                       <p>
                         <span style={{ color: '#ff2d7b', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px' }}>001</span>{' '}
-                        [SUMMARY] GPTEE.org values data sovereignty. This document outlines how we process information within our neural-node infrastructure.
+                        [SUMMARY] TEEPIN values data sovereignty. This document outlines how we process information within our neural-node infrastructure.
                       </p>
                     </LegalText>
                   </section>
@@ -116,7 +116,7 @@ export const PrivacyPolicy = () => {
                     <SectionTitle color="#00f0ff">03 // Personal Identification</SectionTitle>
                     <LegalText>
                       <p>
-                        GPTEE does not require real-world identities. All user profiles are hashed using SHA-256
+                        TEEPIN does not require real-world identities. All user profiles are hashed using SHA-256
                         upon creation. We do not store plain-text email addresses or names.
                       </p>
                     </LegalText>

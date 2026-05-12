@@ -38,7 +38,9 @@ export const Aurora = ({
       phase: i * (Math.PI / colors.length),
     }));
 
+    let visible = true;
     const draw = (time: number) => {
+      if (!visible) { animRef.current = 0; return; }
       ctx.clearRect(0, 0, width, height);
 
       blobs.forEach((blob) => {
@@ -71,6 +73,17 @@ export const Aurora = ({
 
     animRef.current = requestAnimationFrame(draw);
 
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        visible = entry.isIntersecting;
+        if (visible && !animRef.current) {
+          animRef.current = requestAnimationFrame(draw);
+        }
+      },
+      { rootMargin: '600px' }
+    );
+    observer.observe(canvas);
+
     const handleResize = () => {
       width = canvas.offsetWidth;
       height = canvas.offsetHeight;
@@ -82,6 +95,7 @@ export const Aurora = ({
 
     return () => {
       cancelAnimationFrame(animRef.current);
+      observer.disconnect();
       window.removeEventListener('resize', handleResize);
     };
   }, [colors, speed, opacity]);

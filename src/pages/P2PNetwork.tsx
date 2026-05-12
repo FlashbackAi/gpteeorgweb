@@ -38,7 +38,7 @@ export const P2PNetwork = () => {
               <GlitchText text="P2P_CORE" className="text-cyber-magenta" as="span" />
             </h1>
             <p style={{ color: '#a0a0b5', fontSize: '15px', maxWidth: '700px', lineHeight: 1.7, textTransform: 'lowercase' }}>
-              visualizing the backbone of the gptee decentralized mesh. this protocol facilitates
+              visualizing the backbone of the teepin decentralized mesh. this protocol facilitates
               zero-trust communication across geographically distributed sovereign nodes.
             </p>
           </div>
@@ -192,7 +192,7 @@ export const P2PNetwork = () => {
                 <CyberTerminal title="PROTOCOL_INFO" accentColor="#00f0ff">
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', fontSize: '13px' }}>
                     {[
-                      { label: 'DESIGNATION', value: 'GPTEE-P2P-v1.0', color: '#ff2d7b' },
+                      { label: 'DESIGNATION', value: 'TEEPIN-P2P-v1.0', color: '#ff2d7b' },
                       { label: 'ENCRYPTION STANDARD', value: 'ChaCha20-Poly1305', color: '#00f0ff' },
                       { label: 'DISCOVERY ENGINE', value: 'Kademlia DHT (Modified)', color: '#a855f7' },
                     ].map((item, i) => (

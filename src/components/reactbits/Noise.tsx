@@ -53,7 +53,9 @@ const Noise: React.FC<NoiseProps> = ({
       ctx.putImageData(imageData, 0, 0);
     };
 
+    let visible = true;
     const loop = () => {
+      if (!visible) { animationId = 0; return; }
       if (frame % patternRefreshInterval === 0) {
         drawGrain();
       }
@@ -65,9 +67,21 @@ const Noise: React.FC<NoiseProps> = ({
     resize();
     loop();
 
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        visible = entry.isIntersecting;
+        if (visible && !animationId) {
+          animationId = window.requestAnimationFrame(loop);
+        }
+      },
+      { rootMargin: '600px' }
+    );
+    observer.observe(canvas);
+
     return () => {
       window.removeEventListener('resize', resize);
-      window.cancelAnimationFrame(animationId);
+      observer.disconnect();
+      if (animationId) window.cancelAnimationFrame(animationId);
     };
   }, [patternSize, patternScaleX, patternScaleY, patternRefreshInterval, patternAlpha]);
 
