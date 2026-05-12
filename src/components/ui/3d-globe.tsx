@@ -567,15 +567,20 @@ interface SceneProps {
   config: Required<Globe3DConfig>;
   onMarkerClick?: (marker: GlobeMarker) => void;
   onMarkerHover?: (marker: GlobeMarker | null) => void;
+  onReady?: () => void;
 }
 
-function Scene({ markers, config, onMarkerClick, onMarkerHover }: SceneProps) {
+function Scene({ markers, config, onMarkerClick, onMarkerHover, onReady }: SceneProps) {
   const { camera } = useThree();
 
   React.useEffect(() => {
     camera.position.set(0, 0, config.radius * 3.5);
     camera.lookAt(0, 0, 0);
   }, [camera, config.radius]);
+
+  React.useEffect(() => {
+    onReady?.();
+  }, [onReady]);
 
   return (
     <>
@@ -705,9 +710,15 @@ const defaultConfig: Required<Globe3DConfig> = {
 
 export function Globe3D({ markers = [], config = {}, className, onMarkerClick, onMarkerHover }: Globe3DProps) {
   const mergedConfig = useMemo(() => ({ ...defaultConfig, ...config }), [config]);
+  const [ready, setReady] = useState(false);
+
+  const handleReady = useCallback(() => {
+    // Small delay so the canvas paints its first frame before the skeleton fades
+    setTimeout(() => setReady(true), 200);
+  }, []);
 
   return (
-    <div className={clsx("relative h-[600px] w-full", className)}>
+    <div className={clsx("relative w-full", className ?? "h-[600px]")}>
       <Canvas
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
         dpr={[1, 2]}
@@ -725,9 +736,72 @@ export function Globe3D({ markers = [], config = {}, className, onMarkerClick, o
             config={mergedConfig}
             onMarkerClick={onMarkerClick}
             onMarkerHover={onMarkerHover}
+            onReady={handleReady}
           />
         </Suspense>
       </Canvas>
+
+      {/* Skeleton placeholder — fades out when the globe scene mounts */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          inset: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          pointerEvents: 'none',
+          opacity: ready ? 0 : 1,
+          transition: 'opacity 600ms ease',
+        }}
+      >
+        <div
+          style={{
+            position: 'relative',
+            width: 'min(70%, 360px)',
+            aspectRatio: '1',
+            borderRadius: '50%',
+            border: '1px solid rgba(0,240,255,0.25)',
+            background:
+              'radial-gradient(circle at center, rgba(0,240,255,0.06) 0%, transparent 70%), radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px)',
+            backgroundSize: 'auto, 18px 18px',
+            boxShadow: '0 0 40px rgba(0,240,255,0.15), inset 0 0 30px rgba(0,240,255,0.1)',
+            animation: 'globePulse 2s ease-in-out infinite',
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              inset: '15%',
+              borderRadius: '50%',
+              border: '1px dashed rgba(0,240,255,0.15)',
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              fontFamily: 'JetBrains Mono, monospace',
+              fontSize: '10px',
+              color: '#00f0ff',
+              opacity: 0.6,
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            initializing mesh
+          </div>
+        </div>
+        <style>{`
+          @keyframes globePulse {
+            0%, 100% { box-shadow: 0 0 40px rgba(0,240,255,0.15), inset 0 0 30px rgba(0,240,255,0.1); }
+            50% { box-shadow: 0 0 60px rgba(0,240,255,0.3), inset 0 0 45px rgba(0,240,255,0.2); }
+          }
+        `}</style>
+      </div>
     </div>
   );
 }

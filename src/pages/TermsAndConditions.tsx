@@ -239,7 +239,7 @@ export const TermsAndConditions = () => {
                 <p style={{ color: '#a0a0b5', fontSize: '13px', lineHeight: 1.6, marginBottom: '16px' }}>
                   For disputes, contact our decentralized arbitration DAO for peer-mediated resolution.
                 </p>
-                <NeonButton variant="cyan" size="sm">
+                <NeonButton variant="cyan" size="sm" comingSoon>
                   Submit Dispute
                 </NeonButton>
               </div>

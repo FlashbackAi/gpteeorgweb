@@ -8,6 +8,7 @@ interface NeonButtonProps {
   className?: string;
   onClick?: () => void;
   href?: string;
+  comingSoon?: boolean;
 }
 
 const variantColors = {
@@ -44,12 +45,13 @@ export const NeonButton = ({
   className = '',
   onClick,
   href,
+  comingSoon = false,
 }: NeonButtonProps) => {
   const buttonRef = useRef<HTMLButtonElement & HTMLAnchorElement>(null);
   const colors = variantColors[variant];
 
   const handleMouseEnter = () => {
-    if (!buttonRef.current) return;
+    if (comingSoon || !buttonRef.current) return;
     animate(buttonRef.current, {
       scale: 1.05,
       duration: 300,
@@ -58,7 +60,7 @@ export const NeonButton = ({
   };
 
   const handleMouseLeave = () => {
-    if (!buttonRef.current) return;
+    if (comingSoon || !buttonRef.current) return;
     animate(buttonRef.current, {
       scale: 1,
       duration: 300,
@@ -66,7 +68,11 @@ export const NeonButton = ({
     });
   };
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
+    if (comingSoon) {
+      e.preventDefault();
+      return;
+    }
     if (!buttonRef.current) return;
 
     // Flash effect
@@ -79,16 +85,17 @@ export const NeonButton = ({
     onClick?.();
   };
 
-  const Tag = href ? 'a' : 'button';
+  const Tag = href && !comingSoon ? 'a' : 'button';
 
-  return (
+  const buttonEl = (
     <Tag
       ref={buttonRef as any}
       className={`neon-button ${className}`}
       onClick={handleClick}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      href={href}
+      href={comingSoon ? undefined : href}
+      aria-disabled={comingSoon}
       style={{
         ...sizeStyles[size],
         display: 'inline-flex',
@@ -102,7 +109,7 @@ export const NeonButton = ({
         fontWeight: 700,
         textTransform: 'uppercase',
         letterSpacing: '0.1em',
-        cursor: 'pointer',
+        cursor: comingSoon ? 'not-allowed' : 'pointer',
         position: 'relative',
         overflow: 'hidden',
         textDecoration: 'none',
@@ -111,18 +118,19 @@ export const NeonButton = ({
         clipPath: 'polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%)',
       }}
     >
-      {/* Shine sweep */}
-      <span
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: '-100%',
-          width: '100%',
-          height: '100%',
-          background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
-          animation: 'shineSweep 3s ease-in-out infinite',
-        }}
-      />
+      {!comingSoon && (
+        <span
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: '-100%',
+            width: '100%',
+            height: '100%',
+            background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+            animation: 'shineSweep 3s ease-in-out infinite',
+          }}
+        />
+      )}
       <span style={{ position: 'relative', zIndex: 1 }}>{children}</span>
 
       <style>{`
@@ -130,10 +138,51 @@ export const NeonButton = ({
           0%, 100% { left: -100%; }
           50% { left: 100%; }
         }
-        .neon-button:hover {
+        .neon-button:not([aria-disabled="true"]):hover {
           box-shadow: 0 0 25px ${colors.glowStrong}, 0 0 50px ${colors.glow}, 0 0 75px ${colors.glow}40 !important;
         }
       `}</style>
     </Tag>
+  );
+
+  if (!comingSoon) return buttonEl;
+
+  const hexClip = 'polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%)';
+
+  return (
+    <span style={{ position: 'relative', display: 'inline-block' }}>
+      {buttonEl}
+      <span
+        style={{
+          position: 'absolute',
+          top: '-10px',
+          right: '-10px',
+          padding: '1px',
+          background: colors.bg,
+          clipPath: hexClip,
+          filter: `drop-shadow(0 0 6px ${colors.glow})`,
+          whiteSpace: 'nowrap',
+          pointerEvents: 'none',
+          zIndex: 2,
+        }}
+      >
+        <span
+          style={{
+            display: 'inline-block',
+            padding: '3px 14px',
+            background: '#0a0a0f',
+            color: colors.bg,
+            fontFamily: 'JetBrains Mono, monospace',
+            fontSize: '9px',
+            letterSpacing: '0.15em',
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            clipPath: hexClip,
+          }}
+        >
+          coming soon
+        </span>
+      </span>
+    </span>
   );
 };

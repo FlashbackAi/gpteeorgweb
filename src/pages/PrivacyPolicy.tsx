@@ -204,7 +204,7 @@ export const PrivacyPolicy = () => {
                     <p style={{ color: '#a0a0b5', fontSize: '12px', lineHeight: 1.6, marginBottom: '16px' }}>
                       {card.desc}
                     </p>
-                    <NeonButton variant={i === 0 ? 'magenta' : 'cyan'} size="sm">
+                    <NeonButton variant={i === 0 ? 'magenta' : 'cyan'} size="sm" comingSoon>
                       {card.btn}
                     </NeonButton>
                   </div>

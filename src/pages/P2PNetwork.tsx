@@ -232,7 +232,7 @@ export const P2PNetwork = () => {
                   <p style={{ color: '#a0a0b5', fontSize: '13px', lineHeight: 1.7 }}>
                     Complete technical specification including cryptographic proofs and network topology design.
                   </p>
-                  <NeonButton variant="cyan" size="md">
+                  <NeonButton variant="cyan" size="md" comingSoon>
                     Download Specification
                   </NeonButton>
                 </div>

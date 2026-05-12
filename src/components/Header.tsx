@@ -29,6 +29,18 @@ export const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Close mobile menu when clicking outside the header
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (headerRef.current && !headerRef.current.contains(e.target as Node)) {
+        setMobileMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [mobileMenuOpen]);
+
   useEffect(() => {
     if (headerRef.current) {
       animate(headerRef.current, {
@@ -121,7 +133,6 @@ export const Header = () => {
         {/* Desktop Nav */}
         <nav
           style={{
-            display: 'flex',
             gap: '32px',
             alignItems: 'center',
           }}

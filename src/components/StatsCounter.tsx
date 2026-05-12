@@ -22,6 +22,14 @@ export const StatsCounter = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const hasAnimated = useRef(false);
   const [isIntersecting, setIsIntersecting] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -58,7 +66,7 @@ export const StatsCounter = ({
       style={{
         textAlign: 'center',
         opacity: 0,
-        padding: '1rem',
+        padding: isMobile ? '0.4rem' : '1rem',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -76,17 +84,17 @@ export const StatsCounter = ({
         }}
       >
         {prefix && (
-          <span style={{ 
-            fontFamily: 'Nevera, Orbitron, sans-serif', 
-            fontSize: 'clamp(2rem, 4vw, 3rem)',
-            fontWeight: 900 
+          <span style={{
+            fontFamily: 'Nevera, Orbitron, sans-serif',
+            fontSize: isMobile ? '1.4rem' : 'clamp(2rem, 4vw, 3rem)',
+            fontWeight: 900,
           }}>
             {prefix}
           </span>
         )}
         <Counter
           value={isIntersecting ? value : 0}
-          fontSize={60} // Matches the screenshot better
+          fontSize={isMobile ? 32 : 60}
           padding={0}
           gap={2}
           textColor={color}
@@ -96,10 +104,10 @@ export const StatsCounter = ({
           gradientTo="transparent"
         />
         {suffix && (
-          <span style={{ 
-            fontFamily: 'Nevera, Orbitron, sans-serif', 
-            fontSize: 'clamp(2rem, 4vw, 3rem)',
-            fontWeight: 900 
+          <span style={{
+            fontFamily: 'Nevera, Orbitron, sans-serif',
+            fontSize: isMobile ? '1.4rem' : 'clamp(2rem, 4vw, 3rem)',
+            fontWeight: 900,
           }}>
             {suffix}
           </span>

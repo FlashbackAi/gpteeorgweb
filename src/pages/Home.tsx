@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from 'react';
 import { GlitchText } from '../components/reactbits/GlitchText';
 import { SplitText } from '../components/reactbits/SplitText';
 import Dither from '../components/reactbits/Dither';
@@ -17,6 +18,17 @@ import { StatsCounter } from '../components/StatsCounter';
 import { NetworkGlobeSection } from '../components/NetworkGlobeSection';
 
 export const Home = () => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
+  const cardW = isMobile ? Math.min(320, window.innerWidth - 64) : 340;
+  const cardH = isMobile ? 420 : 460;
 
   return (
     <div style={{ width: '100%', position: 'relative' }}>
@@ -161,10 +173,10 @@ export const Home = () => {
             {/* CTA Buttons */}
             <ScrollReveal animation="fadeUp" delay={900}>
               <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', pointerEvents: 'auto', justifyContent: 'flex-start' }}>
-                <NeonButton variant="magenta" size="lg">
+                <NeonButton variant="magenta" size="lg" comingSoon>
                   start p2p node
                 </NeonButton>
-                <NeonButton variant="cyan" size="lg">
+                <NeonButton variant="cyan" size="lg" comingSoon>
                   network explorer
                 </NeonButton>
               </div>
@@ -214,31 +226,64 @@ export const Home = () => {
                 pointerEvents: 'auto',
               }}
             >
-              {/* Angled Border Glow */}
+              {/* Hex frame — clean single-color border with subtle outer glow */}
               <div
                 style={{
                   position: 'absolute',
                   inset: '-1px',
-                  background: 'linear-gradient(90deg, transparent, rgba(255,45,123,0.3), rgba(0,240,255,0.3), transparent)',
-                  clipPath: 'polygon(5% 0, 95% 0, 100% 50%, 95% 100%, 5% 100%, 0 50%)',
+                  background: 'rgba(255,255,255,0.18)',
+                  clipPath: isMobile
+                    ? 'polygon(15% 0, 85% 0, 100% 50%, 85% 100%, 15% 100%, 0 50%)'
+                    : 'polygon(5% 0, 95% 0, 100% 50%, 95% 100%, 5% 100%, 0 50%)',
                   zIndex: -1,
+                  filter: 'drop-shadow(0 0 12px rgba(0,240,255,0.08))',
                 }}
               />
-              
+
               <div
                 style={{
-                  background: 'rgba(10, 10, 15, 0.6)',
-                  backdropFilter: 'blur(10px)',
-                  WebkitBackdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255,45,123,0.15)',
-                  clipPath: 'polygon(5% 0, 95% 0, 100% 50%, 95% 100%, 5% 100%, 0 50%)',
-                  padding: '20px 60px',
+                  background: 'rgba(10, 10, 15, 0.88)',
+                  backdropFilter: 'blur(16px)',
+                  WebkitBackdropFilter: 'blur(16px)',
+                  clipPath: isMobile
+                    ? 'polygon(15% 0, 85% 0, 100% 50%, 85% 100%, 15% 100%, 0 50%)'
+                    : 'polygon(5% 0, 95% 0, 100% 50%, 95% 100%, 5% 100%, 0 50%)',
+                  padding: isMobile ? '14px 50px' : '16px 60px',
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(4, 1fr)',
-                  gap: '20px',
+                  gridTemplateColumns: isMobile ? 'repeat(2, minmax(0, 1fr))' : 'repeat(auto-fit, minmax(120px, 1fr))',
+                  gap: isMobile ? '0' : '20px',
                   position: 'relative',
                 }}
               >
+                {/* Vertical divider (centered) */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: isMobile ? '20%' : '15%',
+                    bottom: isMobile ? '20%' : '15%',
+                    left: '50%',
+                    width: '1px',
+                    background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.14) 30%, rgba(255,255,255,0.14) 70%, transparent)',
+                    transform: 'translateX(-50%)',
+                    pointerEvents: 'none',
+                  }}
+                />
+                {/* Horizontal divider (mobile only — 2x2 grid) */}
+                {isMobile && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left: '22%',
+                      right: '22%',
+                      top: '50%',
+                      height: '1px',
+                      background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.14) 30%, rgba(255,255,255,0.14) 70%, transparent)',
+                      transform: 'translateY(-50%)',
+                      pointerEvents: 'none',
+                    }}
+                  />
+                )}
+
                 <StatsCounter value={4921} label="Active Nodes" color="#ff2d7b" suffix="+" />
                 <StatsCounter value={60} label="Countries" color="#00f0ff" suffix="+" />
                 <StatsCounter value={99} label="Uptime" color="#b8ff00" suffix="%" prefix="" />
@@ -252,7 +297,7 @@ export const Home = () => {
         <div
           style={{
             position: 'absolute',
-            bottom: '30px',
+            bottom: '10px',
             left: '50%',
             transform: 'translateX(-50%)',
             zIndex: 2,
@@ -268,12 +313,19 @@ export const Home = () => {
           </span>
           <div style={{ width: '1px', height: '30px', background: 'linear-gradient(to bottom, #ff2d7b, transparent)' }} />
         </div>
+
+        {/* Bottom fade — blends hero into next section */}
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '200px', background: 'linear-gradient(to bottom, transparent, #0a0a0f)', zIndex: 3, pointerEvents: 'none' }} />
       </section>
 
       {/* ═══════════════════════════════════════
           FEATURES SECTION — HoloCards
           ═══════════════════════════════════════ */}
-      <section style={{ padding: '120px 24px', position: 'relative' }}>
+      <section style={{ padding: '120px 24px', position: 'relative', background: '#0a0a0f' }}>
+        {/* Top fade — blends from hero */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '120px', background: 'linear-gradient(to bottom, #0a0a0f, transparent)', zIndex: 3, pointerEvents: 'none' }} />
+        {/* Bottom fade — blends into privacy section */}
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '120px', background: 'linear-gradient(to bottom, transparent, #0a0a0f)', zIndex: 3, pointerEvents: 'none' }} />
         <Aurora colors={['#ff2d7b', '#00f0ff', '#a855f7']} speed={0.5} opacity={0.12} />
         <div
           style={{
@@ -315,12 +367,12 @@ export const Home = () => {
                   justifyContent: 'center',
                 }}
               >
-                <FuzzyText 
+                <FuzzyText
                   baseIntensity={0.50}
                   hoverIntensity={0.5}
                   enableHover
                   fontFamily="Nevera"
-                  fontSize="clamp(2rem, 5vw, 4rem)"
+                  fontSize={isMobile ? 'clamp(1.3rem, 7vw, 1.8rem)' : 'clamp(2rem, 5vw, 4rem)'}
                   color="#fff"
                 >
                   CORE INFRASTRUCTURE
@@ -359,11 +411,11 @@ export const Home = () => {
                   speed={1}
                   chaos={0.12}
                   borderRadius={12}
-                  style={{ transform: 'translateY(40px) rotate(-3deg)' }}
+                  style={{ transform: isMobile ? 'none' : 'translateY(40px) rotate(-3deg)' }}
                 >
-                  <DecayCard 
-                    width={340} 
-                    height={460} 
+                  <DecayCard
+                    width={cardW}
+                    height={cardH}
                     image="/P2P.png"
                     baseFrequency={0.012}
                     numOctaves={6}
@@ -395,11 +447,11 @@ export const Home = () => {
                   speed={1}
                   chaos={0.12}
                   borderRadius={12}
-                  style={{ transform: 'translateY(-35px) rotate(2.5deg)' }}
+                  style={{ transform: isMobile ? 'none' : 'translateY(-35px) rotate(2.5deg)' }}
                 >
-                  <DecayCard 
-                    width={340} 
-                    height={460} 
+                  <DecayCard
+                    width={cardW}
+                    height={cardH}
                     image="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop"
                     baseFrequency={0.015}
                     seed={42}
@@ -430,11 +482,11 @@ export const Home = () => {
                   speed={1}
                   chaos={0.12}
                   borderRadius={12}
-                  style={{ transform: 'translateY(55px) rotate(-1.5deg)' }}
+                  style={{ transform: isMobile ? 'none' : 'translateY(55px) rotate(-1.5deg)' }}
                 >
-                  <DecayCard 
-                    width={340} 
-                    height={460} 
+                  <DecayCard
+                    width={cardW}
+                    height={cardH}
                     image="https://images.unsplash.com/photo-1639322537228-f710d846310a?q=80&w=2070&auto=format&fit=crop"
                     baseFrequency={0.02}
                     numOctaves={4}
@@ -476,6 +528,11 @@ export const Home = () => {
           background: '#0a0a0f',
         }}
       >
+        {/* Top fade */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '120px', background: 'linear-gradient(to bottom, #0a0a0f, transparent)', zIndex: 3, pointerEvents: 'none' }} />
+        {/* Bottom fade */}
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '120px', background: 'linear-gradient(to bottom, transparent, #0a0a0f)', zIndex: 3, pointerEvents: 'none' }} />
+
         <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
           <MagicRings
             color="#A855F7"
@@ -561,10 +618,10 @@ export const Home = () => {
       {/* ═══════════════════════════════════════
           SYSTEM CAPABILITIES — Grid Motion
           ═══════════════════════════════════════ */}
-      <section style={{ position: 'relative', minHeight: '100vh', height: 'auto', overflow: 'hidden', background: '#0a0a0f', padding: '100px 0' }}>
+      <section style={{ position: 'relative', minHeight: isMobile ? '125vh' : '100vh', height: 'auto', overflow: 'hidden', background: '#0a0a0f', padding: isMobile ? '60px 0 80px' : '100px 0' }}>
         {/* Top Transition Gradient */}
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '200px', background: 'linear-gradient(to bottom, #0a0a0f, transparent)', zIndex: 10, pointerEvents: 'none' }} />
-        
+
         {/* Full-section noise overlay - static SVG turbulence (zero runtime cost) */}
         <div
           style={{
@@ -580,72 +637,64 @@ export const Home = () => {
           }}
         />
         <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
-          <GridMotion 
-            items={[
-              // Row 1: LAYER 01 — HOUSEHOLD MESH
-              ...Array.from({ length: 7 }, (_, i) => (
-                <div key={`l1-${i}`} style={{ textAlign: 'left', padding: '20px' }}>
-                  <div style={{ fontFamily: 'JetBrains Mono, monospace', color: '#ff2d7b', fontSize: '0.7rem', letterSpacing: '0.25em', marginBottom: '6px', opacity: 0.85 }}>LAYER 01</div>
-                  <div style={{ fontFamily: 'Nevera', color: '#ff2d7b', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>HOUSEHOLD MESH</div>
-                  <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>your devices talk first. phone, laptop, home companion. everything stays inside your home. maximum privacy. zero network dependency.</p>
-                </div>
-              )),
-
-              // Row 2: LAYER 02 — TEEPIN NETWORK
-              ...Array.from({ length: 7 }, (_, i) => (
-                <div key={`l2-${i}`} style={{ textAlign: 'left', padding: '20px' }}>
-                  <div style={{ fontFamily: 'JetBrains Mono, monospace', color: '#00f0ff', fontSize: '0.7rem', letterSpacing: '0.25em', marginBottom: '6px', opacity: 0.85 }}>LAYER 02</div>
-                  <div style={{ fontFamily: 'Nevera', color: '#00f0ff', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>TEEPIN NETWORK</div>
-                  <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>spills to thousands of teepin nodes. every inference runs inside a tee. you never see their data. they never see yours.</p>
-                </div>
-              )),
-
-              // Row 3: LAYER 03 — ENTERPRISE GPU
-              ...Array.from({ length: 7 }, (_, i) => (
-                <div key={`l3-${i}`} style={{ textAlign: 'left', padding: '20px' }}>
-                  <div style={{ fontFamily: 'JetBrains Mono, monospace', color: '#b8ff00', fontSize: '0.7rem', letterSpacing: '0.25em', marginBottom: '6px', opacity: 0.85 }}>LAYER 03</div>
-                  <div style={{ fontFamily: 'Nevera', color: '#b8ff00', fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>ENTERPRISE GPU</div>
-                  <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>zero gravity h100s and h200s as fallback. enterprise-grade. fully auditable on-chain. no centralized cloud dependency.</p>
-                </div>
-              )),
-
-              // Row 4: Cycle through all three layers to fill the grid
-              ...Array.from({ length: 7 }, (_, i) => {
-                const layers = [
-                  { num: '01', color: '#ff2d7b', title: 'HOUSEHOLD MESH', body: 'your devices talk first. phone, laptop, home companion. everything stays inside your home.' },
-                  { num: '02', color: '#00f0ff', title: 'TEEPIN NETWORK', body: 'spills to thousands of teepin nodes. every inference runs inside a tee.' },
-                  { num: '03', color: '#b8ff00', title: 'ENTERPRISE GPU', body: 'zero gravity h100s and h200s as fallback. enterprise-grade. fully auditable on-chain.' },
-                ];
-                const l = layers[i % 3];
-                return (
-                  <div key={`l4-${i}`} style={{ textAlign: 'left', padding: '20px' }}>
-                    <div style={{ fontFamily: 'JetBrains Mono, monospace', color: l.color, fontSize: '0.7rem', letterSpacing: '0.25em', marginBottom: '6px', opacity: 0.85 }}>LAYER {l.num}</div>
-                    <div style={{ fontFamily: 'Nevera', color: l.color, fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>{l.title}</div>
-                    <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: '0.9rem', maxWidth: '300px', textTransform: 'lowercase' }}>{l.body}</p>
-                  </div>
-                );
-              })
-            ]}
+          <GridMotion
+            items={(() => {
+              const layers = [
+                { num: '01', color: '#ff2d7b', title: 'HOUSEHOLD MESH', body: 'your devices talk first. phone, laptop, home companion. everything stays inside your home. maximum privacy. zero network dependency.' },
+                { num: '02', color: '#00f0ff', title: 'TEEPIN NETWORK', body: 'spills to thousands of teepin nodes. every inference runs inside a tee. you never see their data. they never see yours.' },
+                { num: '03', color: '#b8ff00', title: 'ENTERPRISE GPU', body: 'zero gravity h100s and h200s as fallback. enterprise-grade. fully auditable on-chain. no centralized cloud dependency.' },
+              ];
+              const perRow = isMobile ? 3 : 7;
+              const rowCount = isMobile ? 3 : 4;
+              const out: React.ReactNode[] = [];
+              for (let r = 0; r < rowCount; r++) {
+                const layer = layers[r % 3];
+                for (let c = 0; c < perRow; c++) {
+                  out.push(
+                    <div key={`r${r}-c${c}`} style={{ textAlign: 'left', padding: isMobile ? '16px' : '20px' }}>
+                      <div style={{ fontFamily: 'JetBrains Mono, monospace', color: layer.color, fontSize: isMobile ? '0.65rem' : '0.7rem', letterSpacing: '0.25em', marginBottom: '6px', opacity: 0.85 }}>LAYER {layer.num}</div>
+                      <div style={{ fontFamily: 'Nevera', color: layer.color, fontSize: isMobile ? '1.4rem' : '1.8rem', fontWeight: 900, marginBottom: '8px', lineHeight: 1.1 }}>{layer.title}</div>
+                      <p style={{ fontFamily: 'Space Grotesk', color: '#a0a0b5', fontSize: isMobile ? '0.8rem' : '0.9rem', maxWidth: '300px', textTransform: 'lowercase', lineHeight: 1.5 }}>{layer.body}</p>
+                    </div>
+                  );
+                }
+              }
+              return out;
+            })()}
           />
         </div>
 
         {/* Content Overlay - Much subtler for visibility */}
-        <div style={{ position: 'absolute', inset: 0, zIndex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', pointerEvents: 'none' }}>
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: isMobile ? 'flex-start' : 'center',
+            alignItems: 'center',
+            paddingTop: isMobile ? '60px' : 0,
+            pointerEvents: 'none',
+          }}
+        >
           <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at center, transparent 0%, rgba(10,10,15,0.8) 100%)', zIndex: -1 }} />
-          
+
           {/* Glassmorphism Backdrop for Text */}
-          <div 
+          <div
             style={{
               position: 'absolute',
+              top: isMobile ? '40px' : '50%',
+              transform: isMobile ? 'none' : 'translateY(-50%)',
               width: '100%',
-              height: '240px',
+              height: isMobile ? '180px' : '240px',
               background: 'rgba(10, 10, 15, 0.4)',
               backdropFilter: 'blur(12px)',
               WebkitBackdropFilter: 'blur(12px)',
               zIndex: -1,
               maskImage: 'linear-gradient(to bottom, transparent, black 20%, black 80%, transparent)',
               WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 20%, black 80%, transparent)',
-              overflow: 'hidden'
+              overflow: 'hidden',
             }}
           >
           </div>
@@ -710,8 +759,14 @@ export const Home = () => {
           padding: '120px 24px',
           overflow: 'hidden',
           minHeight: '500px',
+          background: '#0a0a0f',
         }}
       >
+        {/* Top fade */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '150px', background: 'linear-gradient(to bottom, #0a0a0f, transparent)', zIndex: 3, pointerEvents: 'none' }} />
+        {/* Bottom fade */}
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '150px', background: 'linear-gradient(to bottom, transparent, #0a0a0f)', zIndex: 3, pointerEvents: 'none' }} />
+
         <ParticleNetwork
           particleCount={80}
           connectionDistance={130}
@@ -767,7 +822,7 @@ export const Home = () => {
               every particle represents a real teepin node. move your cursor
               to interact with the live peer-to-peer mesh.
             </p>
-            <NeonButton variant="lime" size="md">
+            <NeonButton variant="lime" size="md" comingSoon>
               explore network
             </NeonButton>
           </ScrollReveal>
@@ -777,7 +832,10 @@ export const Home = () => {
       {/* ═══════════════════════════════════════
           CTA SECTION — Command Terminal
           ═══════════════════════════════════════ */}
-      <section style={{ padding: '80px 24px 120px', position: 'relative' }}>
+      <section style={{ padding: '80px 24px 120px', position: 'relative', background: '#0a0a0f' }}>
+        {/* Top fade */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '120px', background: 'linear-gradient(to bottom, #0a0a0f, transparent)', zIndex: 3, pointerEvents: 'none' }} />
+
         <Aurora
           colors={['#ff2d7b', '#a855f7', '#0a0a2f']}
           speed={0.5}
@@ -823,24 +881,59 @@ export const Home = () => {
                 >
                   <span style={{ color: '#b8ff00', fontWeight: 700 }}>$</span>
                   <span style={{ color: '#a0a0b5', wordBreak: 'break-word', flex: 1, textAlign: 'left' }}>install teepin mobile on android to join the network. ios coming soon.</span>
-                  <button
-                    style={{
-                      padding: '6px 16px',
-                      background: '#b8ff00',
-                      color: '#000',
-                      border: 'none',
-                      fontFamily: 'Orbitron, sans-serif',
-                      fontWeight: 700,
-                      fontSize: '10px',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.1em',
-                      cursor: 'pointer',
-                      clipPath: 'polygon(5px 0, 100% 0, calc(100% - 5px) 100%, 0 100%)',
-                      boxShadow: '0 0 15px rgba(184,255,0,0.3)',
-                    }}
-                  >
-                    Download App
-                  </button>
+                  <span style={{ position: 'relative', display: 'inline-block' }}>
+                    <button
+                      disabled
+                      aria-disabled="true"
+                      style={{
+                        padding: '6px 16px',
+                        background: '#b8ff00',
+                        color: '#000',
+                        border: 'none',
+                        fontFamily: 'Orbitron, sans-serif',
+                        fontWeight: 700,
+                        fontSize: '10px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.1em',
+                        cursor: 'not-allowed',
+                        clipPath: 'polygon(5px 0, 100% 0, calc(100% - 5px) 100%, 0 100%)',
+                        boxShadow: '0 0 15px rgba(184,255,0,0.3)',
+                      }}
+                    >
+                      Download App
+                    </button>
+                    <span
+                      style={{
+                        position: 'absolute',
+                        top: '-10px',
+                        right: '-10px',
+                        padding: '1px',
+                        background: '#b8ff00',
+                        clipPath: 'polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%)',
+                        filter: 'drop-shadow(0 0 6px rgba(184,255,0,0.6))',
+                        whiteSpace: 'nowrap',
+                        pointerEvents: 'none',
+                        zIndex: 2,
+                      }}
+                    >
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          padding: '3px 14px',
+                          background: '#0a0a0f',
+                          color: '#b8ff00',
+                          fontFamily: 'JetBrains Mono, monospace',
+                          fontSize: '9px',
+                          letterSpacing: '0.15em',
+                          fontWeight: 700,
+                          textTransform: 'uppercase',
+                          clipPath: 'polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%)',
+                        }}
+                      >
+                        coming soon
+                      </span>
+                    </span>
+                  </span>
                 </div>
 
                 <p

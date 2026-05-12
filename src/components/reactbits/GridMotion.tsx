@@ -1,4 +1,4 @@
-import { useEffect, useRef, FC, ReactNode } from 'react';
+import { useEffect, useRef, useState, FC, ReactNode } from 'react';
 import { gsap } from 'gsap';
 import Noise from './Noise';
 
@@ -11,67 +11,87 @@ const GridMotion: FC<GridMotionProps> = ({ items = [] }) => {
   const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
   const mouseXRef = useRef<number>(window.innerWidth / 2);
 
-  const totalItems = 28;
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
+  const cols = isMobile ? 3 : 7;
+  const rows = isMobile ? 3 : 4;
+  const totalItems = cols * rows;
   const defaultItems = Array.from({ length: totalItems }, (_, index) => `Item ${index + 1}`);
   const combinedItems = items.length > 0 ? items.slice(0, totalItems) : defaultItems;
 
   useEffect(() => {
-    gsap.ticker.lagSmoothing(0);
+    if (isMobile) {
+      // Auto-drift slow-motion on mobile (no mouse)
+      const tweens: gsap.core.Tween[] = [];
+      rowRefs.current.forEach((row, index) => {
+        if (!row) return;
+        const direction = index % 2 === 0 ? 1 : -1;
+        const driftDistance = 80 * direction;
+        const t = gsap.fromTo(
+          row,
+          { x: -driftDistance },
+          {
+            x: driftDistance,
+            duration: 14 + index * 2,
+            ease: 'sine.inOut',
+            yoyo: true,
+            repeat: -1,
+            delay: index * 0.6,
+          }
+        );
+        tweens.push(t);
+      });
+      return () => {
+        tweens.forEach((t) => t.kill());
+        rowRefs.current.forEach((row) => row && gsap.set(row, { x: 0 }));
+      };
+    }
 
-    const handleMouseMove = (e: MouseEvent): void => {
-      mouseXRef.current = e.clientX;
-    };
-
+    // Desktop: mouse-driven parallax with delta threshold
     const updateMotion = (): void => {
       const maxMoveAmount = 300;
       const baseDuration = 0.8;
       const inertiaFactors = [0.6, 0.4, 0.3, 0.2];
 
       rowRefs.current.forEach((row, index) => {
-        if (row) {
-          const direction = index % 2 === 0 ? 1 : -1;
-          const moveAmount = ((mouseXRef.current / window.innerWidth) * maxMoveAmount - maxMoveAmount / 2) * direction;
+        if (!row) return;
+        const direction = index % 2 === 0 ? 1 : -1;
+        const moveAmount = ((mouseXRef.current / window.innerWidth) * maxMoveAmount - maxMoveAmount / 2) * direction;
 
-          gsap.to(row, {
-            x: moveAmount,
-            duration: baseDuration + inertiaFactors[index % inertiaFactors.length],
-            ease: 'power3.out',
-            overwrite: 'auto'
-          });
-        }
+        gsap.to(row, {
+          x: moveAmount,
+          duration: baseDuration + inertiaFactors[index % inertiaFactors.length],
+          ease: 'power3.out',
+          overwrite: 'auto',
+        });
       });
     };
 
-    let removeAnimationLoop: (() => void) | null = gsap.ticker.add(updateMotion);
-    window.addEventListener('mousemove', handleMouseMove);
+    let lastX = mouseXRef.current;
+    const handleMouseMove = (e: MouseEvent): void => {
+      mouseXRef.current = e.clientX;
+      if (Math.abs(e.clientX - lastX) < 8) return;
+      lastX = e.clientX;
+      updateMotion();
+    };
 
-    const grid = gridRef.current;
-    const observer = grid
-      ? new IntersectionObserver(
-          ([entry]) => {
-            if (entry.isIntersecting) {
-              if (!removeAnimationLoop) removeAnimationLoop = gsap.ticker.add(updateMotion);
-            } else if (removeAnimationLoop) {
-              removeAnimationLoop();
-              removeAnimationLoop = null;
-            }
-          },
-          { rootMargin: '600px' }
-        )
-      : null;
-    if (observer && grid) observer.observe(grid);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
-      if (removeAnimationLoop) removeAnimationLoop();
-      observer?.disconnect();
     };
-  }, []);
+  }, [isMobile, rows]);
 
   return (
     <div ref={gridRef} className="h-full w-full overflow-hidden">
       <section
-        className="w-full h-screen overflow-hidden relative flex items-center justify-center bg-[#0a0a0f]"
+        className="w-full h-full overflow-hidden relative flex items-center justify-center bg-[#0a0a0f]"
       >
         {/* Animated Background Mesh */}
         <div className="absolute inset-0 z-0 opacity-20">
@@ -85,18 +105,29 @@ const GridMotion: FC<GridMotionProps> = ({ items = [] }) => {
         </div>
 
         <div className="absolute inset-0 pointer-events-none z-[4] bg-[length:250px]"></div>
-        <div className="gap-4 flex-none relative w-[150vw] h-[150vh] grid grid-rows-4 grid-cols-1 rotate-[-15deg] origin-center z-[2]">
-          {Array.from({ length: 4 }, (_, rowIndex) => (
+        <div
+          className="gap-4 flex-none relative origin-center z-[2] grid grid-cols-1"
+          style={{
+            width: isMobile ? '170vw' : '150vw',
+            height: isMobile ? `${rows * 55}vw` : '150vh',
+            transform: isMobile ? 'rotate(-6deg)' : 'rotate(-15deg)',
+            gridTemplateRows: isMobile ? `repeat(${rows}, 55vw)` : `repeat(${rows}, minmax(0, 1fr))`,
+          }}
+        >
+          {Array.from({ length: rows }, (_, rowIndex) => (
             <div
               key={rowIndex}
-              className="grid gap-4 grid-cols-7"
-              style={{ willChange: 'transform, filter' }}
+              className="grid gap-4"
+              style={{
+                willChange: 'transform',
+                gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+              }}
               ref={el => {
                 if (el) rowRefs.current[rowIndex] = el;
               }}
             >
-              {Array.from({ length: 7 }, (_, itemIndex) => {
-                const content = combinedItems[rowIndex * 7 + itemIndex];
+              {Array.from({ length: cols }, (_, itemIndex) => {
+                const content = combinedItems[rowIndex * cols + itemIndex];
                 return (
                   <div key={itemIndex} className="relative p-3 group">
                     <div 

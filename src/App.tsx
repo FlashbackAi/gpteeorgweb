@@ -25,6 +25,9 @@ function App() {
           className="noise-overlay"
           style={{
             minHeight: '100vh',
+            width: '100%',
+            maxWidth: '100vw',
+            overflowX: 'hidden',
             background: 'linear-gradient(180deg, #0a0a0f 0%, #12101a 50%, #0a0a0f 100%)',
             display: 'flex',
             flexDirection: 'column',

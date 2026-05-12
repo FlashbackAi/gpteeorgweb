@@ -293,6 +293,7 @@ function HoveredNodeInfo({ node }: HoveredNodeInfoProps) {
 export function NetworkGlobeSection() {
   const [hoveredMarker, setHoveredMarker] = useState<GlobeMarker | null>(null);
   const [sectionVisible, setSectionVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
 
   const hoveredNode = hoveredMarker
@@ -309,6 +310,13 @@ export function NetworkGlobeSection() {
     );
     observer.observe(el);
     return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
   }, []);
 
   const globeConfig = {
@@ -420,19 +428,20 @@ export function NetworkGlobeSection() {
       */}
 
       <div
+        className="network-globe-grid"
         style={{
           maxWidth: '1280px',
           margin: '0 auto',
           display: 'grid',
-          gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)',
-          gap: '40px',
+          gridTemplateColumns: isMobile ? '1fr' : 'minmax(0, 1fr) minmax(0, 1fr)',
+          gap: isMobile ? '32px' : '40px',
           alignItems: 'center',
           position: 'relative',
           zIndex: 1,
         }}
       >
         {/* ── LEFT: Text content ── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', minWidth: 0 }}>
 
           {/* Headline */}
           <ScrollReveal animation="fadeUp" delay={80}>
@@ -507,7 +516,7 @@ export function NetworkGlobeSection() {
 
           {/* Stats row */}
           <ScrollReveal animation="fadeUp" delay={240}>
-            <div style={{ display: 'flex', gap: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, minmax(0, 1fr))', gap: '12px' }}>
               <StatBox
                 value={14283}
                 suffix=""
@@ -524,7 +533,7 @@ export function NetworkGlobeSection() {
                 color="#a855f7"
                 visible={sectionVisible}
                 delay={200}
-                offset={-28}
+                offset={isMobile ? 0 : -28}
               />
               <StatBox
                 value={99}
@@ -533,7 +542,7 @@ export function NetworkGlobeSection() {
                 color="#b8ff00"
                 visible={sectionVisible}
                 delay={400}
-                offset={20}
+                offset={isMobile ? 0 : 20}
               />
             </div>
           </ScrollReveal>
@@ -756,7 +765,7 @@ export function NetworkGlobeSection() {
             <Globe3D
               markers={networkNodes}
               config={globeConfig}
-              className="h-[560px] w-full"
+              className="h-[342px] sm:h-[560px] w-full"
               onMarkerHover={setHoveredMarker}
               onMarkerClick={(marker) => {
                 const node = networkNodes.find((n) => n.label === marker.label);
