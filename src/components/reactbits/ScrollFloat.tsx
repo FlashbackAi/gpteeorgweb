@@ -1,8 +1,4 @@
-import React, { useEffect, useMemo, useRef, ReactNode, RefObject } from 'react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-gsap.registerPlugin(ScrollTrigger);
+import React, { useEffect, useMemo, useRef, useState, ReactNode, RefObject } from 'react';
 
 interface ScrollFloatProps {
   children: ReactNode;
@@ -19,17 +15,15 @@ interface ScrollFloatProps {
 
 const ScrollFloat: React.FC<ScrollFloatProps> = ({
   children,
-  scrollContainerRef,
   containerClassName = '',
   textClassName = '',
-  animationDuration = 1,
-  ease = 'back.inOut(2)',
-  scrollStart = 'center bottom+=50%',
-  scrollEnd = 'bottom bottom-=40%',
-  stagger = 0.03,
+  animationDuration = 0.6,
+  ease = 'cubic-bezier(0.22, 1, 0.36, 1)',
+  stagger = 0.1,
   splitBy = 'char',
 }) => {
   const containerRef = useRef<HTMLHeadingElement>(null);
+  const [visible, setVisible] = useState(false);
 
   const splitText = useMemo(() => {
     const text = typeof children === 'string' ? children : '';
@@ -38,67 +32,61 @@ const ScrollFloat: React.FC<ScrollFloatProps> = ({
         /^\s+$/.test(part) ? (
           <span key={index}>{part}</span>
         ) : (
-          <span className="inline-block" key={index}>{part}</span>
+          <span className="sf-piece" key={index} style={{ display: 'inline-block', animationDelay: `${(index / 2) * stagger}s` }}>{part}</span>
         )
       );
     }
     return text.split('').map((char, index) => (
-      <span className="inline-block" key={index}>
-        {char === ' ' ? '\u00A0' : char}
+      <span
+        className="sf-piece"
+        key={index}
+        style={{ display: 'inline-block', animationDelay: `${index * stagger}s` }}
+      >
+        {char === ' ' ? ' ' : char}
       </span>
     ));
-  }, [children, splitBy]);
+  }, [children, splitBy, stagger]);
 
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-
-    const scroller = scrollContainerRef && scrollContainerRef.current ? scrollContainerRef.current : window;
-
-    const charElements = el.querySelectorAll('.inline-block');
-
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        charElements,
-        {
-          willChange: 'opacity, transform',
-          opacity: 0,
-          yPercent: 100,
-          force3D: true,
-        },
-        {
-          duration: animationDuration,
-          ease: ease,
-          opacity: 1,
-          yPercent: 0,
-          stagger: stagger,
-          force3D: true,
-          scrollTrigger: {
-            trigger: el,
-            scroller,
-            start: scrollStart,
-            toggleActions: 'play none none none',
-            once: true,
-          },
-          onComplete: () => {
-            charElements.forEach((node) => {
-              (node as HTMLElement).style.willChange = 'auto';
-            });
-          },
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
         }
-      );
-    }, el);
-
-    return () => ctx.revert();
-  }, [scrollContainerRef, animationDuration, ease, scrollStart, scrollEnd, stagger, splitBy]);
+      },
+      { threshold: 0.25, rootMargin: '0px 0px -10% 0px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <h2
       ref={containerRef}
-      className={`overflow-visible ${containerClassName}`}
+      className={`overflow-visible ${containerClassName} ${visible ? 'sf-visible' : ''}`}
       style={{ transform: 'translateZ(0)', contain: 'layout paint' }}
     >
       <span className={`inline-block text-[clamp(2.5rem,8vw,5rem)] leading-[1.2] ${textClassName}`}>{splitText}</span>
+      <style>{`
+        .sf-piece {
+          opacity: 0;
+          transform: translate3d(0, 28px, 0);
+          will-change: opacity, transform;
+          backface-visibility: hidden;
+        }
+        .sf-visible .sf-piece {
+          animation: sfRise ${animationDuration}s ${ease} forwards;
+        }
+        @keyframes sfRise {
+          to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+          }
+        }
+      `}</style>
     </h2>
   );
 };

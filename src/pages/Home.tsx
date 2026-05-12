@@ -723,11 +723,9 @@ export const Home = () => {
                 }}
               >
                 <ScrollFloat
-                  animationDuration={0.4}
-                  ease='power2.out'
-                  scrollStart='top 90%'
-                  scrollEnd='top 50%'
-                  stagger={0.08}
+                  animationDuration={0.6}
+                  ease='cubic-bezier(0.22, 1, 0.36, 1)'
+                  stagger={0.12}
                   splitBy="word"
                   textClassName="text-white font-['Nevera']"
                   containerClassName="my-0"
