@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { CyberTerminal } from '../components/CyberTerminal';
 import { ScrollReveal } from '../components/ScrollReveal';
 import { ParticleNetwork } from '../components/ParticleNetwork';
+import { StatBox } from '../components/StatBox';
 
 interface NodeData {
   peerId: string;
@@ -30,6 +31,8 @@ export const Nodes = () => {
   const [nodes, setNodes] = useState<NodeData[]>([]);
   const [totalNodes, setTotalNodes] = useState(1024);
   const [commandInput, setCommandInput] = useState('');
+  const [statsVisible, setStatsVisible] = useState(false);
+  const statsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setNodes(generateMockNodes());
@@ -38,6 +41,17 @@ export const Nodes = () => {
       setNodes(generateMockNodes());
     }, 10000);
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const el = statsRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setStatsVisible(true); },
+      { threshold: 0.2 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
   const getStatusStyles = (status: string) => {
@@ -58,48 +72,45 @@ export const Nodes = () => {
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px 80px', position: 'relative', zIndex: 1 }}>
         {/* Stats Overview */}
-        <ScrollReveal animation="fadeUp">
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '20px',
-            marginBottom: '48px',
-          }}>
-            {[
-              { label: 'Network Health', color: '#b8ff00' },
-              { label: 'Total Nodes', color: '#ff2d7b' },
-              { label: 'Traffic (24h)', color: '#00f0ff' },
-            ].map((stat, i) => (
-              <div
-                key={i}
-                style={{
-                  background: 'rgba(18,16,26,0.7)',
-                  backdropFilter: 'blur(10px)',
-                  border: `1px solid ${stat.color}20`,
-                  borderLeft: `3px solid ${stat.color}`,
-                  borderRadius: '8px',
-                  padding: '24px',
-                }}
-              >
-                <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '10px', color: '#888899', marginBottom: '8px', textTransform: 'uppercase' }}>
-                  {stat.label}
-                </div>
-                <div style={{
-                  fontFamily: 'Orbitron, sans-serif',
-                  fontSize: '2rem',
-                  fontWeight: 800,
-                  color: stat.color,
-                  textShadow: `0 0 15px ${stat.color}40`,
-                }}>
-                  {i === 0 ? '99.98%' : i === 1 ? totalNodes.toLocaleString() : '8.42 PB'}
-                </div>
-                <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '9px', color: stat.color, marginTop: '4px', opacity: 0.7 }}>
-                  {i === 0 ? 'UPTIME_INDEX' : i === 1 ? 'ACTIVE_PEERS' : 'TX_STREAMS'}
-                </div>
-              </div>
-            ))}
-          </div>
-        </ScrollReveal>
+        <div ref={statsRef}>
+          <ScrollReveal animation="fadeUp">
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: '16px',
+                marginBottom: '48px',
+              }}
+            >
+              <StatBox
+                value={99}
+                suffix="%"
+                label="network health"
+                sublabel="UPTIME_INDEX"
+                color="#b8ff00"
+                visible={statsVisible}
+                delay={0}
+              />
+              <StatBox
+                value={totalNodes}
+                label="total nodes"
+                sublabel="ACTIVE_PEERS"
+                color="#00f0ff"
+                visible={statsVisible}
+                delay={150}
+              />
+              <StatBox
+                value={842}
+                suffix=" pb"
+                label="traffic (24h)"
+                sublabel="TX_STREAMS"
+                color="#a855f7"
+                visible={statsVisible}
+                delay={300}
+              />
+            </div>
+          </ScrollReveal>
+        </div>
 
         {/* Nodes Table */}
         <ScrollReveal animation="fadeUp" delay={200}>

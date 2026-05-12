@@ -1,12 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { CyberTerminal } from '../components/CyberTerminal';
 import { ScrollReveal } from '../components/ScrollReveal';
 import { GlitchText } from '../components/reactbits/GlitchText';
 import { NeonButton } from '../components/NeonButton';
 import { Aurora } from '../components/reactbits/Aurora';
+import { StatBox } from '../components/StatBox';
 
 export const P2PNetwork = () => {
   const [activeTab, setActiveTab] = useState<'topology' | 'protocol' | 'logs'>('topology');
+  const [statsVisible, setStatsVisible] = useState(false);
+  const statsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = statsRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setStatsVisible(true); },
+      { threshold: 0.2 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [activeTab]);
 
   const tabs = [
     { id: 'topology' as const, label: 'NETWORK_TOPOLOGY', icon: '✧', color: '#ff2d7b' },
@@ -104,35 +118,34 @@ export const P2PNetwork = () => {
             </ScrollReveal>
 
             {/* Network Stats */}
-            <ScrollReveal animation="fadeUp" delay={150}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
-                {[
-                  { value: '1,402', label: 'ACTIVE NODES', color: '#ff2d7b' },
-                  { value: '99.99%', label: 'CONNECTIVITY', color: '#00f0ff' },
-                  { value: 'P2P', label: 'TOPOLOGY TYPE', color: '#a855f7' },
-                ].map((stat, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      background: 'rgba(18,16,26,0.7)',
-                      backdropFilter: 'blur(10px)',
-                      border: `1px solid ${stat.color}15`,
-                      borderRadius: '8px',
-                      padding: '28px',
-                      textAlign: 'center',
-                    }}
-                  >
-                    <div style={{
-                      fontFamily: 'Orbitron, sans-serif', fontSize: '2.2rem', fontWeight: 800,
-                      color: stat.color, textShadow: `0 0 20px ${stat.color}40`, marginBottom: '8px',
-                    }}>{stat.value}</div>
-                    <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '9px', color: '#888899', letterSpacing: '0.15em' }}>
-                      {stat.label}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </ScrollReveal>
+            <div ref={statsRef}>
+              <ScrollReveal animation="fadeUp" delay={150}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+                  <StatBox
+                    value={1402}
+                    label="active nodes"
+                    color="#ff2d7b"
+                    visible={statsVisible}
+                    delay={0}
+                  />
+                  <StatBox
+                    value={99}
+                    suffix="%"
+                    label="connectivity"
+                    color="#00f0ff"
+                    visible={statsVisible}
+                    delay={150}
+                  />
+                  <StatBox
+                    valueText="P2P"
+                    label="topology type"
+                    color="#a855f7"
+                    visible={statsVisible}
+                    delay={300}
+                  />
+                </div>
+              </ScrollReveal>
+            </div>
 
             {/* Traffic Metrics */}
             <ScrollReveal animation="fadeUp" delay={300}>

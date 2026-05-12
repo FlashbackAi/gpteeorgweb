@@ -14,6 +14,7 @@ interface ScrollFloatProps {
   scrollStart?: string;
   scrollEnd?: string;
   stagger?: number;
+  splitBy?: 'char' | 'word';
 }
 
 const ScrollFloat: React.FC<ScrollFloatProps> = ({
@@ -25,18 +26,28 @@ const ScrollFloat: React.FC<ScrollFloatProps> = ({
   ease = 'back.inOut(2)',
   scrollStart = 'center bottom+=50%',
   scrollEnd = 'bottom bottom-=40%',
-  stagger = 0.03
+  stagger = 0.03,
+  splitBy = 'char',
 }) => {
   const containerRef = useRef<HTMLHeadingElement>(null);
 
   const splitText = useMemo(() => {
     const text = typeof children === 'string' ? children : '';
+    if (splitBy === 'word') {
+      return text.split(/(\s+)/).map((part, index) =>
+        /^\s+$/.test(part) ? (
+          <span key={index}>{part}</span>
+        ) : (
+          <span className="inline-block" key={index}>{part}</span>
+        )
+      );
+    }
     return text.split('').map((char, index) => (
       <span className="inline-block" key={index}>
         {char === ' ' ? '\u00A0' : char}
       </span>
     ));
-  }, [children]);
+  }, [children, splitBy]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -53,6 +64,7 @@ const ScrollFloat: React.FC<ScrollFloatProps> = ({
           willChange: 'opacity, transform',
           opacity: 0,
           yPercent: 100,
+          force3D: true,
         },
         {
           duration: animationDuration,
@@ -60,22 +72,32 @@ const ScrollFloat: React.FC<ScrollFloatProps> = ({
           opacity: 1,
           yPercent: 0,
           stagger: stagger,
+          force3D: true,
           scrollTrigger: {
             trigger: el,
             scroller,
             start: scrollStart,
             toggleActions: 'play none none none',
             once: true,
-          }
+          },
+          onComplete: () => {
+            charElements.forEach((node) => {
+              (node as HTMLElement).style.willChange = 'auto';
+            });
+          },
         }
       );
     }, el);
 
     return () => ctx.revert();
-  }, [scrollContainerRef, animationDuration, ease, scrollStart, scrollEnd, stagger]);
+  }, [scrollContainerRef, animationDuration, ease, scrollStart, scrollEnd, stagger, splitBy]);
 
   return (
-    <h2 ref={containerRef} className={`overflow-visible ${containerClassName}`}>
+    <h2
+      ref={containerRef}
+      className={`overflow-visible ${containerClassName}`}
+      style={{ transform: 'translateZ(0)', contain: 'layout paint' }}
+    >
       <span className={`inline-block text-[clamp(2.5rem,8vw,5rem)] leading-[1.2] ${textClassName}`}>{splitText}</span>
     </h2>
   );

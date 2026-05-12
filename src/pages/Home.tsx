@@ -5,7 +5,6 @@ import { Aurora } from '../components/reactbits/Aurora';
 import FuzzyText from '../components/FuzzyText';
 import GridMotion from '../components/reactbits/GridMotion';
 import ScrollFloat from '../components/reactbits/ScrollFloat';
-import Noise from '../components/reactbits/Noise';
 import MagicRings from '../components/reactbits/MagicRings';
 import { ParticleNetwork } from '../components/ParticleNetwork';
 import DecayCard from '../components/DecayCard';
@@ -566,16 +565,20 @@ export const Home = () => {
         {/* Top Transition Gradient */}
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '200px', background: 'linear-gradient(to bottom, #0a0a0f, transparent)', zIndex: 10, pointerEvents: 'none' }} />
         
-        {/* Full-section noise overlay - subtle base layer */}
-        <div style={{ position: 'absolute', inset: 0, zIndex: 5, pointerEvents: 'none' }}>
-          <Noise 
-            patternRefreshInterval={1} 
-            patternAlpha={25} 
-            patternScaleX={2} 
-            patternScaleY={2} 
-            patternSize={250} 
-          />
-        </div>
+        {/* Full-section noise overlay - static SVG turbulence (zero runtime cost) */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 5,
+            pointerEvents: 'none',
+            opacity: 0.5,
+            mixBlendMode: 'overlay',
+            backgroundImage:
+              "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.7 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>\")",
+            backgroundSize: '180px 180px',
+          }}
+        />
         <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
           <GridMotion 
             items={[
@@ -671,11 +674,12 @@ export const Home = () => {
                 }}
               >
                 <ScrollFloat
-                  animationDuration={1}
+                  animationDuration={0.4}
                   ease='power2.out'
                   scrollStart='top 90%'
                   scrollEnd='top 50%'
-                  stagger={0.03}
+                  stagger={0.08}
+                  splitBy="word"
                   textClassName="text-white font-['Nevera']"
                   containerClassName="my-0"
                 >
