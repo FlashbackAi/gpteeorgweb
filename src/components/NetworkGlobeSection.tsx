@@ -482,10 +482,10 @@ export function NetworkGlobeSection() {
                 textShadow: '0 0 30px rgba(0,240,255,0.1)',
               }}
             >
-              teepin orchestrates hardware people already own. costs drop as
-              the network grows. more devices means more distributed compute,
-              lower gpu fallback dependency, better margins at scale.
-              no infrastructure purchased. ever.
+              teepin decides where each compute task runs, manages the handoff
+              between household and global nodes, and keeps everything private
+              at every hop. node operators earn for the compute they contribute.
+              the more households that join, the stronger the network gets for everyone.
             </p>
           </ScrollReveal>
 

@@ -141,7 +141,7 @@ export const Home = () => {
                 />
               </h1>
               <SplitText
-                text="your compute. your ai. no cloud."
+                text="your compute. your ai. local first. global p2p mesh when needed."
                 className="text-cyber-grey-light"
                 splitBy="words"
                 animation="fadeUp"
@@ -164,9 +164,10 @@ export const Home = () => {
                   textTransform: 'lowercase',
                 }}
               >
-                a distributed compute network built on trusted execution environments.
-                install teepin mobile, become a node. run open source llms privately.
-                no servers. no cloud. no one else's terms.
+                teepin runs ai on your own devices first. when your household hits its limit,
+                it spills to the teepin network. a global mesh of other people's devices,
+                tee-protected and incentivized. your data stays private at every layer
+                while rewarding your participation in the p2p network.
               </p>
             </ScrollReveal>
 
@@ -357,7 +358,7 @@ export const Home = () => {
                 }}
               >
                 <span style={{ width: '20px', height: '1px', background: 'linear-gradient(90deg, transparent, #ff2d7b)' }} />
-                decentralized stack
+                distributed stack
                 <span style={{ width: '20px', height: '1px', background: 'linear-gradient(90deg, #ff2d7b, transparent)' }} />
               </div>
               <div
@@ -387,7 +388,7 @@ export const Home = () => {
                 lineHeight: 1.7,
                 fontFamily: 'Space Grotesk, sans-serif'
               }}>
-                every layer of teepin is engineered for hardware-level privacy, peer-to-peer inference, and scale without infrastructure.
+                teepin orchestrates where your ai runs. it starts with your own devices, routes to your household mesh, and spills to the global network only when needed. every handoff is automatic, private, and tee-protected.
               </p>
             </div>
           </ScrollReveal>
@@ -429,10 +430,10 @@ export const Home = () => {
                         marginBottom: '0.75rem',
                         color: '#ff2d7b'
                       }}>
-                        P2P<br/>MESH
+                        HOUSEHOLD<br/>MESH
                       </h3>
                       <p style={{ fontSize: '13px', color: '#a0a0b5', lineHeight: 1.6 }}>
-                        phones, laptops, gaming PCs - every device is a node. compute routes peer-to-peer, never through a central server.
+                        teepin connects your phone, laptop, gaming pc, and home companion into a private compute mesh. it automatically routes inference tasks across your own devices. nothing leaves your household unless your devices can't handle it.
                       </p>
                     </div>
                   </DecayCard>
@@ -464,10 +465,10 @@ export const Home = () => {
                         marginBottom: '0.75rem',
                         color: '#00f0ff'
                       }}>
-                        GLOBAL<br/>NODES
+                        GLOBAL P2P<br/>NETWORK
                       </h3>
                       <p style={{ fontSize: '13px', color: '#a0a0b5', textTransform: 'lowercase', lineHeight: 1.6 }}>
-                        thousands of devices contributing compute across the teepin network. every install strengthens the mesh.
+                        when your household mesh hits its limit, teepin orchestrates the handoff to the global network. thousands of other household devices contributing compute and earning for it. teepin manages the routing. every inference still runs inside a tee. no one sees your data. not even the node running it.
                       </p>
                     </div>
                   </DecayCard>
@@ -817,8 +818,9 @@ export const Home = () => {
                 textTransform: 'lowercase',
               }}
             >
-              every particle represents a real teepin node. move your cursor
-              to interact with the live peer-to-peer mesh.
+              every dot is a real device. household nodes and global nodes,
+              orchestrated by teepin in real time. compute flows to where
+              it's needed. private at every hop.
             </p>
             <NeonButton variant="lime" size="md" comingSoon>
               explore network
@@ -858,7 +860,7 @@ export const Home = () => {
                     marginBottom: '24px',
                   }}
                 >
-                  ready to become a node?
+                  ready to join the p2p ai network?
                 </h2>
 
                 <div
@@ -878,7 +880,7 @@ export const Home = () => {
                   }}
                 >
                   <span style={{ color: '#b8ff00', fontWeight: 700 }}>$</span>
-                  <span style={{ color: '#a0a0b5', wordBreak: 'break-word', flex: 1, textAlign: 'left' }}>install teepin mobile on android to join the network. ios coming soon.</span>
+                  <span style={{ color: '#a0a0b5', wordBreak: 'break-word', flex: 1, textAlign: 'left' }}>install teepin on mobile or desktop to join the network.</span>
                   <span style={{ position: 'relative', display: 'inline-block' }}>
                     <button
                       disabled
@@ -942,7 +944,7 @@ export const Home = () => {
                     textTransform: 'lowercase',
                   }}
                 >
-                  android · ios coming · laptops · gaming pcs
+                  android · ios · laptops · gaming pcs
                 </p>
               </div>
             </CyberTerminal>
