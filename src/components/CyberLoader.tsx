@@ -83,6 +83,38 @@ export const CyberLoader = ({ onComplete, duration = 3500 }: CyberLoaderProps) =
         teepin
       </div>
 
+      {/* Circular loader */}
+      <div
+        style={{
+          marginTop: '32px',
+          width: '48px',
+          height: '48px',
+          borderRadius: '50%',
+          border: '2px solid rgba(255,45,123,0.15)',
+          borderTopColor: '#ff2d7b',
+          borderRightColor: '#00f0ff',
+          boxShadow: '0 0 12px rgba(255,45,123,0.4), inset 0 0 8px rgba(0,240,255,0.15)',
+          animation: 'cyberSpin 1.1s linear infinite',
+        }}
+      />
+
+      {/* Loading text */}
+      <div
+        style={{
+          marginTop: '18px',
+          fontFamily: 'JetBrains Mono, monospace',
+          fontSize: '12px',
+          letterSpacing: '0.25em',
+          textTransform: 'lowercase',
+          color: '#a0a0b5',
+          textShadow: '0 0 8px rgba(255,45,123,0.25)',
+          animation: 'cyberPulse 1.6s ease-in-out infinite',
+          userSelect: 'none',
+        }}
+      >
+        loading ..
+      </div>
+
       <style>{`
         @keyframes matrixFall {
           0% { transform: translateY(-100%); }
@@ -94,6 +126,14 @@ export const CyberLoader = ({ onComplete, duration = 3500 }: CyberLoaderProps) =
           4% { text-shadow: -5px 0 #00f0ff, 5px 0 #a855f7; transform: translate(-2px, 0); }
           6% { text-shadow: 3px 0 #00f0ff, -3px 0 #a855f7; transform: translate(0, 0); }
           100% { text-shadow: 3px 0 #00f0ff, -3px 0 #a855f7; }
+        }
+        @keyframes cyberSpin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        @keyframes cyberPulse {
+          0%, 100% { opacity: 0.5; }
+          50% { opacity: 1; }
         }
       `}</style>
     </div>

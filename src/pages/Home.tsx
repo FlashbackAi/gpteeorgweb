@@ -860,7 +860,7 @@ export const Home = () => {
                     marginBottom: '24px',
                   }}
                 >
-                  ready to join the p2p ai network?
+                  ready to join the global p2p network?
                 </h2>
 
                 <div

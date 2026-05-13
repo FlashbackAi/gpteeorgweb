@@ -122,7 +122,7 @@ export const Header = () => {
           <span
             style={{
               fontFamily: 'Glitch Goblin, cursive',
-              fontSize: 'clamp(1.2rem, 2.5vw, 1.6rem)',
+              fontSize: 'clamp(1.8rem, 4vw, 2.2rem)',
               fontWeight: 700,
             }}
           >
