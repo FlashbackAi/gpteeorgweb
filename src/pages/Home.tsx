@@ -284,10 +284,10 @@ export const Home = () => {
                   />
                 )}
 
-                <StatsCounter value={4921} label="Active Nodes" color="#ff2d7b" suffix="+" />
-                <StatsCounter value={60} label="Countries" color="#00f0ff" suffix="+" />
+                <StatsCounter value={14} label="Active Nodes" color="#ff2d7b" suffix="+" />
+                <StatsCounter value={3} label="Countries" color="#00f0ff" suffix="+" />
                 <StatsCounter value={99} label="Uptime" color="#b8ff00" suffix="%" prefix="" />
-                <StatsCounter value={12} label="Models Live" color="#a855f7" />
+                <StatsCounter value={2} label="Models Live" color="#a855f7" suffix="+" />
               </div>
             </div>
           </ScrollReveal>

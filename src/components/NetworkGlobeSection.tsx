@@ -18,48 +18,23 @@ const NODE_ICONS = {
 // ============================================================================
 
 const networkNodes: Array<GlobeMarker & { type: keyof typeof NODE_ICONS; city: string }> = [
-  // North America
+  // USA
   { lat: 40.7128, lng: -74.006,   type: 'datacenter', city: 'New York',      src: NODE_ICONS.datacenter, label: 'New York' },
   { lat: 37.7749, lng: -122.4194, type: 'gpu',         city: 'San Francisco', src: NODE_ICONS.gpu,        label: 'San Francisco' },
-  { lat: 43.6532, lng: -79.3832,  type: 'gpu',         city: 'Toronto',       src: NODE_ICONS.gpu,        label: 'Toronto' },
   { lat: 47.6062, lng: -122.3321, type: 'gpu',         city: 'Seattle',       src: NODE_ICONS.gpu,        label: 'Seattle' },
   { lat: 34.0522, lng: -118.2437, type: 'mobile',      city: 'Los Angeles',   src: NODE_ICONS.mobile,     label: 'Los Angeles' },
   { lat: 41.8781, lng: -87.6298,  type: 'gpu',         city: 'Chicago',       src: NODE_ICONS.gpu,        label: 'Chicago' },
-  { lat: 29.7604, lng: -95.3698,  type: 'mobile',      city: 'Houston',       src: NODE_ICONS.mobile,     label: 'Houston' },
-  { lat: 25.7617, lng: -80.1918,  type: 'mobile',      city: 'Miami',         src: NODE_ICONS.mobile,     label: 'Miami' },
-  // Europe
-  { lat: 51.5074, lng: -0.1278,   type: 'datacenter', city: 'London',       src: NODE_ICONS.datacenter, label: 'London' },
-  { lat: 52.5200, lng: 13.4050,   type: 'gpu',         city: 'Berlin',        src: NODE_ICONS.gpu,        label: 'Berlin' },
-  { lat: 52.3676, lng: 4.9041,    type: 'datacenter', city: 'Amsterdam',     src: NODE_ICONS.datacenter, label: 'Amsterdam' },
-  { lat: 48.8566, lng: 2.3522,    type: 'gpu',         city: 'Paris',         src: NODE_ICONS.gpu,        label: 'Paris' },
-  { lat: 59.3293, lng: 18.0686,   type: 'gpu',         city: 'Stockholm',     src: NODE_ICONS.gpu,        label: 'Stockholm' },
-  { lat: 48.2082, lng: 16.3738,   type: 'mobile',      city: 'Vienna',        src: NODE_ICONS.mobile,     label: 'Vienna' },
-  { lat: 45.4642, lng: 9.1900,    type: 'mobile',      city: 'Milan',         src: NODE_ICONS.mobile,     label: 'Milan' },
-  { lat: 37.9838, lng: 23.7275,   type: 'mobile',      city: 'Athens',        src: NODE_ICONS.mobile,     label: 'Athens' },
-  { lat: 50.0755, lng: 14.4378,   type: 'gpu',         city: 'Prague',        src: NODE_ICONS.gpu,        label: 'Prague' },
-  // Asia
-  { lat: 35.6762, lng: 139.6503,  type: 'datacenter', city: 'Tokyo',         src: NODE_ICONS.datacenter, label: 'Tokyo' },
-  { lat: 1.3521,  lng: 103.8198,  type: 'datacenter', city: 'Singapore',     src: NODE_ICONS.datacenter, label: 'Singapore' },
-  { lat: 37.5665, lng: 126.9780,  type: 'gpu',         city: 'Seoul',         src: NODE_ICONS.gpu,        label: 'Seoul' },
-  { lat: 22.3193, lng: 114.1694,  type: 'gpu',         city: 'Hong Kong',     src: NODE_ICONS.gpu,        label: 'Hong Kong' },
+  // India
   { lat: 19.0760, lng: 72.8777,   type: 'mobile',      city: 'Mumbai',        src: NODE_ICONS.mobile,     label: 'Mumbai' },
-  { lat: 31.2304, lng: 121.4737,  type: 'datacenter', city: 'Shanghai',      src: NODE_ICONS.datacenter, label: 'Shanghai' },
-  { lat: 39.9042, lng: 116.4074,  type: 'gpu',         city: 'Beijing',       src: NODE_ICONS.gpu,        label: 'Beijing' },
-  { lat: 13.7563, lng: 100.5018,  type: 'mobile',      city: 'Bangkok',       src: NODE_ICONS.mobile,     label: 'Bangkok' },
-  { lat: 3.1390,  lng: 101.6869,  type: 'mobile',      city: 'Kuala Lumpur',  src: NODE_ICONS.mobile,     label: 'Kuala Lumpur' },
   { lat: 28.6139, lng: 77.2090,   type: 'gpu',         city: 'New Delhi',     src: NODE_ICONS.gpu,        label: 'New Delhi' },
-  // Middle East
-  { lat: 25.2048, lng: 55.2708,   type: 'datacenter', city: 'Dubai',         src: NODE_ICONS.datacenter, label: 'Dubai' },
-  { lat: 24.7136, lng: 46.6753,   type: 'gpu',         city: 'Riyadh',        src: NODE_ICONS.gpu,        label: 'Riyadh' },
-  // South America
-  { lat: -23.5505, lng: -46.6333, type: 'gpu',         city: 'São Paulo',     src: NODE_ICONS.gpu,        label: 'São Paulo' },
-  { lat: -34.6037, lng: -58.3816, type: 'mobile',      city: 'Buenos Aires',  src: NODE_ICONS.mobile,     label: 'Buenos Aires' },
-  { lat: -22.9068, lng: -43.1729, type: 'mobile',      city: 'Rio de Janeiro',src: NODE_ICONS.mobile,     label: 'Rio' },
-  // Africa & Oceania
-  { lat: -26.2041, lng: 28.0473,  type: 'gpu',         city: 'Johannesburg',  src: NODE_ICONS.gpu,        label: 'Johannesburg' },
+  { lat: 12.9716, lng: 77.5946,   type: 'datacenter', city: 'Bangalore',     src: NODE_ICONS.datacenter, label: 'Bangalore' },
+  { lat: 17.3850, lng: 78.4867,   type: 'gpu',         city: 'Hyderabad',     src: NODE_ICONS.gpu,        label: 'Hyderabad' },
+  { lat: 13.0827, lng: 80.2707,   type: 'mobile',      city: 'Chennai',       src: NODE_ICONS.mobile,     label: 'Chennai' },
+  // Australia
   { lat: -33.8688, lng: 151.2093, type: 'gpu',         city: 'Sydney',        src: NODE_ICONS.gpu,        label: 'Sydney' },
-  { lat: 6.5244,   lng: 3.3792,   type: 'mobile',      city: 'Lagos',         src: NODE_ICONS.mobile,     label: 'Lagos' },
-  { lat: -1.2921,  lng: 36.8219,  type: 'mobile',      city: 'Nairobi',       src: NODE_ICONS.mobile,     label: 'Nairobi' },
+  { lat: -37.8136, lng: 144.9631, type: 'datacenter', city: 'Melbourne',     src: NODE_ICONS.datacenter, label: 'Melbourne' },
+  { lat: -27.4698, lng: 153.0251, type: 'mobile',      city: 'Brisbane',      src: NODE_ICONS.mobile,     label: 'Brisbane' },
+  { lat: -31.9505, lng: 115.8605, type: 'gpu',         city: 'Perth',         src: NODE_ICONS.gpu,        label: 'Perth' },
 ];
 
 // ============================================================================
@@ -518,8 +493,8 @@ export function NetworkGlobeSection() {
           <ScrollReveal animation="fadeUp" delay={240}>
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, minmax(0, 1fr))', gap: '12px' }}>
               <StatBox
-                value={14283}
-                suffix=""
+                value={14}
+                suffix="+"
                 label="active nodes"
                 color="#00f0ff"
                 visible={sectionVisible}
@@ -527,7 +502,7 @@ export function NetworkGlobeSection() {
                 offset={0}
               />
               <StatBox
-                value={63}
+                value={3}
                 suffix="+"
                 label="countries"
                 color="#a855f7"
