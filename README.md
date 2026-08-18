@@ -118,8 +118,3 @@ drawable by `stroke-dashoffset`, which the reactor boot animation relies on.
 
 </div>
 
-
-
-
-
-Deployment: 1
