@@ -1,0 +1,271 @@
+"use client";
+
+/**
+ * Teepin — § 02 Manifesto.
+ *
+ * Editorial argument for portable, honestly-priced cloud. Three stanzas in an
+ * asymmetric 12-col grid with per-stanza ScrollReveal (opacity/blur/rotate).
+ * A vertical hairline draws itself as you scroll the section.
+ */
+
+import type { ReactNode } from "react";
+import { useLayoutEffect, useRef } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { prefersReducedMotion } from "@/lib/motion";
+import ScrollReveal from "../ui/ScrollReveal";
+
+gsap.registerPlugin(ScrollTrigger);
+
+type Stanza = {
+  numeral: string;
+  label: string;
+  body: ReactNode;
+  colStart: 1 | 6;
+  calloutText: string;
+  calloutSide: "left" | "right";
+};
+
+const STANZAS: Stanza[] = [
+  {
+    numeral: "I",
+    label: "THE CLAIM",
+    body: (
+      <>
+        Compute is cheap. Cloud bills aren&rsquo;t.
+      </>
+    ),
+    colStart: 1,
+    calloutText: "§02.01 · CLAIM",
+    calloutSide: "right",
+  },
+  {
+    numeral: "II",
+    label: "THE PROBLEM",
+    body: (
+      <>
+        Moving data out costs so much that nobody leaves. That&rsquo;s
+        lock-in.
+      </>
+    ),
+    colStart: 6,
+    calloutText: "§02.02 · PROBLEM",
+    calloutSide: "left",
+  },
+  {
+    numeral: "III",
+    label: "THE ANSWER",
+    body: (
+      <>
+        Portable data. Cheaper compute. Prices that follow.
+      </>
+    ),
+    colStart: 1,
+    calloutText: "§02.03 · ANSWER",
+    calloutSide: "right",
+  },
+];
+
+function Eyebrow({
+  numeral,
+  label,
+  className = "",
+}: {
+  numeral: string;
+  label: string;
+  className?: string;
+}) {
+  return (
+    <div className={`flex items-center gap-4 ${className}`}>
+      <span className="block h-px w-10 bg-ink/40" aria-hidden="true" />
+      <span className="font-mono text-[10.5px] tracking-[0.28em] uppercase text-steel">
+        {numeral} · {label}
+      </span>
+    </div>
+  );
+}
+
+export default function Manifesto() {
+  const rootRef = useRef<HTMLElement>(null);
+
+  useLayoutEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+
+    if (prefersReducedMotion()) {
+      const toShow = root.querySelectorAll<HTMLElement>(
+        ".manifesto-section-marker, .manifesto-stanza-eyebrow, .manifesto-callout",
+      );
+      gsap.set(toShow, { opacity: 1, y: 0, x: 0 });
+      const hairline = root.querySelector<HTMLElement>(".manifesto-hairline");
+      if (hairline) {
+        gsap.set(hairline, { transformOrigin: "top", scaleY: 1 });
+      }
+      return;
+    }
+
+    const triggers: ScrollTrigger[] = [];
+
+    // Section marker — fires once on entry
+    const marker = root.querySelector<HTMLElement>(".manifesto-section-marker");
+    if (marker) {
+      gsap.set(marker, { opacity: 0, y: 8 });
+      const t = gsap.to(marker, {
+        opacity: 1,
+        y: 0,
+        duration: 0.5,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: root,
+          start: "top 85%",
+          once: true,
+        },
+      });
+      if (t.scrollTrigger) triggers.push(t.scrollTrigger as ScrollTrigger);
+    }
+
+    // Per-stanza eyebrows — fire once, slightly before each stanza's reveal
+    const eyebrows = root.querySelectorAll<HTMLElement>(
+      ".manifesto-stanza-eyebrow",
+    );
+    eyebrows.forEach((eb) => {
+      const stanza = eb.closest<HTMLElement>(".manifesto-stanza") ?? eb;
+      gsap.set(eb, { opacity: 0, y: 8 });
+      const t = gsap.to(eb, {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: stanza,
+          start: "top bottom-=10%",
+          once: true,
+        },
+      });
+      if (t.scrollTrigger) triggers.push(t.scrollTrigger as ScrollTrigger);
+    });
+
+    // Per-stanza callouts — fire on stanza entry (same trigger as eyebrow)
+    const callouts = root.querySelectorAll<HTMLElement>(".manifesto-callout");
+    callouts.forEach((co) => {
+      const stanza = co.closest<HTMLElement>(".manifesto-stanza") ?? co;
+      gsap.set(co, { opacity: 0, x: 0 });
+      // Slight inward slide based on which side the callout sits on
+      const fromX = co.classList.contains("flex-row-reverse") ? 6 : -6;
+      gsap.set(co, { x: fromX });
+      const t = gsap.to(co, {
+        opacity: 1,
+        x: 0,
+        duration: 0.6,
+        ease: "power3.out",
+        delay: 0.1,
+        scrollTrigger: {
+          trigger: stanza,
+          start: "top bottom-=10%",
+          once: true,
+        },
+      });
+      if (t.scrollTrigger) triggers.push(t.scrollTrigger as ScrollTrigger);
+    });
+
+    // Vertical hairline — scrubbed scaleY draw
+    const hairline = root.querySelector<HTMLElement>(".manifesto-hairline");
+    if (hairline) {
+      gsap.set(hairline, { transformOrigin: "top", scaleY: 0 });
+      const t = gsap.fromTo(
+        hairline,
+        { scaleY: 0 },
+        {
+          scaleY: 1,
+          ease: "none",
+          scrollTrigger: {
+            trigger: root,
+            start: "top bottom",
+            end: "bottom bottom",
+            scrub: true,
+          },
+        },
+      );
+      if (t.scrollTrigger) triggers.push(t.scrollTrigger as ScrollTrigger);
+    }
+
+    return () => {
+      triggers.forEach((t) => t.kill());
+    };
+  }, []);
+
+  return (
+    <section
+      ref={rootRef}
+      id="manifesto"
+      aria-labelledby="manifesto-heading"
+      className="relative w-full bg-paper overflow-hidden"
+      style={{ minHeight: "105vh" }}
+    >
+      <h2 id="manifesto-heading" className="sr-only">
+        Manifesto
+      </h2>
+
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-grid-hairline opacity-[0.4] pointer-events-none"
+      />
+
+      <div className="relative mx-auto max-w-[1280px] px-6 md:px-14 pt-12 pb-24">
+        <div className="manifesto-section-marker flex items-center gap-4">
+          <span className="block h-px w-14 bg-ink/50" aria-hidden="true" />
+          <span className="font-mono text-[13px] tracking-[0.32em] uppercase text-ink">
+            § 02 · MANIFESTO
+          </span>
+        </div>
+
+        <div
+          aria-hidden="true"
+          className="manifesto-hairline absolute top-0 bottom-0 w-px bg-ink/15 pointer-events-none hidden md:block"
+          style={{ left: "50%" }}
+        />
+
+        <div className="relative grid grid-cols-1 md:grid-cols-12 gap-x-10">
+          {STANZAS.map((s, i) => (
+            <div
+              key={s.numeral}
+              className={`manifesto-stanza relative col-span-1 md:col-span-7 ${
+                s.colStart === 1 ? "md:col-start-1" : "md:col-start-6"
+              }`}
+              style={{ marginTop: i === 0 ? "12vh" : "16vh" }}
+            >
+              <span
+                aria-hidden="true"
+                className={`manifesto-callout hidden md:flex items-center gap-2 absolute top-1 ${
+                  s.calloutSide === "right"
+                    ? "left-full ml-8 flex-row"
+                    : "right-full mr-8 flex-row-reverse"
+                }`}
+              >
+                <span className="block h-px w-6 bg-ink/40" aria-hidden="true" />
+                <span className="font-mono text-[9px] tracking-[0.28em] uppercase text-steel whitespace-nowrap">
+                  {s.calloutText}
+                </span>
+              </span>
+              <Eyebrow
+                numeral={s.numeral}
+                label={s.label}
+                className="manifesto-stanza-eyebrow mb-6"
+              />
+              <ScrollReveal
+                baseOpacity={0.12}
+                baseRotation={2}
+                blurStrength={3}
+                enableBlur
+                containerClassName="my-0"
+                textClassName="font-display text-[clamp(1.8rem,3.8vw,2.8rem)] leading-[1.22] tracking-[-0.015em] text-ink"
+              >
+                {s.body}
+              </ScrollReveal>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
