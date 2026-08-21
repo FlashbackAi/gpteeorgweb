@@ -58,7 +58,7 @@ const LAYERS: Layer[] = [
     idx: 1,
     numeral: "02",
     name: "Compute",
-    short: "CMPTE",
+    short: "COMPUTE",
     kind: "infra",
     thesis: "Idle data-centre capacity, inside trusted execution.",
     modules: ["Idle capacity", "TEE isolation", "Elastic scale"],
@@ -68,7 +68,7 @@ const LAYERS: Layer[] = [
   {
     idx: 2,
     numeral: "03",
-    name: "Intelligence",
+    name: "Web Services",
     short: "INTEL",
     kind: "intelligence",
     thesis: "Open models, served and fine-tuned through one API.",
