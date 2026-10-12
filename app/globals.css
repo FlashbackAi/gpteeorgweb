@@ -102,6 +102,43 @@ body {
   background-position: 0 0;
 }
 
+/* ─────────────────────────────────────────────
+   Legal prose — body copy on /privacy and /terms.
+   ───────────────────────────────────────────── */
+
+.legal-prose {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--color-ink-soft);
+}
+.legal-prose > * + * {
+  margin-top: 1rem;
+}
+.legal-prose strong {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.legal-prose ul {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-left: 1.25rem;
+  list-style: square;
+}
+.legal-prose li::marker {
+  color: var(--color-steel);
+}
+.legal-prose a {
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--color-hairline);
+  text-underline-offset: 3px;
+  transition: text-decoration-color var(--motion-fast) ease;
+}
+.legal-prose a:hover {
+  text-decoration-color: var(--color-hotrod);
+}
+
 /* Arc-reactor SVG — boot initial state is set via JS (utils.set + createDrawable),
    so nothing here. The reactor SVG self-contains its pre-animation state. */
 

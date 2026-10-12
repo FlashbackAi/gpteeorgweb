@@ -47,8 +47,8 @@ export default function Footer() {
               </p>
               <ul className="flex flex-col gap-2">
                 {[
-                  { label: "Products",     href: "#products" },
-                  { label: "Architecture", href: "#infrastructure" },
+                  { label: "Products",     href: "/#products" },
+                  { label: "Architecture", href: "/#infrastructure" },
                   { label: "Pricing",      href: "/pricing" },
                 ].map(({ label, href }) => (
                   <li key={label}>
@@ -114,12 +114,21 @@ export default function Footer() {
             <p className="font-mono text-[10px] tracking-[0.15em] text-steel">
               © 2026 Teepin
             </p>
-            <a
-              href="mailto:contact@teepin.com"
-              className="font-mono text-[10px] tracking-[0.15em] text-steel hover:text-ink transition-colors duration-220"
-            >
-              contact@teepin.com
-            </a>
+            <div className="flex items-center gap-5">
+              {[
+                { label: "Privacy",            href: "/privacy" },
+                { label: "Terms",              href: "/terms" },
+                { label: "contact@teepin.com", href: "mailto:contact@teepin.com" },
+              ].map(({ label, href }) => (
+                <a
+                  key={label}
+                  href={href}
+                  className="font-mono text-[10px] tracking-[0.15em] text-steel hover:text-ink transition-colors duration-220"
+                >
+                  {label}
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       </div>
