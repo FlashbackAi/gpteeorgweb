@@ -229,7 +229,7 @@ export default function ClosingManifesto() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
             <a
-              href="mailto:contact@teepin.com"
+              href="mailto:support@teepin.com"
               className="inline-flex items-center justify-center px-7 py-3 rounded-[4px] bg-hotrod text-paper-raised font-mono text-[12px] tracking-[0.12em] uppercase hover:bg-hotrod-deep transition-colors duration-220"
             >
               Request Early Access

@@ -70,7 +70,7 @@ export default function Footer() {
               <ul className="flex flex-col gap-2">
                 {[
                   { label: "About",   href: "/manifesto" },
-                  { label: "Contact", href: "mailto:contact@teepin.com" },
+                  { label: "Contact", href: "mailto:support@teepin.com" },
                   { label: "Press",   href: "/press" },
                 ].map(({ label, href }) => (
                   <li key={label}>
@@ -119,7 +119,7 @@ export default function Footer() {
               {[
                 { label: "Privacy",            href: "/privacy" },
                 { label: "Terms",              href: "/terms" },
-                { label: "contact@teepin.com", href: "mailto:contact@teepin.com" },
+                { label: "support@teepin.com", href: "mailto:support@teepin.com" },
               ].map(({ label, href }) => (
                 <a
                   key={label}

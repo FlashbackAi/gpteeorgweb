@@ -149,7 +149,7 @@ export default function LegalDocument({
 
           <div className="mt-16 flex flex-col sm:flex-row sm:items-center gap-4 border-t border-hairline pt-8">
             <a
-              href="mailto:contact@teepin.com"
+              href="mailto:support@teepin.com"
               className="inline-flex items-center justify-center bg-hotrod px-7 py-3 font-mono text-[11px] uppercase tracking-[0.22em] text-paper-raised transition-colors duration-200 hover:bg-hotrod-deep"
             >
               Email Us

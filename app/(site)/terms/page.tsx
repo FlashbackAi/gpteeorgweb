@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/terms" },
 };
 
-const contact = <a href="mailto:contact@teepin.com">contact@teepin.com</a>;
+const contact = <a href="mailto:support@teepin.com">support@teepin.com</a>;
 
 const SECTIONS: LegalSection[] = [
   {

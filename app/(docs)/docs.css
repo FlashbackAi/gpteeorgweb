@@ -16,6 +16,12 @@
 }
 
 :root {
+  /* Full width, as Vercel's docs: the sidebar sits against the left edge and
+     the table of contents against the right, instead of fumadocs' centred
+     97rem frame leaving a gap on wide screens. The page text keeps its own
+     reading width. */
+  --fd-layout-width: 100vw;
+
   --color-fd-background: #f6f6f3;
   --color-fd-foreground: #0b0d10;
   --color-fd-muted: #eeeeea;

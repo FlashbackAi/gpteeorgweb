@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/privacy" },
 };
 
-const contact = <a href="mailto:contact@teepin.com">contact@teepin.com</a>;
+const contact = <a href="mailto:support@teepin.com">support@teepin.com</a>;
 
 const SECTIONS: LegalSection[] = [
   {
@@ -255,7 +255,7 @@ export default function PrivacyPage() {
         "No cookies, analytics or ad trackers on this site.",
         "We only get what you email us, plus standard server logs.",
         "We don't sell your data or use it for ads.",
-        "Email contact@teepin.com to see, fix or delete what we hold.",
+        "Email support@teepin.com to see, fix or delete what we hold.",
       ]}
       sections={SECTIONS}
       sibling={{ label: "Terms and Conditions", href: "/terms" }}

@@ -450,7 +450,7 @@ export default function HeroCinematic() {
               style={{ opacity: 0 }}
             >
               <a
-                href="mailto:contact@teepin.com"
+                href="mailto:support@teepin.com"
                 className="group relative inline-flex items-center justify-center px-8 py-3.5 bg-hotrod text-paper-raised font-mono text-[11px] tracking-[0.22em] uppercase overflow-hidden transition-colors duration-200 hover:bg-hotrod-deep"
                 style={{ clipPath: "polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%)" }}
               >

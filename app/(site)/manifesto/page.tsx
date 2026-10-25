@@ -15,7 +15,7 @@ export default function ManifestoPage() {
         </p>
         <div className="mt-10 flex flex-col sm:flex-row items-center gap-4">
           <a
-            href="mailto:contact@teepin.com"
+            href="mailto:support@teepin.com"
             className="inline-flex items-center justify-center bg-hotrod px-7 py-3 font-mono text-[11px] uppercase tracking-[0.22em] text-paper-raised transition-colors duration-200 hover:bg-hotrod-deep"
           >
             Request Early Access

@@ -93,7 +93,7 @@ const structuredData = {
       logo: `${siteUrl}/teepin-wordmark.svg`,
       description: siteDescription,
       foundingDate: "2025",
-      email: "contact@teepin.com",
+      email: "support@teepin.com",
     },
     {
       "@type": "WebSite",
