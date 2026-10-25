@@ -1,0 +1,70 @@
+---
+title: Teepin Inference
+description: Open models through one OpenAI-compatible API, paid per token, with confidential models that prove where they run.
+---
+
+Teepin Inference serves open models behind one API. You choose a model per request, pay per token from your prepaid credit, and can move to another provider without rewriting your code, because the API follows OpenAI's.
+
+## Models
+
+List the models your key may call. Each one shows its context window, what it supports, its price per million input and output tokens, and whether it is confidential.
+
+<Tabs items={["curl", "Python", "Node", "Go"]}>
+<Tab value="curl">
+
+```bash
+curl https://api.teepin.com/v1/models \
+  -H "Authorization: Bearer $TEEPIN_API_KEY"
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+for m in client.models.list():
+    print(m.id, m.display_name, m.pricing.input_per_million_tokens, m.confidential)
+```
+
+</Tab>
+<Tab value="Node">
+
+```typescript
+const models = await teepin.inference.listModels();
+for (const m of models) console.log(m.id, m.confidential, m.pricing.input_per_million_tokens);
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+models, err := client.Inference.ListModels(ctx)
+for _, m := range models {
+	fmt.Println(m.ID, m.DisplayName, m.Confidential, m.Pricing.InputPerMillionTokens)
+}
+```
+
+</Tab>
+</Tabs>
+
+A model's `id` (for example `teepin/glm-5.3`) is what you send as `model`. It can contain a `/`.
+
+## What a model entry holds
+
+| Field | Meaning |
+| --- | --- |
+| `id` | The name to send as `model` |
+| `display_name` | A readable name |
+| `context_window` | Tokens the model can take in, when known |
+| `supports_tools`, `supports_vision`, `supports_audio` | What the model accepts |
+| `pricing` | `input_per_million_tokens` and `output_per_million_tokens`, in USD |
+| `confidential` | Served in a hardware enclave. See [Confidential models](/docs/inference/confidential) |
+| `attestation` | Only on a confidential model that is not fully verified right now: a `level` and a `warning` to show |
+
+## Next
+
+<Cards>
+  <Card title="Chat completions" href="/docs/inference/chat">Answers, streaming and the request fields.</Card>
+  <Card title="Reasoning models" href="/docs/inference/reasoning">Thinking, token budgets and empty answers.</Card>
+  <Card title="Confidential models" href="/docs/inference/confidential">Enclaves and attestation.</Card>
+  <Card title="OpenAI compatibility" href="/docs/inference/openai">Use OpenAI's own SDKs.</Card>
+</Cards>

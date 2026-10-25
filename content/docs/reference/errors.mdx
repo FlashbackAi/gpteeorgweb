@@ -1,0 +1,63 @@
+---
+title: Errors
+description: The error format, the codes you can expect, and which errors are safe to retry.
+---
+
+Inference errors use OpenAI's envelope, so OpenAI-compatible clients understand them:
+
+```json
+{
+  "error": {
+    "message": "your account does not have enough credit for this request; add credit in the console to continue",
+    "type": "insufficient_credit",
+    "code": "insufficient_credit"
+  }
+}
+```
+
+Storage and the rest of the API answer with a flat shape:
+
+```json
+{
+  "error": "your stored data is on hold because your account has no credit; add credit to get it back",
+  "code": "storage_on_hold"
+}
+```
+
+In both, `code` is stable: branch on it, not on the message, which can be reworded. Every answer also carries an `X-Request-ID` header. Quote it when you contact support. The SDKs read both shapes into the same typed errors.
+
+## Codes
+
+| Status | Code | Meaning |
+| --- | --- | --- |
+| 400 | `invalid_request` | The request is malformed or a field is invalid. |
+| 401 | `unauthorized` | No key, or the key is not valid. |
+| 402 | `insufficient_credit` | The account has no credit left. Add credit in the console. |
+| 402 | `storage_on_hold` | Stored data is held because the balance ran out. `delete_after` says when it will be deleted. Add credit to release it. |
+| 403 | `missing_scope`, `forbidden` | The key lacks the permission, for example `inference:invoke` or `storage:write`. |
+| 404 | `model_not_found` | No such model, or this key may not call it. |
+| 404 | `attestation_not_supported` | The model is real but not confidential. |
+| 404 | `object_not_found` and others | A bucket, object or upload does not exist. |
+| 409 | `bucket_exists`, `bucket_not_empty`, `object_exists` | A conflict with what is already there. |
+| 412 | | A condition such as `If-Match` failed. |
+| 413 | `body_too_large`, `object_too_large` | The request or object is over the limit. |
+| 429 | `rate_limit_exceeded`, `too_many_concurrent_requests`, `rate_limited` | Slow down. `Retry-After` says when to try again. |
+| 500 | `internal_error` | Something failed on Teepin's side. |
+| 502 | `upstream_error` | The model's server returned an error. |
+| 503 | `model_unavailable`, `billing_unavailable` | Temporarily unavailable. `Retry-After` says when to try again. |
+
+## Streams
+
+Once a stream has started, its status is already `200`. A failure part way through arrives as a `data: {"error": {...}}` frame, then the stream closes without `[DONE]`. Treat any stream that ends without `[DONE]` as failed. See [Chat completions](/docs/inference/chat#streaming).
+
+## Retrying
+
+| Error | Retry? |
+| --- | --- |
+| 429, 503 | Yes, after `Retry-After`. |
+| 500, 502 from Teepin (one of the JSON shapes above) | Yes, with backoff. Nothing was billed. |
+| A connection that never reached the server | Yes. |
+| A timeout or a connection that dropped after the request was sent | **Not a chat request**: the model may have answered and been billed. Storage reads are safe to retry. |
+| 400, 401, 402, 403, 404, 409, 413 | No. Fix the request or the account first. |
+
+The SDKs follow these rules for you, so a chat request is never billed twice.

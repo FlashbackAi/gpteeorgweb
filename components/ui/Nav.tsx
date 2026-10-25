@@ -62,6 +62,13 @@ const TEEPIN_ITEMS: (NavReactorItem & { spySections?: string[] })[] = [
     spySections: ["products"],
   },
   {
+    // The developer docs: a page of their own (app/(docs)), not a section.
+    label: "docs",
+    href: "/docs",
+    ariaLabel: "Docs",
+    sectionId: null,
+  },
+  {
     label: "get started",
     href: "/#closing",
     ariaLabel: "Get Started",

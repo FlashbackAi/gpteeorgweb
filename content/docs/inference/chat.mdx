@@ -1,0 +1,182 @@
+---
+title: Chat completions
+description: Send messages, get an answer back whole or as a stream, and read the response headers.
+---
+
+`POST /v1/chat/completions` follows OpenAI's chat completions API.
+
+## One answer
+
+<Tabs items={["curl", "Python", "Node", "Go"]}>
+<Tab value="curl">
+
+```bash
+curl https://api.teepin.com/v1/chat/completions \
+  -H "Authorization: Bearer $TEEPIN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "teepin/glm-5.3",
+    "messages": [
+      {"role": "system", "content": "Be brief."},
+      {"role": "user", "content": "What is TLS?"}
+    ],
+    "max_tokens": 300,
+    "chat_template_kwargs": {"enable_thinking": false}
+  }'
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+reply = client.chat.completions.create(
+    model="teepin/glm-5.3",
+    messages=[
+        {"role": "system", "content": "Be brief."},
+        {"role": "user", "content": "What is TLS?"},
+    ],
+    max_tokens=300,
+    chat_template_kwargs={"enable_thinking": False},
+)
+print(reply.choices[0].message.content)
+print(reply.usage.total_tokens, reply.request_id, reply.attestation)
+```
+
+</Tab>
+<Tab value="Node">
+
+```typescript
+const res = await teepin.inference.chat.completions.create({
+  model: 'teepin/glm-5.3',
+  messages: [
+    { role: 'system', content: 'Be brief.' },
+    { role: 'user', content: 'What is TLS?' },
+  ],
+  max_completion_tokens: 300,
+  chat_template_kwargs: { enable_thinking: false },
+});
+console.log(res.choices[0].message.content, res.usage?.total_tokens, res.meta.requestId);
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+resp, err := client.Inference.Chat(ctx, teepin.ChatRequest{
+	Model:              "teepin/glm-5.3",
+	Messages:           []teepin.Message{teepin.SystemMessage("Be brief."), teepin.UserMessage("What is TLS?")},
+	MaxTokens:          300,
+	ChatTemplateKwargs: map[string]any{"enable_thinking": false},
+})
+if err != nil {
+	return err
+}
+fmt.Println(resp.Text(), resp.Usage.TotalTokens, resp.Meta.RequestID)
+```
+
+</Tab>
+</Tabs>
+
+## Request fields
+
+| Field | Notes |
+| --- | --- |
+| `model` | Required. An `id` from the model list. |
+| `messages` | Required, not empty. Roles `system`, `user`, `assistant` and `tool`. Content is a string or OpenAI content parts, for example `{"type": "image_url", "image_url": {"url": "..."}}`. |
+| `max_tokens` or `max_completion_tokens` | The answer's token budget. If both are sent, `max_completion_tokens` wins. |
+| `stream`, `stream_options` | Stream the answer. `{"include_usage": true}` adds token counts to the last chunk. |
+| `temperature`, `top_p`, `top_k`, `min_p`, `seed`, `stop`, `n` | Sampling. |
+| `frequency_penalty`, `presence_penalty`, `repetition_penalty`, `logit_bias` | Penalties and biases. |
+| `logprobs`, `top_logprobs` | Token log probabilities. |
+| `tools`, `tool_choice`, `response_format` | Tool calls and structured output, where the model supports them. |
+| `user` | Your own identifier for the end user. |
+| `chat_template_kwargs` | Template options, for example `{"enable_thinking": false}`. See [Reasoning models](/docs/inference/reasoning). |
+
+Any other field is ignored.
+
+## Streaming
+
+With `"stream": true` the answer arrives as server-sent events: one `data: {...}` line per `chat.completion.chunk`, ending with `data: [DONE]`.
+
+<Tabs items={["curl", "Python", "Node", "Go"]}>
+<Tab value="curl">
+
+```bash
+curl -N https://api.teepin.com/v1/chat/completions \
+  -H "Authorization: Bearer $TEEPIN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "teepin/glm-5.3",
+    "messages": [{"role": "user", "content": "Write a haiku about the sea."}],
+    "stream": true,
+    "stream_options": {"include_usage": true}
+  }'
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+with client.chat.completions.create(
+    model="teepin/glm-5.3",
+    messages=[{"role": "user", "content": "Write a haiku about the sea."}],
+    stream=True,
+    stream_options={"include_usage": True},
+) as stream:
+    for chunk in stream:
+        if chunk.choices:
+            print(chunk.choices[0].delta.content or "", end="")
+print(stream.usage)
+```
+
+</Tab>
+<Tab value="Node">
+
+```typescript
+const stream = await teepin.inference.chat.completions.create({
+  model: 'teepin/glm-5.3',
+  messages: [{ role: 'user', content: 'Write a haiku about the sea.' }],
+  stream: true,
+  stream_options: { include_usage: true },
+});
+for await (const chunk of stream) process.stdout.write(chunk.choices[0]?.delta.content ?? '');
+console.log('\n', stream.usage?.total_tokens);
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+stream, err := client.Inference.ChatStream(ctx, teepin.ChatRequest{
+	Model:         "teepin/glm-5.3",
+	Messages:      []teepin.Message{teepin.UserMessage("Write a haiku about the sea.")},
+	StreamOptions: &teepin.StreamOptions{IncludeUsage: true},
+})
+if err != nil {
+	return err
+}
+defer stream.Close()
+for stream.Next() {
+	fmt.Print(stream.Chunk().Text())
+}
+if err := stream.Err(); err != nil {
+	return err
+}
+```
+
+</Tab>
+</Tabs>
+
+If the model fails part way through, the stream sends `data: {"error": {...}}` and closes without `[DONE]`. A stream that closes without `[DONE]` and without an error frame was cut off. The SDKs raise an error in both cases, so a partial answer is never mistaken for a whole one.
+
+## Response headers
+
+| Header | Meaning |
+| --- | --- |
+| `X-Request-ID` | Quote it when you contact support. |
+| `X-Teepin-Attestation` | For confidential models: `verified`, `verified-older-release` or `not-verified`. See [Confidential models](/docs/inference/confidential). |
+| `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` | Your current window. See [Rate limits](/docs/reference/rate-limits). |
+
+## Billing
+
+Each answer is billed by its input and output tokens at the model's prices, from your prepaid credit. An answer is billed once the model has written it, even if your client has gone. A request refused with an error is not billed. See [Billing](/docs/reference/billing).

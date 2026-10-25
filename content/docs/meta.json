@@ -1,0 +1,17 @@
+{
+  "title": "Teepin Docs",
+  "pages": [
+    "---Start---",
+    "index",
+    "quickstart",
+    "authentication",
+    "---Teepin Inference---",
+    "...inference",
+    "---Teepin Storage---",
+    "...storage",
+    "---SDKs---",
+    "...sdks",
+    "---Reference---",
+    "...reference"
+  ]
+}

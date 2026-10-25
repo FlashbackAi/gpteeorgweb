@@ -1,0 +1,150 @@
+---
+title: Quickstart
+description: Create an account, make an API key and send your first request in a few minutes.
+---
+
+<Steps>
+<Step>
+
+### Create an account
+
+Sign up at [console.teepin.com](https://console.teepin.com) with Google or an email address. Your account starts with a project called **Default project**.
+
+</Step>
+<Step>
+
+### Add credit
+
+Teepin is prepaid. Open **Billing and Cost Management** in the console and add credit by card, bank transfer (ACH) or Link.
+
+</Step>
+<Step>
+
+### Create an API key
+
+Open your project's **Settings**, then **API keys**, and create a key with the access you need: inference, storage, or both. The key is shown once, so copy it now.
+
+```bash
+export TEEPIN_API_KEY=tpk_...
+```
+
+</Step>
+<Step>
+
+### Make a request
+
+<Tabs items={["curl", "Python", "Node", "Go"]}>
+<Tab value="curl">
+
+```bash
+curl https://api.teepin.com/v1/chat/completions \
+  -H "Authorization: Bearer $TEEPIN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "teepin/glm-5.3",
+    "messages": [{"role": "user", "content": "What is TLS? One sentence."}],
+    "max_tokens": 300,
+    "chat_template_kwargs": {"enable_thinking": false}
+  }'
+```
+
+</Tab>
+<Tab value="Python">
+
+```bash
+pip install teepin
+```
+
+```python
+from teepin import Client
+
+client = Client()  # reads TEEPIN_API_KEY
+reply = client.chat.completions.create(
+    model="teepin/glm-5.3",
+    messages=[{"role": "user", "content": "What is TLS? One sentence."}],
+    max_tokens=300,
+    chat_template_kwargs={"enable_thinking": False},
+)
+print(reply.choices[0].message.content)
+```
+
+</Tab>
+<Tab value="Node">
+
+```bash
+npm install @teepin/sdk
+```
+
+```typescript
+import { TeepinClient } from '@teepin/sdk';
+
+const teepin = new TeepinClient(); // reads TEEPIN_API_KEY
+const res = await teepin.inference.chat.completions.create({
+  model: 'teepin/glm-5.3',
+  messages: [{ role: 'user', content: 'What is TLS? One sentence.' }],
+  max_completion_tokens: 300,
+  chat_template_kwargs: { enable_thinking: false },
+});
+console.log(res.choices[0].message.content);
+```
+
+</Tab>
+<Tab value="Go">
+
+```bash
+go get github.com/FlashbackAi/teepin-go
+```
+
+```go
+client := teepin.NewClient(teepin.Config{}) // reads TEEPIN_API_KEY
+resp, err := client.Inference.Chat(ctx, teepin.ChatRequest{
+	Model:              "teepin/glm-5.3",
+	Messages:           []teepin.Message{teepin.UserMessage("What is TLS? One sentence.")},
+	MaxTokens:          300,
+	ChatTemplateKwargs: map[string]any{"enable_thinking": false},
+})
+if err != nil {
+	return err
+}
+fmt.Println(resp.Text())
+```
+
+</Tab>
+</Tabs>
+
+</Step>
+</Steps>
+
+## Store a file
+
+The same key works for storage when it has storage access.
+
+<Tabs items={["curl", "Python"]}>
+<Tab value="curl">
+
+```bash
+curl -X POST https://api.teepin.com/v1/storage/buckets \
+  -H "Authorization: Bearer $TEEPIN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "my-bucket"}'
+
+curl -X PUT "https://api.teepin.com/v1/storage/buckets/my-bucket/object?key=hello.txt" \
+  -H "Authorization: Bearer $TEEPIN_API_KEY" \
+  -H "Content-Type: text/plain" \
+  --data-binary "hello from Teepin"
+
+curl "https://api.teepin.com/v1/storage/buckets/my-bucket/object/content?key=hello.txt" \
+  -H "Authorization: Bearer $TEEPIN_API_KEY"
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+client.storage.create_bucket("my-bucket")
+client.storage.upload("my-bucket", "hello.txt", b"hello from Teepin", content_type="text/plain")
+print(client.storage.download_bytes("my-bucket", "hello.txt"))
+```
+
+</Tab>
+</Tabs>

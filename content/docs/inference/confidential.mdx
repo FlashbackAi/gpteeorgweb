@@ -1,0 +1,58 @@
+---
+title: Confidential models
+description: Models served in hardware enclaves that prove what code they run, and how to read and check that proof.
+---
+
+A confidential model runs inside a hardware enclave. Your prompt is encrypted to that enclave, and the enclave proves, with a signed attestation, exactly which software it is running. Nobody operating the hardware can read your prompt or the answer.
+
+Confidential models are marked `"confidential": true` in the [model list](/docs/inference).
+
+## The attestation result
+
+Every answer from a confidential model says how far the enclave was verified for that call, in the `X-Teepin-Attestation` header and in the SDKs' response metadata:
+
+| Value | Meaning |
+| --- | --- |
+| `verified` | The enclave runs the provider's latest signed release. |
+| `verified-older-release` | The enclave is verified against an earlier signed release, not the latest one. Prompts are still encrypted to the verified enclave. |
+| `not-verified` | The enclave could not be verified right now. |
+
+Anything less than `verified` is a warning to show your users, never an error: the request is still served. In the model list, a confidential model that is not fully verified carries `attestation: {level, warning}` with the text to show.
+
+## Checking the proof yourself
+
+The live proof is available to verify independently:
+
+<Tabs items={["curl", "Python", "Node", "Go"]}>
+<Tab value="curl">
+
+```bash
+curl "https://api.teepin.com/v1/models/attestation?model=teepin%2Fglm-5.3" \
+  -H "Authorization: Bearer $TEEPIN_API_KEY"
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+proof = client.models.attestation("teepin/glm-5.3")  # a dict, as the provider gives it
+```
+
+</Tab>
+<Tab value="Node">
+
+```typescript
+const proof = await teepin.inference.getAttestation('teepin/glm-5.3');
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+proof, err := client.Inference.Attestation(ctx, "teepin/glm-5.3") // raw JSON
+```
+
+</Tab>
+</Tabs>
+
+The model id contains a `/`, so URL-encode it in the query (`teepin%2Fglm-5.3`). The proof is the provider's own document: it names the release, the enclave's measurements and the keys used. A model that is not confidential answers `404` with the code `attestation_not_supported`.

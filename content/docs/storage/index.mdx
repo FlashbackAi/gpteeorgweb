@@ -1,0 +1,46 @@
+---
+title: Teepin Storage
+description: Buckets and files over a REST API and an S3 endpoint, billed by what you keep and what you download.
+---
+
+Teepin Storage keeps your files in buckets inside a project. You reach them three ways, all showing the same buckets:
+
+| Way in | For |
+| --- | --- |
+| **The console** | Browsing, uploading folders, quick downloads |
+| **The REST API and SDKs** | Your applications, with resumable large uploads and signed links |
+| **The S3 endpoint** | The AWS CLI, boto3, the AWS SDKs, rclone and other S3 tools |
+
+## Concepts
+
+- **Bucket.** A named container in a project. Names are 3 to 63 lowercase letters, digits, dots and hyphens, unique within the project.
+- **Object.** A file in a bucket, addressed by its key, such as `photos/2026/beach.jpg`.
+- **Folders.** Keys with `/` read as folders in the console and in listings with a delimiter. There is nothing else to create.
+- **Versions.** Writing to an existing key replaces the object. The previous version is not kept.
+
+Your files are stored on Shelby, a decentralised storage network. The bucket and file names you choose stay in Teepin's own catalog: the network only ever sees opaque IDs.
+
+## The REST API at a glance
+
+All routes are under `https://api.teepin.com/v1/storage` and need an API key with storage access.
+
+| Method and path | Does |
+| --- | --- |
+| `POST /buckets`, `GET /buckets`, `GET /buckets/{bucket}`, `DELETE /buckets/{bucket}` | Create, list, read and delete buckets. A bucket must be empty to delete. |
+| `PUT /buckets/{bucket}/object?key=` | Upload an object in one request. |
+| `GET /buckets/{bucket}/object?key=` | An object's details: size, type, ETag, metadata. |
+| `GET /buckets/{bucket}/object/content?key=` | Download. Supports `Range`. |
+| `GET /buckets/{bucket}/objects?prefix=&delimiter=&cursor=&limit=` | List, a page at a time. |
+| `DELETE /buckets/{bucket}/object?key=`, `POST /buckets/{bucket}/objects/delete` | Delete one, or up to 1,000 at once. |
+| `POST /buckets/{bucket}/object/rename`, `POST /buckets/{bucket}/object/copy` | Rename (instant at any size) and copy. |
+| `POST /buckets/{bucket}/uploads` and the part routes | Large files in parts. See [Large files](/docs/storage/large-files). |
+| `POST /buckets/{bucket}/object/download-url`, `POST /buckets/{bucket}/object/upload-url` | Signed links. See [Signed links](/docs/storage/signed-links). |
+
+## Next
+
+<Cards>
+  <Card title="Upload and download" href="/docs/storage/objects">Put, get, list, rename and delete.</Card>
+  <Card title="Large files" href="/docs/storage/large-files">Parallel parts, resume and verification.</Card>
+  <Card title="Signed links" href="/docs/storage/signed-links">Let a browser upload or download one file.</Card>
+  <Card title="S3 endpoint" href="/docs/storage/s3">Use the AWS CLI, boto3 and rclone.</Card>
+</Cards>

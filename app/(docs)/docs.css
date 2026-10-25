@@ -1,0 +1,70 @@
+@import "tailwindcss";
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
+
+/* ─────────────────────────────────────────────
+   Teepin docs (teepin.com/docs)
+   The marketing site's palette (app/globals.css) on fumadocs' layout:
+   paper and ink, hairline borders, hotrod red used sparingly.
+   Dark is the default; light and system are one click away.
+   ───────────────────────────────────────────── */
+
+@theme {
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, "Menlo", monospace;
+  --font-display: var(--font-nevera), system-ui, sans-serif;
+}
+
+:root {
+  --color-fd-background: #f6f6f3;
+  --color-fd-foreground: #0b0d10;
+  --color-fd-muted: #eeeeea;
+  --color-fd-muted-foreground: #5a6470;
+  --color-fd-popover: #ffffff;
+  --color-fd-popover-foreground: #0b0d10;
+  --color-fd-card: #ffffff;
+  --color-fd-card-foreground: #0b0d10;
+  --color-fd-border: #d8d5ce;
+  --color-fd-primary: #b3111a;
+  --color-fd-primary-foreground: #ffffff;
+  --color-fd-secondary: #eeeeea;
+  --color-fd-secondary-foreground: #0b0d10;
+  --color-fd-accent: #e7e5df;
+  --color-fd-accent-foreground: #0b0d10;
+  --color-fd-ring: #b3111a;
+}
+
+.dark {
+  --color-fd-background: #0b0d10;
+  --color-fd-foreground: #ecebe6;
+  --color-fd-muted: #15181d;
+  --color-fd-muted-foreground: #9aa3ad;
+  --color-fd-popover: #111419;
+  --color-fd-popover-foreground: #ecebe6;
+  --color-fd-card: #111419;
+  --color-fd-card-foreground: #ecebe6;
+  --color-fd-border: #262a31;
+  --color-fd-primary: #e0434b;
+  --color-fd-primary-foreground: #0b0d10;
+  --color-fd-secondary: #171a20;
+  --color-fd-secondary-foreground: #ecebe6;
+  --color-fd-accent: #1b1f26;
+  --color-fd-accent-foreground: #ecebe6;
+  --color-fd-ring: #e0434b;
+}
+
+body {
+  font-family: var(--font-sans);
+}
+
+/* Page titles in the site's display face, as on /privacy. */
+#nd-page h1,
+.teepin-display {
+  font-family: var(--font-display);
+  letter-spacing: 0.01em;
+}
+
+::selection {
+  background: #b3111a;
+  color: #ffffff;
+}

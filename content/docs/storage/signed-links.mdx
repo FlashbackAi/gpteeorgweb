@@ -1,0 +1,86 @@
+---
+title: Signed links
+description: Let a browser or another service download or upload one file, for a limited time, without your API key.
+---
+
+Your API key must stay on your servers. To let someone else's browser fetch or send a single file, your server signs a link for just that file and hands over only the link.
+
+## Download links
+
+A download link works for up to 24 hours. With `disposition=attachment` the browser saves the file instead of opening it.
+
+<Tabs items={["curl", "Python", "Node", "Go"]}>
+<Tab value="curl">
+
+```bash
+curl -X POST "https://api.teepin.com/v1/storage/buckets/my-bucket/object/download-url?key=report.pdf&ttl_seconds=900&disposition=attachment" \
+  -H "Authorization: Bearer $TEEPIN_API_KEY"
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+link = client.storage.presign_download("my-bucket", "report.pdf", ttl_seconds=900, attachment=True)
+print(link.url, link.expires_at)
+```
+
+</Tab>
+<Tab value="Node">
+
+```typescript
+const link = await teepin.storage.presignDownload('my-bucket', 'report.pdf', { expiresIn: 900 });
+console.log(link.url);
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+link, err := client.Storage.PresignDownload(ctx, "my-bucket", "report.pdf", &teepin.PresignDownloadOptions{TTL: 15 * time.Minute})
+fmt.Println(link.URL)
+```
+
+</Tab>
+</Tabs>
+
+## Upload links
+
+An upload link allows **one** upload to one key, works for up to an hour, and can cap the size (at most 5 GiB) and fix the content type.
+
+<Tabs items={["Python", "Node", "Go"]}>
+<Tab value="Python">
+
+```python
+up = client.storage.presign_upload("my-bucket", "avatars/ana.png",
+                                   ttl_seconds=600, max_bytes=5 << 20, content_type="image/png")
+# The browser sends one PUT to up.url with up.headers.
+```
+
+</Tab>
+<Tab value="Node">
+
+```typescript
+const up = await teepin.storage.presignUpload('my-bucket', 'inbox/upload.bin', { maxBytes: 100 * 2 ** 20 });
+// In the browser:
+await fetch(up.url, { method: up.method, headers: up.headers, body: file });
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+up, err := client.Storage.PresignUpload(ctx, "my-bucket", "inbox/upload.bin", &teepin.PresignUploadOptions{MaxBytes: 100 << 20})
+// A browser then sends one request to up.URL, with up.Method and up.Headers.
+```
+
+</Tab>
+</Tabs>
+
+<Callout title="Links can't be taken back">
+A signed link is valid until it expires, even if you change your mind. Keep lifetimes as short as the job allows. Downloads through a link are billed to your account like any other download.
+</Callout>
+
+## S3 presigned URLs
+
+The [S3 endpoint](/docs/storage/s3) also accepts standard S3 presigned URLs, so `aws s3 presign` and the AWS SDKs' presigners work too.

@@ -4,7 +4,7 @@
  * Teepin — § 06 Products.
  *
  * Asymmetric 60/40 layout: featured Teepin Inference block on the left with a
- * console-panel placeholder, an EARLY ACCESS signal dot, bullets, and the
+ * console-panel placeholder, a LIVE signal dot, bullets, and the
  * Connect → Deploy → Infer → Seal mini-flow terminating in a scroll-triggered
  * cost-reduction count-up. Right column stacks Compute, Storage and
  * Data & Network as status-tagged sub-products.
@@ -39,7 +39,7 @@ type SubProduct = {
   key: string;
   numeral: string;
   name: string;
-  status: "SOON" | "DEV";
+  status: "LIVE" | "SOON" | "DEV";
   eta: string;
   blurb: string;
   image: string;
@@ -61,8 +61,8 @@ const SUB_PRODUCTS: SubProduct[] = [
     key: "storage",
     numeral: "03",
     name: "Teepin Storage",
-    status: "SOON",
-    eta: "Early access",
+    status: "LIVE",
+    eta: "Available now",
     blurb: "Hot object storage on Shelby. Free to leave.",
     image: "/images/products/teepin-storage.svg",
     alt: "Teepin Storage product placeholder",
@@ -333,7 +333,7 @@ function Featured() {
         <div className="flex items-center gap-3">
           <StatusDot />
           <span className="font-mono text-[10.5px] tracking-[0.32em] uppercase text-signal">
-            EARLY ACCESS · API
+            LIVE · API
           </span>
         </div>
         <span className="font-mono text-[10px] tracking-[0.28em] uppercase text-steel">
@@ -615,8 +615,11 @@ function FlowGlyph({ kind }: { kind: FlowStep["glyph"] }) {
    ─────────────────────────────────────────────── */
 
 function SubCard({ p, first = false }: { p: SubProduct; first?: boolean }) {
-  const statusColor = p.status === "DEV" ? "text-hud-deep" : "text-steel";
-  const statusDot = p.status === "DEV" ? "bg-hud-deep" : "bg-steel";
+  // LIVE in the site's status green; SOON in steel; DEV in HUD cyan.
+  const statusColor =
+    p.status === "LIVE" ? "text-signal" : p.status === "DEV" ? "text-hud-deep" : "text-steel";
+  const statusDot =
+    p.status === "LIVE" ? "bg-signal" : p.status === "DEV" ? "bg-hud-deep" : "bg-steel";
 
   return (
     <article

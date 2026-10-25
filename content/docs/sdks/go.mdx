@@ -1,0 +1,70 @@
+---
+title: Go SDK
+description: The teepin package for Go 1.23 and newer.
+---
+
+```bash
+go get github.com/FlashbackAi/teepin-go/teepin
+```
+
+[Source](https://github.com/FlashbackAi/teepin-go)
+
+## Configure
+
+```go
+import "github.com/FlashbackAi/teepin-go/teepin"
+
+client := teepin.NewClient(teepin.Config{}) // reads TEEPIN_API_KEY and TEEPIN_BASE_URL
+
+client = teepin.NewClient(teepin.Config{
+	APIKey:     "tpk_...",
+	BaseURL:    "https://api.teepin.com",
+	Timeout:    60 * time.Second, // per call that isn't a transfer or a chat; transfers follow ctx
+	MaxRetries: 4,                // negative turns retries off
+})
+```
+
+## Inference
+
+```go
+resp, err := client.Inference.Chat(ctx, teepin.ChatRequest{
+	Model:              "teepin/glm-5.3",
+	Messages:           []teepin.Message{teepin.UserMessage("What is TLS?")},
+	MaxTokens:          300,
+	ChatTemplateKwargs: map[string]any{"enable_thinking": false},
+})
+if err != nil {
+	return err
+}
+fmt.Println(resp.Text(), resp.Meta.Attestation)
+```
+
+Streaming uses `client.Inference.ChatStream`, read with `Next`, `Chunk` and `Err`. See [Chat completions](/docs/inference/chat).
+
+## Storage
+
+```go
+_, err = client.Storage.CreateBucket(ctx, "my-bucket")
+obj, err := client.Storage.UploadFile(ctx, "my-bucket", "videos/a.mp4", "a.mp4", &teepin.UploadOptions{Resume: true})
+_, err = client.Storage.DownloadFile(ctx, "my-bucket", "videos/a.mp4", "a-copy.mp4", nil)
+link, err := client.Storage.PresignDownload(ctx, "my-bucket", "videos/a.mp4", &teepin.PresignDownloadOptions{TTL: 15 * time.Minute})
+```
+
+## Errors
+
+Errors from the API are `*teepin.APIError` values with `Code`, `StatusCode`, `Message` and `RequestID`. Helpers check them:
+
+```go
+switch {
+case teepin.IsNotFound(err):
+case teepin.IsNoCredit(err):
+case teepin.IsRateLimited(err):
+case err != nil:
+	var ae *teepin.APIError
+	if errors.As(err, &ae) {
+		log.Printf("%s (%s, request %s)", ae.Message, ae.Code, ae.RequestID)
+	}
+}
+```
+
+The full reference is in the [README](https://github.com/FlashbackAi/teepin-go#readme).

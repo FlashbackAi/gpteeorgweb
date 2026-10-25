@@ -1,0 +1,58 @@
+---
+title: OpenAI compatibility
+description: Point OpenAI's own SDKs, or any OpenAI-compatible tool, at Teepin by changing the base URL.
+---
+
+Teepin's chat API follows OpenAI's, so OpenAI's SDKs and tools built on them work by changing two settings:
+
+| Setting | Value |
+| --- | --- |
+| Base URL | `https://api.teepin.com/v1` |
+| API key | Your Teepin API key (`tpk_...`) |
+
+<Tabs items={["Python", "Node"]}>
+<Tab value="Python">
+
+```python
+from openai import OpenAI
+
+openai = OpenAI(base_url="https://api.teepin.com/v1", api_key="tpk_...")
+reply = openai.chat.completions.create(
+    model="teepin/glm-5.3",
+    messages=[{"role": "user", "content": "Hello"}],
+    extra_body={"chat_template_kwargs": {"enable_thinking": False}},
+)
+print(reply.choices[0].message.content)
+```
+
+</Tab>
+<Tab value="Node">
+
+```typescript
+import OpenAI from 'openai';
+
+const openai = new OpenAI({ baseURL: 'https://api.teepin.com/v1', apiKey: process.env.TEEPIN_API_KEY });
+const res = await openai.chat.completions.create({
+  model: 'teepin/glm-5.3',
+  messages: [{ role: 'user', content: 'Hello' }],
+});
+console.log(res.choices[0].message.content);
+```
+
+</Tab>
+</Tabs>
+
+## What is supported
+
+- `GET /v1/models` and `POST /v1/chat/completions`, answered whole or streamed.
+- The request fields listed on [Chat completions](/docs/inference/chat). Others are ignored.
+
+Embeddings, images, audio endpoints, files, fine-tuning jobs and assistants are not part of the API today.
+
+## Why use Teepin's SDKs
+
+OpenAI's SDKs work, and Teepin's add a few things on top:
+
+- the attestation result for confidential models on every answer;
+- retries that never bill twice: a chat request is retried only when it certainly was not billed;
+- typed errors, such as no credit, rate limited and model not found.

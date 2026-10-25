@@ -1,0 +1,32 @@
+---
+title: Introduction
+description: Teepin is a cloud you are free to leave. Two services are live today, Teepin Inference and Teepin Storage, both behind one API key and one prepaid balance.
+---
+
+## What is live
+
+<Cards>
+  <Card title="Teepin Inference" href="/docs/inference">
+    Open models through one OpenAI-compatible API, paid per token. Confidential models run in hardware enclaves that prove what code they run.
+  </Card>
+  <Card title="Teepin Storage" href="/docs/storage">
+    Buckets and files over a simple REST API, with large files in parallel parts, signed links, and an S3 endpoint for the tools you already use.
+  </Card>
+  <Card title="SDKs" href="/docs/sdks/python">
+    Python, Node and Go, with typed errors, safe retries and resumable uploads.
+  </Card>
+</Cards>
+
+## The shape of it
+
+- **One API.** Everything is at `https://api.teepin.com`. Requests carry an API key from your project.
+- **Projects.** Buckets and keys belong to a project. Every account starts with a Default project.
+- **Prepaid credit.** You top up first and usage draws it down. There are no bills after the fact.
+- **No lock-in.** Inference is OpenAI-compatible and storage speaks S3, so your code and data can move.
+
+## Next steps
+
+<Cards>
+  <Card title="Quickstart" href="/docs/quickstart">Create a key and make your first request.</Card>
+  <Card title="Authentication" href="/docs/authentication">API keys, S3 access keys and permissions.</Card>
+</Cards>

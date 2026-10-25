@@ -1,0 +1,190 @@
+---
+title: Upload and download
+description: Create buckets, put and get files, list them, and rename, copy or delete them.
+---
+
+## Buckets
+
+<Tabs items={["curl", "Python", "Node", "Go"]}>
+<Tab value="curl">
+
+```bash
+curl -X POST https://api.teepin.com/v1/storage/buckets \
+  -H "Authorization: Bearer $TEEPIN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "my-bucket"}'
+
+curl https://api.teepin.com/v1/storage/buckets \
+  -H "Authorization: Bearer $TEEPIN_API_KEY"
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+client.storage.create_bucket("my-bucket")
+client.storage.list_buckets()
+client.storage.delete_bucket("old-bucket")   # only when it is empty
+```
+
+</Tab>
+<Tab value="Node">
+
+```typescript
+await teepin.storage.createBucket('my-bucket');
+const buckets = await teepin.storage.listBuckets();
+await teepin.storage.deleteBucket('old-bucket'); // only when it is empty
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+bucket, err := client.Storage.CreateBucket(ctx, "my-bucket")
+buckets, err := client.Storage.ListBuckets(ctx)
+err = client.Storage.DeleteBucket(ctx, "old-bucket") // only when it is empty
+```
+
+</Tab>
+</Tabs>
+
+## Put and get
+
+<Tabs items={["curl", "Python", "Node", "Go"]}>
+<Tab value="curl">
+
+```bash
+curl -X PUT "https://api.teepin.com/v1/storage/buckets/my-bucket/object?key=notes/hello.txt" \
+  -H "Authorization: Bearer $TEEPIN_API_KEY" \
+  -H "Content-Type: text/plain" \
+  --data-binary @hello.txt
+
+curl "https://api.teepin.com/v1/storage/buckets/my-bucket/object/content?key=notes/hello.txt" \
+  -H "Authorization: Bearer $TEEPIN_API_KEY" -o hello.txt
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+s = client.storage
+s.upload("my-bucket", "notes/hello.txt", b"hello", content_type="text/plain")
+s.upload_file("my-bucket", "videos/launch.mp4", "launch.mp4")   # any size
+
+data = s.download_bytes("my-bucket", "notes/hello.txt")
+s.download_file("my-bucket", "videos/launch.mp4", "copy.mp4")
+info = s.stat_object("my-bucket", "notes/hello.txt")              # size, etag, content type
+```
+
+</Tab>
+<Tab value="Node">
+
+```typescript
+await teepin.storage.upload('my-bucket', 'notes/hello.txt', 'hello');
+const { object, data } = await teepin.storage.download('my-bucket', 'notes/hello.txt');
+const info = await teepin.storage.statObject('my-bucket', 'notes/hello.txt');
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+obj, err := client.Storage.PutObject(ctx, "my-bucket", "notes/hello.txt", strings.NewReader("hello"), 5, nil)
+
+r, err := client.Storage.GetObject(ctx, "my-bucket", "notes/hello.txt", nil)
+if err != nil {
+	return err
+}
+defer r.Close()
+data, err := io.ReadAll(r)
+```
+
+</Tab>
+</Tabs>
+
+Downloads support HTTP `Range` requests, so you can read part of a file or resume a download.
+
+## List
+
+Listings come a page at a time. Pass `delimiter=/` to see folders as `prefixes`, and the `next_cursor` of one page as `cursor` to get the next.
+
+<Tabs items={["curl", "Python", "Node", "Go"]}>
+<Tab value="curl">
+
+```bash
+curl "https://api.teepin.com/v1/storage/buckets/my-bucket/objects?prefix=photos/&delimiter=/" \
+  -H "Authorization: Bearer $TEEPIN_API_KEY"
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+page = client.storage.list_objects("my-bucket", prefix="photos/", delimiter="/", limit=100)
+for obj in client.storage.iter_objects("my-bucket", "photos/"):   # every page
+    print(obj.key, obj.size)
+```
+
+</Tab>
+<Tab value="Node">
+
+```typescript
+for await (const obj of teepin.storage.objects('my-bucket', 'photos/')) console.log(obj.key, obj.size);
+const page = await teepin.storage.listObjects('my-bucket', { prefix: 'photos/', delimiter: '/' });
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+for o, err := range client.Storage.Objects(ctx, "my-bucket", "photos/") {
+	if err != nil {
+		return err
+	}
+	fmt.Println(o.Key, o.Size)
+}
+```
+
+</Tab>
+</Tabs>
+
+## Rename, copy and delete
+
+Renaming only changes the catalog, so it is instant at any size. Copy duplicates the bytes.
+
+<Tabs items={["Python", "Node", "Go"]}>
+<Tab value="Python">
+
+```python
+s.rename_object("my-bucket", "draft.txt", "final.txt")
+s.copy_object("backup", "final.txt", "my-bucket", "final.txt")   # to backup/final.txt
+s.delete_object("my-bucket", "old.txt")
+s.delete_objects("my-bucket", ["a.txt", "b.txt"])                 # up to 1,000 a request
+```
+
+</Tab>
+<Tab value="Node">
+
+```typescript
+await teepin.storage.renameObject('my-bucket', 'draft.txt', 'final.txt');
+await teepin.storage.copyObject('backup', 'final.txt', 'my-bucket', 'final.txt'); // to backup/final.txt
+await teepin.storage.deleteObject('my-bucket', 'old.txt');
+await teepin.storage.deleteObjects('my-bucket', ['a.txt', 'b.txt']);
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+_, err = client.Storage.RenameObject(ctx, "my-bucket", "draft.txt", "final.txt", false)
+_, err = client.Storage.CopyObject(ctx, "backup", "final.txt", "my-bucket", "final.txt", nil)
+err = client.Storage.DeleteObject(ctx, "my-bucket", "old.txt")
+res, err := client.Storage.DeleteObjects(ctx, "my-bucket", []string{"a.txt", "b.txt"})
+```
+
+</Tab>
+</Tabs>
+
+## ETags
+
+An object's ETag is the SHA-256 of its bytes. For an object uploaded in parts it is the SHA-256 of the parts' SHA-256s, followed by `-` and the number of parts. Use it to check that a local file matches what is stored.

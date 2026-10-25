@@ -1,0 +1,68 @@
+---
+title: S3 endpoint
+description: Use the AWS CLI, boto3, the AWS SDKs and rclone with Teepin Storage, unchanged.
+---
+
+Teepin Storage speaks the S3 API at `https://s3.teepin.com`. The buckets are the same ones the console, the REST API and the SDKs show.
+
+| Setting | Value |
+| --- | --- |
+| Endpoint | `https://s3.teepin.com` |
+| Region | `teepin` (requests signed for any region are accepted) |
+| Addressing | Path style (`s3.teepin.com/bucket/key`) or virtual-hosted (`bucket.s3.teepin.com/key`) |
+| Credentials | An **S3 access key** from your project's **Settings**, then **S3 access keys**. An API key does not work here. |
+
+## AWS CLI
+
+```bash
+aws configure set aws_access_key_id TPAK... --profile teepin
+aws configure set aws_secret_access_key ... --profile teepin
+aws configure set region teepin --profile teepin
+
+aws --profile teepin --endpoint-url https://s3.teepin.com s3 ls
+aws --profile teepin --endpoint-url https://s3.teepin.com s3 cp ./data.csv s3://my-bucket/data.csv
+aws --profile teepin --endpoint-url https://s3.teepin.com s3 sync ./site s3://my-bucket/site
+```
+
+## boto3
+
+```python
+import boto3
+from botocore.config import Config
+
+s3 = boto3.client(
+    "s3",
+    endpoint_url="https://s3.teepin.com",
+    region_name="teepin",
+    aws_access_key_id="TPAK...",
+    aws_secret_access_key="...",
+    config=Config(s3={"addressing_style": "path"}),
+)
+s3.upload_file("big.bin", "my-bucket", "big.bin")
+print(s3.list_objects_v2(Bucket="my-bucket").get("Contents", []))
+```
+
+## rclone
+
+```bash
+rclone config create teepin s3 provider=Other \
+  access_key_id=TPAK... secret_access_key=... \
+  endpoint=https://s3.teepin.com region=teepin
+
+rclone ls teepin:my-bucket
+rclone copy ./backup teepin:my-bucket/backup --progress
+```
+
+## What is supported
+
+| Supported | Not supported |
+| --- | --- |
+| Create, list, delete buckets; bucket location | Versioning |
+| Put, get (with ranges), head, delete objects; delete many | Object tagging, object lock, ACLs other than private |
+| Copy objects, including part copies | Lifecycle, policy, CORS, website and replication settings |
+| Multipart uploads | Server-side encryption headers |
+| Presigned URLs (SigV4) | Browser form (POST) uploads |
+
+Tools that only *read* a bucket setting Teepin does not have, such as its tagging or lifecycle, get S3's usual "none configured" answer and carry on. Trying to *set* one is refused as not implemented.
+
+The S3 endpoint has the same limits as the REST API: 600 requests a minute per access key. See [Rate limits](/docs/reference/rate-limits).

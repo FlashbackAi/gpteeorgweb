@@ -1,40 +1,6 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
-import localFont from "next/font/local";
-import "./globals.css";
-
-const nevera = localFont({
-  src: "../public/fonts/Nevera-Regular.otf",
-  variable: "--font-nevera",
-  display: "swap",
-  weight: "400",
-});
-
-const glitchGoblin = localFont({
-  src: "../public/fonts/GlitchGoblin-2O87v.ttf",
-  variable: "--font-glitch",
-  display: "swap",
-  weight: "400",
-});
-
-const hydrogen = localFont({
-  src: "../public/fonts/hydrogen.ttf",
-  variable: "--font-hydrogen",
-  display: "swap",
-  weight: "400",
-});
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
-  subsets: ["latin"],
-  display: "swap",
-});
+import "../globals.css";
+import { fontVariables } from "../fonts";
 
 const siteUrl = "https://teepin.com";
 const siteName = "Teepin";
@@ -164,7 +130,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${nevera.variable} ${glitchGoblin.variable} ${hydrogen.variable} ${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${fontVariables} h-full antialiased`}
     >
       <head>
         <script

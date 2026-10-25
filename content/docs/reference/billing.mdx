@@ -1,0 +1,29 @@
+---
+title: Billing
+description: Prepaid credit, what each service is billed for, and what happens when the balance runs out.
+---
+
+## Prepaid credit
+
+Teepin is prepaid. You add credit in the console under **Billing and Cost Management**, by card, bank transfer (ACH) or Link, and your usage draws it down. There are no invoices after the fact and no surprise bills.
+
+## What is billed
+
+| Service | Billed for |
+| --- | --- |
+| **Inference** | Input and output tokens, at each model's price per million tokens. The model list shows the prices (`pricing` on each model). |
+| **Storage, kept** | Gigabytes stored, per GB-month, measured every hour. One GB kept for a day costs one thirtieth of the monthly rate. |
+| **Storage, downloaded** | Gigabytes downloaded, per GB. Uploads are free. |
+
+Current prices are shown in the console. An inference answer is billed when the model has written it. A request refused with an error is not billed.
+
+## When the balance runs out
+
+- **Inference** requests are refused with `402 insufficient_credit` until you add credit.
+- **Storage** is put on hold: your files are kept, but nothing can list, read or download them, and signed links stop working. Requests are refused with `402 storage_on_hold`, and the answer's `delete_after` says when the held files will be deleted if no credit is added. Adding credit releases the hold at once.
+
+The console warns you when your credit is running low, with an estimate of how long it will last.
+
+## Usage
+
+The console's **Billing and Cost Management** shows your balance, top-ups and usage by service.

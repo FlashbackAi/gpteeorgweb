@@ -36,8 +36,8 @@ const SECTIONS: LegalSection[] = [
       <>
         <p>These terms cover the website and the early-access program.</p>
         <p>
-          Our services &mdash; Teepin Inference, Compute, Storage, and Data
-          &amp; Network &mdash; are provided under a separate service agreement.
+          Our services (Teepin Inference, Compute, Storage, and Data
+          &amp; Network) are provided under a separate service agreement.
           If that agreement conflicts with these terms, the service agreement
           wins.
         </p>

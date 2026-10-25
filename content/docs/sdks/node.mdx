@@ -1,0 +1,75 @@
+---
+title: Node SDK
+description: The @teepin/sdk package for Node 20 and newer, in TypeScript, with ESM and CommonJS builds.
+---
+
+```bash
+npm install @teepin/sdk
+```
+
+[npm](https://www.npmjs.com/package/@teepin/sdk) · [Source](https://github.com/FlashbackAi/teepin-node)
+
+## Configure
+
+```typescript
+import { TeepinClient } from '@teepin/sdk';
+
+const teepin = new TeepinClient(); // reads TEEPIN_API_KEY and TEEPIN_BASE_URL
+const other = new TeepinClient({
+  apiKey: 'tpk_...',
+  baseUrl: 'https://api.teepin.com',
+  timeout: 60_000,  // ms for a call that isn't a transfer or a chat completion
+  maxRetries: 4,    // 0 turns retries off
+});
+```
+
+## Inference
+
+```typescript
+const res = await teepin.inference.chat.completions.create({
+  model: 'teepin/glm-5.3',
+  messages: [{ role: 'user', content: 'What is TLS?' }],
+  max_completion_tokens: 300,
+  chat_template_kwargs: { enable_thinking: false },
+});
+console.log(res.choices[0].message.content, res.meta.attestation);
+
+const stream = await teepin.inference.chat.completions.create({
+  model: 'teepin/glm-5.3',
+  messages: [{ role: 'user', content: 'Write a haiku about the sea.' }],
+  stream: true,
+});
+for await (const chunk of stream) process.stdout.write(chunk.choices[0]?.delta.content ?? '');
+```
+
+## Storage
+
+Files on disk use `@teepin/sdk/node`:
+
+```typescript
+import { uploadFile, downloadFile } from '@teepin/sdk/node';
+
+await teepin.storage.createBucket('my-bucket');
+await uploadFile(teepin.storage, 'my-bucket', 'videos/a.mp4', './a.mp4', { resume: true });
+await downloadFile(teepin.storage, 'my-bucket', 'videos/a.mp4', './copy.mp4');
+const link = await teepin.storage.presignDownload('my-bucket', 'videos/a.mp4', { expiresIn: 900 });
+```
+
+## Errors
+
+Errors from the API are `APIError` subclasses with `code`, `status`, `serverMessage` and `requestId`. Helpers make the common cases easy:
+
+```typescript
+import { isInsufficientCreditError, isRateLimitError, isNotFoundError } from '@teepin/sdk';
+
+try {
+  await teepin.inference.chat.completions.create({ model: 'teepin/glm-5.3', messages: [{ role: 'user', content: 'Hi' }] });
+} catch (err) {
+  if (isInsufficientCreditError(err)) console.error('add credit in the console');
+  else if (isRateLimitError(err)) console.error(`try again in ${err.retryAfter ?? 'a few'} seconds`);
+  else if (isNotFoundError(err)) console.error('no such model, or this key may not call it');
+  else throw err;
+}
+```
+
+The full reference is in the [README](https://github.com/FlashbackAi/teepin-node#readme).

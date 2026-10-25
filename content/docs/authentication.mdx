@@ -1,0 +1,43 @@
+---
+title: Authentication
+description: API keys for the Teepin API, S3 access keys for S3 tools, and what each can do.
+---
+
+## Two kinds of keys
+
+| Key | Looks like | Used with | Where to create it |
+| --- | --- | --- | --- |
+| **API key** | `tpk_...` | The Teepin API at `api.teepin.com`, the SDKs and OpenAI-compatible clients | Project **Settings**, then **API keys** |
+| **S3 access key** | an access key ID and a secret | The S3 endpoint at `s3.teepin.com`: the AWS CLI, boto3, the AWS SDKs, rclone | Project **Settings**, then **S3 access keys** |
+
+Both belong to one project and see only that project's resources. The secret of either key is shown once, when it is created. Teepin stores only a fingerprint of it, so it cannot be shown again: if a key is lost, create a new one and revoke the old one.
+
+## Sending an API key
+
+Send it as a bearer token:
+
+```bash
+curl https://api.teepin.com/v1/models \
+  -H "Authorization: Bearer tpk_..."
+```
+
+The SDKs read it from the `TEEPIN_API_KEY` environment variable when you don't pass one, and `TEEPIN_BASE_URL` changes the address (default `https://api.teepin.com`). A value you pass in code always wins.
+
+## Permissions
+
+An API key carries the access chosen when it was made:
+
+| Access | Allows |
+| --- | --- |
+| Inference | `inference:invoke`: list models, chat completions, attestation proofs. A key can be limited to some models. |
+| Storage, read | `storage:read`: list buckets and objects, download, signed download links. |
+| Storage, read and write | `storage:write`: everything above, plus create, upload, rename, copy and delete. |
+
+A request the key may not make is refused with `403`. See [Errors](/docs/reference/errors).
+
+## Keeping keys safe
+
+- Keep keys on your servers. Never put an API key in a web page or a mobile app.
+- To let a browser upload or download one file, sign a link on your server instead. See [Signed links](/docs/storage/signed-links).
+- Use one key per service or environment, so you can revoke one without touching the others.
+- Deleting a project revokes all of its keys.

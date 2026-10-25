@@ -1,0 +1,74 @@
+---
+title: Python SDK
+description: The teepin package for Python 3.9 and newer, with sync and async clients.
+---
+
+```bash
+pip install teepin
+```
+
+[PyPI](https://pypi.org/project/teepin/) · [Source](https://github.com/FlashbackAi/teepin-python)
+
+## Configure
+
+```python
+from teepin import Client, AsyncClient
+
+client = Client()                     # reads TEEPIN_API_KEY and TEEPIN_BASE_URL
+client = Client(api_key="tpk_...")    # or pass it
+```
+
+| Argument | Environment | Default |
+| --- | --- | --- |
+| `api_key` | `TEEPIN_API_KEY` | none |
+| `base_url` | `TEEPIN_BASE_URL` | `https://api.teepin.com` |
+| `timeout` | | 60 s for each call that is not a transfer |
+| `transfer_timeout` | | 300 s without a byte before a transfer is cut off |
+| `max_retries` | | 4 (storage) |
+| `inference_max_retries` | | 2 (inference) |
+
+`AsyncClient` has the same methods, awaited.
+
+## Inference
+
+```python
+reply = client.chat.completions.create(
+    model="teepin/glm-5.3",
+    messages=[{"role": "user", "content": "What is TLS?"}],
+    max_tokens=300,
+    chat_template_kwargs={"enable_thinking": False},
+)
+print(reply.choices[0].message.content, reply.attestation)
+
+with client.chat.completions.create(model="teepin/glm-5.3", messages=[...], stream=True) as stream:
+    for chunk in stream:
+        if chunk.choices:
+            print(chunk.choices[0].delta.content or "", end="")
+```
+
+## Storage
+
+```python
+s = client.storage
+s.create_bucket("my-bucket")
+s.upload_file("my-bucket", "videos/launch.mp4", "launch.mp4")      # any size, in parts
+s.download_file("my-bucket", "videos/launch.mp4", "copy.mp4")      # parallel, verified
+link = s.presign_download("my-bucket", "videos/launch.mp4", ttl_seconds=900)
+```
+
+## Errors
+
+Every error is a `teepin.TeepinError`. API answers raise a subclass with `status_code`, `code`, `message` and `request_id`:
+
+| Error | When |
+| --- | --- |
+| `NoCreditError` | 402 `insufficient_credit`: add credit |
+| `OnHoldError` | 402 `storage_on_hold` |
+| `UnauthorizedError`, `ForbiddenError` | 401, 403 |
+| `NotFoundError` | 404, for example `model_not_found` |
+| `ConflictError` | 409, for example `bucket_exists` |
+| `RateLimitError` | 429, with `retry_after` |
+| `StreamError` | a stream failed or was cut off |
+| `APIConnectionError` | no answer: the network or a timeout |
+
+The full reference is in the [README](https://github.com/FlashbackAi/teepin-python#readme).

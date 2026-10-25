@@ -1,0 +1,84 @@
+---
+title: Large files
+description: Upload big files in parallel parts that are retried and resumed on their own, and download them in parallel ranges.
+---
+
+One request can upload up to 5 GiB, but anything over a few megabytes is better sent in **parts**: each part is uploaded, retried and checked on its own, so a dropped connection costs one part, not the whole file. An upload in parts can make an object of up to 5 TiB, in at most 10,000 parts.
+
+The SDKs do all of this for you.
+
+<Tabs items={["Python", "Node", "Go"]}>
+<Tab value="Python">
+
+```python
+s = client.storage
+s.upload_file("my-bucket", "big.iso", "big.iso",
+              progress=lambda done, total: print(f"{done}/{total}"))
+
+# Continue an upload that was cut off, skipping parts already stored.
+s.upload_file("my-bucket", "big.iso", "big.iso", resume=True)
+
+# Parallel ranges into a temporary file, renamed into place when complete and verified.
+s.download_file("my-bucket", "big.iso", "copy.iso")
+```
+
+</Tab>
+<Tab value="Node">
+
+```typescript
+import { uploadFile, downloadFile } from '@teepin/sdk/node';
+
+await uploadFile(teepin.storage, 'my-bucket', 'videos/a.mp4', './a.mp4', {
+  resume: true,
+  onProgress: (done, total) => console.log(`${done} of ${total}`),
+});
+await downloadFile(teepin.storage, 'my-bucket', 'videos/a.mp4', './copy.mp4');
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+obj, err := client.Storage.UploadFile(ctx, "my-bucket", "videos/a.mp4", "a.mp4", &teepin.UploadOptions{
+	Resume:   true,
+	Progress: func(done, total int64) { fmt.Printf("%d of %d\n", done, total) },
+})
+_, err = client.Storage.DownloadFile(ctx, "my-bucket", "videos/a.mp4", "a-copy.mp4", nil)
+```
+
+</Tab>
+</Tabs>
+
+## How parts work in the API
+
+If you are not using an SDK, an upload in parts takes three steps:
+
+<Steps>
+<Step>
+
+### Start the upload
+
+`POST /v1/storage/buckets/{bucket}/uploads` with `{"key": "...", "content_type": "..."}` returns an upload id.
+
+</Step>
+<Step>
+
+### Send the parts
+
+`PUT /v1/storage/buckets/{bucket}/uploads/{upload}/parts/{number}` with each part's bytes, numbered from 1. Every part except the last must be at least 5 MiB. The answer carries the part's ETag. Parts can go in parallel and in any order, and a failed part can simply be sent again.
+
+</Step>
+<Step>
+
+### Complete it
+
+`POST /v1/storage/buckets/{bucket}/uploads/{upload}/complete` with `{"parts": [{"part_number": 1, "etag": "..."}, ...]}` in order. The object appears only now, complete.
+
+</Step>
+</Steps>
+
+`GET .../uploads/{upload}/parts` lists the parts already stored (to resume), and `DELETE .../uploads/{upload}` cancels an upload. Unfinished uploads are cleaned up after a while, and their parts are not billed as stored objects.
+
+<Callout title="Folders from the console">
+The console uploads whole folders, keeps their paths, and shows every file's progress in a tray that stays open while you move around.
+</Callout>

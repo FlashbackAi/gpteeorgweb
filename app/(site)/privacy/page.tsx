@@ -37,8 +37,8 @@ const SECTIONS: LegalSection[] = [
       <>
         <p>This policy covers teepin.com and any email you send us.</p>
         <p>
-          Data you put into our services &mdash; files, models, prompts,
-          databases &mdash; is customer data. Your service agreement with us
+          Data you put into our services, such as files, models, prompts and
+          databases, is customer data. Your service agreement with us
           governs it, not this policy. See{" "}
           <a href="#customer-data">Data on our services</a>.
         </p>
@@ -52,8 +52,8 @@ const SECTIONS: LegalSection[] = [
       <>
         <p>
           <strong>What you send us.</strong>{" "}
-            When you email us &mdash; to
-          request early access, ask a question or anything else &mdash; we get
+            When you email us (to
+          request early access, ask a question or anything else), we get
           your email address, your name if you include it, and whatever you
           write. That may include your company and role.
         </p>

@@ -1,0 +1,33 @@
+---
+title: Rate limits
+description: How many requests you can make, how to read your current window, and what happens past it.
+---
+
+Limits protect the service for everyone. They count per API key, or per signed-in account in the console, and per IP address.
+
+| Limit | Default |
+| --- | --- |
+| Chat completions | 60 a minute per key |
+| Chat completions running at once | 10 per key |
+| Model list and attestation | 300 a minute per key |
+| Storage API | 600 a minute per key |
+| S3 endpoint | 600 a minute per S3 access key |
+| Any request, per IP address | 1,200 a minute |
+
+Need more? Write to [contact@teepin.com](mailto:contact@teepin.com) with your account number and what you are building.
+
+## Reading your window
+
+Answers carry the window they counted against:
+
+| Header | Meaning |
+| --- | --- |
+| `X-RateLimit-Limit` | Requests allowed in the window |
+| `X-RateLimit-Remaining` | Requests left in it |
+| `X-RateLimit-Reset` | When it resets, in Unix seconds |
+
+## Past the limit
+
+The request is refused with `429` and a `Retry-After` header in seconds. For inference the body is OpenAI's error envelope with the code `rate_limit_exceeded` (too many in the window) or `too_many_concurrent_requests` (too many at once). The S3 endpoint answers `SlowDown`, as S3 does.
+
+The SDKs wait and retry on `429` for you, up to their retry limit.

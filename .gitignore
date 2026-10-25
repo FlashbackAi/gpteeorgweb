@@ -54,3 +54,6 @@ next-env.d.ts
 
 
 /docs
+
+# fumadocs-mdx output (generated from content/docs at build time)
+/.source

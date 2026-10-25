@@ -1,0 +1,32 @@
+---
+title: Reasoning models
+description: Models that think before they answer, and why a small token budget can return an empty answer.
+---
+
+Reasoning models, such as GLM-5.3, think before they answer. The thinking counts toward the same token budget as the answer (`max_tokens` or `max_completion_tokens`).
+
+## The empty answer
+
+With a small budget, the model can spend all of it thinking. The answer then comes back empty:
+
+```json
+{
+  "choices": [{
+    "message": { "role": "assistant", "content": null },
+    "finish_reason": "length"
+  }]
+}
+```
+
+`finish_reason: "length"` means the budget ran out. Two ways to fix it:
+
+- **Turn thinking off** for short answers: send `"chat_template_kwargs": {"enable_thinking": false}`.
+- **Give it room:** raise `max_tokens`, for example to 2,000 or more for questions that need thought.
+
+## Reading the thinking
+
+When a model shows its thinking, it arrives in `reasoning_content` (on the message, or on each streamed `delta`), separate from `content`. Show it, keep it or drop it as you like. It is billed as output tokens either way.
+
+<Callout title="A rule of thumb">
+Short factual answers, classification and extraction: thinking off. Multi-step problems, code and planning: thinking on, with a generous budget.
+</Callout>
