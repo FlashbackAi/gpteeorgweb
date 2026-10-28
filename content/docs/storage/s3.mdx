@@ -65,4 +65,4 @@ rclone copy ./backup teepin:my-bucket/backup --progress
 
 Tools that only *read* a bucket setting Teepin does not have, such as its tagging or lifecycle, get S3's usual "none configured" answer and carry on. Trying to *set* one is refused as not implemented.
 
-The S3 endpoint has the same limits as the REST API: 600 requests a minute per access key. See [Rate limits](/docs/reference/rate-limits).
+The S3 endpoint has the same limits as the REST API: 3,000 requests a minute (50 a second) per access key. See [Rate limits](/docs/reference/rate-limits).

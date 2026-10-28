@@ -114,7 +114,7 @@ drawable by `stroke-dashoffset`, which the reactor boot animation relies on.
 <div align="center">
 
 **- Teepin -**
-[contact@teepin.com](mailto:contact@teepin.com)
+[support@teepin.com](mailto:support@teepin.com)
 
 </div>
 
