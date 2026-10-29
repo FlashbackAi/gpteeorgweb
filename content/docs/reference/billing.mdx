@@ -12,8 +12,8 @@ Teepin is prepaid. You add credit in the console under **Billing and Cost Manage
 | Service | Billed for |
 | --- | --- |
 | **Inference** | Input and output tokens, at each model's price per million tokens. The model list shows the prices (`pricing` on each model). |
-| **Storage, kept** | Gigabytes stored, per GB-month, measured every hour. One GB kept for a day costs one thirtieth of the monthly rate. Usage shows it in GB-months. A very small bucket is added up until it reaches $0.0001 and then charged in one amount, so tiny amounts are never rounded away. |
-| **Storage, downloaded** | Gigabytes downloaded, per GB. Uploads are free. |
+| **Storage, kept** | Gigabytes stored, per GB-month, measured every hour: each hour is charged at the size the bucket had in that hour. One GB kept for a day costs one thirtieth of the monthly rate. Usage shows it in GB-months. A very small bucket is added up until it reaches $0.0001 and then charged in one amount, so tiny amounts are never rounded away. |
+| **Storage, downloaded** | Gigabytes downloaded, per GB, shown as "Object storage downloads" on your bills. Uploads are free. |
 
 Current prices are shown in the console. An inference answer is billed when the model has written it. A request refused with an error is not billed.
 
