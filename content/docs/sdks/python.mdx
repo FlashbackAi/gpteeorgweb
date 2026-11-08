@@ -9,6 +9,8 @@ pip install teepin
 
 [PyPI](https://pypi.org/project/teepin/) · [Source](https://github.com/FlashbackAi/teepin-python)
 
+Python 3.9 or newer. It depends on `requests`, `aiohttp`, `pydantic` and `cryptography` (42 or newer), which does the encryption.
+
 ## Configure
 
 ```python
@@ -26,8 +28,14 @@ client = Client(api_key="tpk_...")    # or pass it
 | `transfer_timeout` | | 300 s without a byte before a transfer is cut off |
 | `max_retries` | | 4 (storage) |
 | `inference_max_retries` | | 2 (inference) |
+| `state_dir` | `TEEPIN_STATE_DIR` | the system's state directory (see [Local state](#local-state)) |
+| `upload_wait` | `TEEPIN_UPLOAD_WAIT` | 600 s an upload waits for an unavailable storage network (0 fails at once) |
+| `upload_concurrency` | `TEEPIN_UPLOAD_CONCURRENCY` | 32 packs or parts in flight at most |
+| `key_cache_ttl` | | 600 s a read keeps an object's key in memory (0 keeps none) |
 
 `AsyncClient` has the same methods, awaited.
+
+`Client` sends its requests with `requests`, so it follows the usual `HTTPS_PROXY` and `NO_PROXY` variables. To set up the connection yourself, pass a `requests.Session` as `session=`.
 
 ## Inference
 
@@ -48,13 +56,49 @@ with client.chat.completions.create(model="teepin/glm-5.3", messages=[...], stre
 
 ## Storage
 
+Files are encrypted on this device and sent straight to the storage network, and read straight back from it, every byte checked before you get it. No file byte passes through Teepin's API, which keeps the catalog and signs each request.
+
 ```python
 s = client.storage
 s.create_bucket("my-bucket")
-s.upload_file("my-bucket", "videos/launch.mp4", "launch.mp4")      # any size, in parts
-s.download_file("my-bucket", "videos/launch.mp4", "copy.mp4")      # parallel, verified
-link = s.presign_download("my-bucket", "videos/launch.mp4", ttl_seconds=900)
+s.put_object("my-bucket", "notes/hello.txt", "hello")                # returns once saved
+s.upload_file("my-bucket", "videos/launch.mp4", "launch.mp4")      # any size, in parts above 16 MiB
+results = s.upload_files("my-bucket", ["a.jpg", "b.jpg"], prefix="photos/")   # one result per file
+s.resume_uploads()                                                 # after a crash
+
+s.download_file("my-bucket", "videos/launch.mp4", "copy.mp4")      # parallel, checked
+link = s.create_link("my-bucket", "videos/launch.mp4", expires_in=900)  # a share link
+with s.open_object("my-bucket", "videos/launch.mp4") as f:         # seekable, read-only
+    f.seek(1 << 20)
+    chunk = f.read(4096)
 ```
+
+How the engine works:
+
+- Up to 16 MiB, objects are packed together into one write. `put_object` calls made at the same time, from any thread, share packs, and each gets its own result.
+- Larger files go in parts, sent in parallel. Packs and parts in flight start at 4 and grow while throughput rises, up to `upload_concurrency`. They halve when the storage network slows requests down.
+- Every step is retried on its own, and an upload is reported saved only once Teepin has checked the storage network holds it.
+- On a slow connection, packs and parts shrink so each request takes at most about 4 minutes. See [Large files](/docs/storage/large-files#parts).
+
+See [Upload and download](/docs/storage/objects) and [Large files](/docs/storage/large-files) for everything else.
+
+## Local state
+
+Upload runs (`upload_files`, and `upload_file` above 16 MiB) and batch downloads keep a journal on disk, so they can be resumed after a crash. It lives in the state directory:
+
+| System | State directory |
+| --- | --- |
+| Linux | `$XDG_STATE_HOME/teepin`, by default `~/.local/state/teepin` |
+| macOS | `~/Library/Application Support/teepin` |
+| Windows | `%LOCALAPPDATA%\teepin` |
+| Any | `TEEPIN_STATE_DIR`, or `state_dir=` on the client |
+
+- The directory is created readable only by you (`0700`, its files `0600`), since journals hold file paths and, for an unfinished large upload, its key. See [Security](/docs/storage/security#unfinished-uploads-keep-a-key-on-disk).
+- Uploads are under `uploads/`, one folder per run, and batch downloads under `downloads/`. A file a batch download hasn't finished sits beside its target as `<name>.teepin-part`.
+- A finished run removes its own folder. `list_upload_runs()` shows the rest, and `clean_uploads()` removes old ones, with a warning for each.
+- Uploads of bytes and streams aren't journaled, and `upload_files(..., journal=False)` keeps a run in memory.
+- A warning is logged when the state directory passes 1 GiB (`TEEPIN_STATE_WARN_BYTES`).
+- This SDK resumes only its own runs, not those of the Node or Go SDKs.
 
 ## Errors
 
@@ -65,10 +109,43 @@ Every error is a `teepin.TeepinError`. API answers raise a subclass with `status
 | `NoCreditError` | 402 `insufficient_credit`: add credit |
 | `OnHoldError` | 402 `storage_on_hold` |
 | `UnauthorizedError`, `ForbiddenError` | 401, 403 |
-| `NotFoundError` | 404, for example `model_not_found` |
+| `NotFoundError` | 404, for example `model_not_found` or `object_not_found` |
+| `KeyErasedError` | 410 `key_erased`: the object's key was erased, so it can never be read. A `NotFoundError`. |
 | `ConflictError` | 409, for example `bucket_exists` |
+| `PreconditionFailedError` | 412: `if_match` or `if_none_match` |
+| `TooLargeError` | 413, or a stream over its part limit (`too_many_parts`). `reason="connection_speed"`: too large to send at the measured connection speed, raised before anything is sent. |
 | `RateLimitError` | 429, with `retry_after` |
+| `StorageUnavailableError` | the storage network didn't come back within `upload_wait` |
+| `FileChangedError` | a file changed while it was uploaded; `path` names it |
+| `DataIntegrityError` | data that failed a check after a retry; `reason` says which |
+| `ChecksumMismatchError` | bytes that don't match the object's SHA-256. A `DataIntegrityError`. |
+| `ObjectChangedError` | the object was replaced while it was read |
 | `StreamError` | a stream failed or was cut off |
 | `APIConnectionError` | no answer: the network or a timeout |
+
+`upload_files`, `resume_uploads` and the batch downloads don't raise for one file's failure: each result carries its own error. See [Errors](/docs/reference/errors).
+
+## Upgrading from 0.2
+
+Files are now encrypted on your device and sent straight to the storage network. The old upload and download routes are gone, so earlier releases no longer work for storage.
+
+**Removed:**
+
+| Removed | Use instead |
+| --- | --- |
+| `presign_download`, `get_signed`, `head_signed` | `create_link`, which makes a share link: see [Share links](/docs/storage/share-links) |
+| `presign_upload`, `put_signed` | Nothing: there are no upload links |
+| `create_upload`, `upload_part`, `list_parts`, `complete_upload` | `upload`, `upload_file` or `upload_stream`, which send parts for you |
+| `resume=True` on `upload` and `upload_file` | `resume_uploads()`, on the machine that started the upload |
+
+`list_uploads` and `abort_upload` stay.
+
+**Changed:**
+
+- `put_object` and the uploads return once the object is saved. While the storage network is unavailable they wait, up to `upload_wait`.
+- An object uploaded in parts now has the SHA-256 of its bytes as its ETag, with no `-<parts>`. See [ETags](/docs/storage/objects#etags).
+- An upload has at most 3,000 parts. A stream's parts are 64 MiB unless you give `expected_size`.
+- `copy_object` is made on your machine: it reads the source and uploads it again, so it's billed as a download too.
+- `upload_file` no longer uses `concurrency`: parts in flight adapt by themselves, up to `upload_concurrency`.
 
 The full reference is in the [README](https://github.com/FlashbackAi/teepin-python#readme).

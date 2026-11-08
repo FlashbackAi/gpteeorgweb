@@ -1,6 +1,6 @@
 ---
 title: Rate limits
-description: How many requests you can make, how to read your current window, and what happens past it.
+description: How many requests you can make, how to read your current window, what happens past it, and why storage speed isn't capped.
 ---
 
 Limits protect the service for everyone. They count per API key, or per signed-in account in the console, and per IP address.
@@ -10,11 +10,22 @@ Limits protect the service for everyone. They count per API key, or per signed-i
 | Chat completions | 60 a minute per key |
 | Chat completions running at once | 10 per key |
 | Model list and attestation | 300 a minute per key |
-| Storage API | 3,000 a minute per key (50 a second) |
-| S3 endpoint | 3,000 a minute per S3 access key (50 a second) |
+| Storage API | 3,000 a minute per key (50 a second). Signing reads for many objects in one request counts one per object. |
+| Opening share links | 600 a minute per IP address |
 | Any request, per IP address | 3,600 a minute |
 
 Need more? Write to [support@teepin.com](mailto:support@teepin.com) with your account number and what you are building.
+
+## Storage speed isn't capped
+
+Teepin doesn't limit how fast you upload or download. File bytes go straight between your device and the storage network, and don't count against these limits. The storage limit counts calls to Teepin's API: a few for each pack of small files (about 9 MiB), one for each part of a large file, and one for each 64 MiB a download reads.
+
+What sets your speed is your own connection, and how fast the storage network takes each request. When the storage network asks the SDKs to slow down, they honour its `Retry-After` and send fewer requests at once, then speed up again.
+
+Two more limits guard against runaway clients:
+
+- At most 32 uploads in parts open at once, and 64 packs waiting to be committed, per account.
+- Past either, the API answers `429` with the code `too_many_pending_uploads` and `Retry-After`. The SDKs wait for earlier uploads to finish and carry on.
 
 ## Reading your window
 
@@ -28,6 +39,6 @@ Answers carry the window they counted against:
 
 ## Past the limit
 
-The request is refused with `429` and a `Retry-After` header in seconds. For inference the body is OpenAI's error envelope with the code `rate_limit_exceeded` (too many in the window) or `too_many_concurrent_requests` (too many at once). The S3 endpoint answers `SlowDown`, as S3 does.
+The request is refused with `429` and a `Retry-After` header in seconds. For inference the body is OpenAI's error envelope with the code `rate_limit_exceeded` (too many in the window) or `too_many_concurrent_requests` (too many at once). Other routes, storage included, answer the API's usual `{"error": "...", "code": "rate_limit_exceeded"}`, plus `retry_after` in seconds.
 
 The SDKs wait and retry on `429` for you, up to their retry limit.

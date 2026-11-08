@@ -1,6 +1,6 @@
 ---
 title: Node SDK
-description: The @teepin/sdk package for Node 20 and newer, in TypeScript, with ESM and CommonJS builds.
+description: The @teepin/sdk package for Node 20 and newer and for browsers, in TypeScript, with ESM and CommonJS builds and no dependencies.
 ---
 
 ```bash
@@ -8,6 +8,8 @@ npm install @teepin/sdk
 ```
 
 [npm](https://www.npmjs.com/package/@teepin/sdk) · [Source](https://github.com/FlashbackAi/teepin-node)
+
+Node 20 or newer. The package has no dependencies: the encryption uses the Web Crypto API built into Node and browsers. Files on disk are in a separate entry, `@teepin/sdk/node`, so a browser bundle never pulls in Node's file system.
 
 ## Configure
 
@@ -22,6 +24,22 @@ const other = new TeepinClient({
   maxRetries: 4,    // 0 turns retries off
 });
 ```
+
+| Option | Environment | Default |
+| --- | --- | --- |
+| `apiKey` | `TEEPIN_API_KEY` | none |
+| `baseUrl` | `TEEPIN_BASE_URL` | `https://api.teepin.com` |
+| `timeout` | | 60,000 ms for a call that isn't a transfer |
+| `maxRetries` | | 4 (storage), 2 (inference) |
+| `stateDir` | `TEEPIN_STATE_DIR` | the system's state directory (see [Local state](#local-state)) |
+| `uploadWait` | `TEEPIN_UPLOAD_WAIT` (in seconds) | 600,000 ms an upload waits for an unavailable storage network (0 fails at once) |
+| `uploadConcurrency` | `TEEPIN_UPLOAD_CONCURRENCY` | 32 packs or parts in flight at most |
+| `keyCacheTtl` | | 600,000 ms a read keeps an object's key in memory (0 keeps none) |
+| `fetch` | | the global `fetch` |
+
+The SDK sends every request with `fetch`. To go through a proxy, pass a `fetch` set up for it.
+
+Call `teepin.close()` when you're done: it zeroes the keys kept for reads.
 
 ## Inference
 
@@ -44,20 +62,62 @@ for await (const chunk of stream) process.stdout.write(chunk.choices[0]?.delta.c
 
 ## Storage
 
-Files on disk use `@teepin/sdk/node`:
+Files are encrypted on this device and sent straight to the storage network, and every byte read is checked on this device before it's used. No file byte passes through Teepin's API.
 
 ```typescript
-import { uploadFile, downloadFile } from '@teepin/sdk/node';
+import { downloadFile, resumeUploads, uploadFile, uploadFiles } from '@teepin/sdk/node';
 
 await teepin.storage.createBucket('my-bucket');
-await uploadFile(teepin.storage, 'my-bucket', 'videos/a.mp4', './a.mp4', { resume: true });
+await teepin.storage.putObject('my-bucket', 'notes/hello.txt', 'hello'); // resolves once saved
+await uploadFile(teepin.storage, 'my-bucket', 'videos/a.mp4', './a.mp4'); // any size, in parts above 16 MiB
+const results = await uploadFiles(teepin.storage, 'my-bucket', ['a.jpg', 'b.jpg'], { prefix: 'photos/' });
+await resumeUploads(teepin.storage); // after a crash
+
 await downloadFile(teepin.storage, 'my-bucket', 'videos/a.mp4', './copy.mp4');
-const link = await teepin.storage.presignDownload('my-bucket', 'videos/a.mp4', { expiresIn: 900 });
+const link = await teepin.storage.createLink('my-bucket', 'videos/a.mp4', { expiresIn: 900 });
 ```
+
+- **The main entry** works in Node and in browsers: `putObject`, `upload` (bytes, Blobs, streams), `getObject`, `download`, `downloadTo`, `openObject`, `copyObject`, `createLink` and `openLink`.
+- **`@teepin/sdk/node`** adds files on disk: `uploadFile`, `uploadFiles`, `resumeUploads`, `listUploadRuns`, `cleanUploads`, `downloadFile`, `downloadFiles`, `downloadPrefix` and `fileSource`.
+- Up to 16 MiB, objects are packed together into one write. `putObject` calls made at the same time share packs, and each gets its own result. Larger files go in parts, sent in parallel; how many are in flight adapts, up to `uploadConcurrency`. On a slow connection, packs and parts shrink: see [Large files](/docs/storage/large-files#parts).
+- Calls take an `AbortSignal` to stop them. Aborting a run leaves it resumable.
+
+See [Upload and download](/docs/storage/objects), [Large files](/docs/storage/large-files) and [Share links](/docs/storage/share-links).
+
+### In a browser
+
+- Uploads need X25519 in the Web Crypto API, which current releases of the major browsers have (from 2025).
+- A run of many files is kept in memory, so it isn't resumed after the page is reloaded.
+- Every storage method except `openLink` sends your API key. Never put an API key in a web page: call them from your server, and give browsers share links.
+
+## Local state
+
+`uploadFiles`, `uploadFile` above 16 MiB, and the batch downloads keep a journal on disk, so they can be resumed after a crash. It lives in the state directory:
+
+| System | State directory |
+| --- | --- |
+| Linux | `$XDG_STATE_HOME/teepin`, by default `~/.local/state/teepin` |
+| macOS | `~/Library/Application Support/teepin` |
+| Windows | `%LOCALAPPDATA%\teepin` |
+| Any | `TEEPIN_STATE_DIR`, or `stateDir` on the client |
+
+- The directory is created readable only by you (`0700`, its files `0600`). See [Security](/docs/storage/security#unfinished-uploads-keep-a-key-on-disk).
+- Each run has its own folder under `uploads/` (or `downloads/`), with a `run.json` and an `events.jsonl` journal. Each state is written to disk before the step that needs it.
+- A run in use is locked, so two processes never work on the same run. A lock left by a process that has ended is taken over.
+- A finished run removes its own folder. `listUploadRuns` shows the rest, and `cleanUploads` removes old ones, with a warning for each.
+- `uploadFiles(..., { journal: false })` keeps a run in memory.
+- This SDK resumes only its own runs, not those of the Python or Go SDKs.
 
 ## Errors
 
-Errors from the API are `APIError` subclasses with `code`, `status`, `serverMessage` and `requestId`. Helpers make the common cases easy:
+Errors from the API are `APIError` subclasses with `code`, `status`, `serverMessage` and `requestId`:
+
+- `UnauthorizedError` (401), `PaymentRequiredError` (402), `ForbiddenError` (403), `NotFoundError` (404), `ConflictError` (409), `PreconditionFailedError` (412), `TooLargeError` (413; `reason` is `"connection_speed"` when the connection measured too slow to send a file), `RateLimitError` (429).
+- `KeyErasedError` (410 `key_erased`, a `NotFoundError`) and `InvalidLinkError` (403 `invalid_link`, a `ForbiddenError`).
+- `StorageUnavailableError`, `FileChangedError`, `DataIntegrityError` (with `ChecksumMismatchError` under it) and `ObjectChangedError` for storage.
+- `ConnectionError` when the server couldn't be reached, and `StreamError` and `StreamEndedError` for inference streams.
+
+Helpers make the common cases easy:
 
 ```typescript
 import { isInsufficientCreditError, isRateLimitError, isNotFoundError } from '@teepin/sdk';
@@ -71,5 +131,30 @@ try {
   else throw err;
 }
 ```
+
+`uploadFiles`, `resumeUploads` and the batch downloads don't throw for one file's failure: each result carries its own `error`. See [Errors](/docs/reference/errors).
+
+## Upgrading from 0.2
+
+Files are now encrypted on your device and sent straight to the storage network. The old upload and download routes are gone, so earlier releases no longer work for storage.
+
+**Removed:**
+
+| Removed | Use instead |
+| --- | --- |
+| `presignDownload` | `createLink`: see [Share links](/docs/storage/share-links) |
+| `presignUpload` | Nothing: there are no upload links |
+| `createUpload`, `uploadPart`, `listParts`, `completeUpload` | `upload` or `uploadFile`, which send parts for you |
+| the `resume` option of `uploadFile` and `upload` | `resumeUploads`, on the machine that started the upload |
+| `sameAsObject` in `@teepin/sdk/node` | `computeETag` with `fileSource`: see [ETags](/docs/storage/objects#etags) |
+
+`listUploads` and `abortUpload` stay.
+
+**Changed:**
+
+- `putObject` and the uploads resolve once the object is saved. While the storage network is unavailable they wait, up to `uploadWait`.
+- An object uploaded in parts now has the SHA-256 of its bytes as its ETag, with no `-<parts>`.
+- An upload has at most 3,000 parts. A stream's parts are 64 MiB unless you give `expectedSize`.
+- `copyObject` is made on your machine: it reads the source and uploads it again, so it's billed as a download too.
 
 The full reference is in the [README](https://github.com/FlashbackAi/teepin-node#readme).

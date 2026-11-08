@@ -1,11 +1,9 @@
 ---
 title: Large files
-description: Upload big files in parallel parts that are retried and resumed on their own, and download them in parallel ranges.
+description: How big files are encrypted and sent in parallel parts, resumed after a crash, streamed when their size isn't known, and read back.
 ---
 
-One request can upload up to 5 GiB, but anything over a few megabytes is better sent in **parts**: each part is uploaded, retried and checked on its own, so a dropped connection costs one part, not the whole file. An upload in parts can make an object of up to 5 TiB, in at most 10,000 parts.
-
-The SDKs do all of this for you.
+A file over 16 MiB is sent in **parts**, in parallel. Each part is retried and checked on its own, so a dropped connection costs one part, not the whole file. The SDKs and the console do all of this for you.
 
 <Tabs items={["Python", "Node", "Go"]}>
 <Tab value="Python">
@@ -15,10 +13,10 @@ s = client.storage
 s.upload_file("my-bucket", "big.iso", "big.iso",
               progress=lambda done, total: print(f"{done}/{total}"))
 
-# Continue an upload that was cut off, skipping parts already stored.
-s.upload_file("my-bucket", "big.iso", "big.iso", resume=True)
+# After a crash or a lost connection, on the same machine:
+s.resume_uploads()
 
-# Parallel ranges into a temporary file, renamed into place when complete and verified.
+# Parallel windows into a temporary file, renamed into place when complete and checked.
 s.download_file("my-bucket", "big.iso", "copy.iso")
 ```
 
@@ -26,12 +24,15 @@ s.download_file("my-bucket", "big.iso", "copy.iso")
 <Tab value="Node">
 
 ```typescript
-import { uploadFile, downloadFile } from '@teepin/sdk/node';
+import { downloadFile, resumeUploads, uploadFile } from '@teepin/sdk/node';
 
 await uploadFile(teepin.storage, 'my-bucket', 'videos/a.mp4', './a.mp4', {
-  resume: true,
   onProgress: (done, total) => console.log(`${done} of ${total}`),
 });
+
+// After a crash or a lost connection, on the same machine:
+await resumeUploads(teepin.storage);
+
 await downloadFile(teepin.storage, 'my-bucket', 'videos/a.mp4', './copy.mp4');
 ```
 
@@ -40,45 +41,149 @@ await downloadFile(teepin.storage, 'my-bucket', 'videos/a.mp4', './copy.mp4');
 
 ```go
 obj, err := client.Storage.UploadFile(ctx, "my-bucket", "videos/a.mp4", "a.mp4", &teepin.UploadOptions{
-	Resume:   true,
 	Progress: func(done, total int64) { fmt.Printf("%d of %d\n", done, total) },
 })
+
+// After a crash or a lost connection, on the same machine:
+results, err := client.Storage.ResumeUploads(ctx, nil)
+
 _, err = client.Storage.DownloadFile(ctx, "my-bucket", "videos/a.mp4", "a-copy.mp4", nil)
 ```
 
 </Tab>
 </Tabs>
 
-## How parts work in the API
+## Parts
 
-If you are not using an SDK, an upload in parts takes three steps:
+- A large file is encrypted as **one stream**, with its own key, and cut into parts. Each part is sent with a request Teepin signs for exactly its bytes.
+- Parts are 16 MiB by default (`part_size`, `partSize` or `PartSize`). A part is at least 5 MiB and a whole number of 64 KiB segments.
+- An upload has **at most 3,000 parts**. For a larger file the part size doubles until the parts fit, so you rarely need to set it.
+- An object is at most 5 TiB.
+- How many parts are in flight adapts to your network, up to the client's upload concurrency (32 by default).
+- On a slow connection, uploads use smaller requests. The SDKs measure how fast uploads to the storage network go. When a request would take more than about 4 minutes, packs shrink below 9 MiB, a file too large for one such request goes in parts instead of a pack, and new uploads use smaller parts, down to 5 MiB. A file that still can't be sent, because even 5 MiB parts would be too slow or it would need more than 3,000 parts, fails with `TooLargeError` (reason `connection_speed`) before anything is sent.
+- When every part is sent, Teepin asks the storage network to join them, checks the result, and records the object. Only then is the upload reported saved.
 
-<Steps>
-<Step>
+## A file that changes during its upload
 
-### Start the upload
+Before a part's first byte leaves your device, the SDK records the part's SHA-256. If the part has to be sent again, the file is read and checked again first. If it changed, the upload is cancelled, and the file fails with `FileChangedError`: it is never stored half old and half new.
 
-`POST /v1/storage/buckets/{bucket}/uploads` with `{"key": "...", "content_type": "..."}` returns an upload id.
+Upload it again once it has stopped changing. The new upload starts from the beginning, with a new key.
 
-</Step>
-<Step>
+## Resuming after a crash
 
-### Send the parts
+`upload_file` and `upload_files` keep a journal in the SDK's [state directory](/docs/sdks/python#local-state). After a crash, a lost connection or a stopped process, `resume_uploads()` (`resumeUploads` in Node) finishes the upload: it asks which parts the storage network already holds, and sends only the rest.
 
-`PUT /v1/storage/buckets/{bucket}/uploads/{upload}/parts/{number}` with each part's bytes, numbered from 1. Every part except the last must be at least 5 MiB. The answer carries the part's ETag. Parts can go in parallel and in any order, and a failed part can simply be sent again.
+- Resuming works only on the machine that started the upload, since the journal holds what's needed to encrypt the remaining parts in the same stream. See [Security](/docs/storage/security#unfinished-uploads-keep-a-key-on-disk).
+- `upload` of bytes and `upload_stream` aren't journaled: nothing on disk could resume them. If one fails, its upload is cancelled. Send it again.
+- While the storage network is unavailable, an upload waits up to the client's upload wait (10 minutes by default). Then it fails with `StorageUnavailableError`, and a journaled file stays pending for `resume_uploads`.
 
-</Step>
-<Step>
+## Streams of unknown size
 
-### Complete it
+`upload_stream` (Python) and `upload` with a stream (Node, Go's `UploadStream`) send data whose size isn't known ahead, such as a pipe.
 
-`POST /v1/storage/buckets/{bucket}/uploads/{upload}/complete` with `{"parts": [{"part_number": 1, "etag": "..."}, ...]}` in order. The object appears only now, complete.
+<Tabs items={["Python", "Node", "Go"]}>
+<Tab value="Python">
 
-</Step>
-</Steps>
+```python
+import sys
 
-`GET .../uploads/{upload}/parts` lists the parts already stored (to resume), and `DELETE .../uploads/{upload}` cancels an upload. Unfinished uploads are cleaned up after a while, and their parts are not billed as stored objects.
+s.upload_stream("my-bucket", "backup.tar", sys.stdin.buffer)
+
+# Over about 187 GiB: give the expected size, so the parts are large enough.
+s.upload_stream("my-bucket", "archive.tar", sys.stdin.buffer, expected_size=500 << 30)
+```
+
+</Tab>
+<Tab value="Node">
+
+```typescript
+await teepin.storage.upload('my-bucket', 'backup.tar', process.stdin);
+
+// Over about 187 GiB: give the expected size, so the parts are large enough.
+await teepin.storage.upload('my-bucket', 'archive.tar', process.stdin, { expectedSize: 500 * 2 ** 30 });
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+obj, err := client.Storage.UploadStream(ctx, "my-bucket", "backup.tar", os.Stdin, nil)
+
+// Over about 187 GiB: give the expected size, so the parts are large enough.
+obj, err = client.Storage.UploadStream(ctx, "my-bucket", "archive.tar", os.Stdin,
+	&teepin.UploadOptions{ExpectedSize: 500 << 30})
+```
+
+</Tab>
+</Tabs>
+
+- Up to 16 MiB, a stream is stored like any small object.
+- Above that, it's read one part ahead, so the last part can be sealed as the last. Parts are 64 MiB unless you give `expected_size` (`expectedSize`) or a part size.
+- At most 3,000 parts means a stream with 64 MiB parts can be up to about 187 GiB. A stream that goes past its last allowed part fails with `TooLargeError` (code `too_many_parts`).
+- Memory: a stream holds at most about (concurrency + 3) times its part size. That's 448 MiB with the defaults: 4 parts sent at once, 64 MiB each. Lower `concurrency` or the part size to hold less.
+
+## Unfinished uploads
+
+An upload in parts that isn't completed stays open until it's completed, cancelled, or 7 days have passed. The SDKs cancel an upload they give up on. To see and cancel open uploads yourself:
+
+<Tabs items={["curl", "Python", "Node", "Go"]}>
+<Tab value="curl">
+
+```bash
+curl "https://api.teepin.com/v1/storage/buckets/my-bucket/uploads" \
+  -H "Authorization: Bearer $TEEPIN_API_KEY"
+
+curl -X DELETE "https://api.teepin.com/v1/storage/buckets/my-bucket/uploads/UPLOAD_ID" \
+  -H "Authorization: Bearer $TEEPIN_API_KEY"
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+for up in s.list_uploads("my-bucket"):
+    print(up.id, up.key, up.expires_at)
+s.abort_upload("my-bucket", upload_id)
+```
+
+</Tab>
+<Tab value="Node">
+
+```typescript
+for (const up of await teepin.storage.listUploads('my-bucket')) console.log(up.id, up.key, up.expiresAt);
+await teepin.storage.abortUpload('my-bucket', uploadId);
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+ups, err := client.Storage.ListUploads(ctx, "my-bucket", "")
+for _, up := range ups {
+	fmt.Println(up.ID, up.Key, up.ExpiresAt)
+}
+err = client.Storage.AbortUpload(ctx, "my-bucket", uploadID)
+```
+
+</Tab>
+</Tabs>
+
+The parts an unfinished upload has already stored are billed as stored bytes, on their own line, until it ends. See [Billing](/docs/reference/billing).
+
+There's no route to send parts by hand. Each part must be encrypted as a piece of the object's stream, so uploads in parts are done by the SDKs and the console.
+
+## Downloads
+
+- A large object is fetched in windows of 64 MiB, several at once (8 by default, `concurrency`). Every window comes from the same version of the object: if it's replaced meanwhile, the download fails with `ObjectChangedError`.
+- Each 64 KiB segment is checked before it's written, and the whole object is checked against its SHA-256 at the end.
+- A window that breaks off goes on from its last checked bytes.
+- `download_file` writes a temporary file beside the target and renames it into place only when every byte is checked.
+- To read parts of a large object without downloading it all, use `open_object` (`openObject`, `OpenObject`). See [Upload and download](/docs/storage/objects#download).
+
+## Copies
+
+A copy of a large object is made on the machine running your code: the SDK reads the source and streams it into a new upload, in one pass. Its bytes pass through that machine, and it's billed as a download as well as the stored copy. A rename moves no bytes and is instant at any size.
 
 <Callout title="Folders from the console">
-The console uploads whole folders, keeps their paths, and shows every file's progress in a tray that stays open while you move around.
+The console uploads whole folders, keeps their paths, and shows every file's progress in a tray that stays open while you move around. It warns you before you leave the page while uploads are running. A browser can't resume an upload after the page is reloaded: pick the file again.
 </Callout>

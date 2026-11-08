@@ -13,14 +13,33 @@ Teepin is prepaid. You add credit in the console under **Billing and Cost Manage
 | --- | --- |
 | **Inference** | Input and output tokens, at each model's price per million tokens. The model list shows the prices (`pricing` on each model). |
 | **Storage, kept** | Gigabytes stored, per GB-month, measured every hour: each hour is charged at the size the bucket had in that hour. One GB kept for a day costs one thirtieth of the monthly rate. Usage shows it in GB-months. A very small bucket is added up until it reaches $0.0001 and then charged in one amount, so tiny amounts are never rounded away. |
+| **Storage, incomplete uploads** | The parts of an unfinished large upload that have reached the storage network, billed as stored bytes at the same rate, on their own line: "Object storage incomplete uploads". See below. |
 | **Storage, downloaded** | Gigabytes downloaded, per GB, shown as "Object storage downloads" on your bills. Uploads are free. |
 
 Current prices are shown in the console. An inference answer is billed when the model has written it. A request refused with an error is not billed.
 
+### Incomplete uploads
+
+A large file is uploaded in parts. Parts that have reached the storage network take up space before the object exists, so they are billed as stored bytes until the upload:
+
+- completes: from then on, the object is billed as stored;
+- is cancelled, by the SDK when it gives up, or by you with `abort_upload`;
+- or expires, 7 days after it was started.
+
+They are measured every hour, like stored bytes: each hourly sample's size counts for the hour before it. To see and cancel unfinished uploads, see [Large files](/docs/storage/large-files#unfinished-uploads).
+
+### Downloads
+
+- A download is counted when Teepin signs the read, by the bytes the signature covers. A read signed again, for example after a pause longer than its signature lasts, counts again.
+- A range of a large object counts only the segments it reads. A small object is read whole.
+- Reads through a [share link](/docs/storage/share-links) count for the account that made the link.
+- A copy is made by reading the source and uploading it again, so it counts as a download as well as the stored copy.
+- `download_prefix` and `download_files` with `skip_existing` read nothing for a file that's already there.
+
 ## When the balance runs out
 
 - **Inference** requests are refused with `402 insufficient_credit` until you add credit.
-- **Storage** is put on hold: your files are kept, but nothing can list, read or download them, and signed links stop working. Requests are refused with `402 storage_on_hold`, and the answer's `delete_after` says when the held files will be deleted if no credit is added. Adding credit releases the hold at once.
+- **Storage** is put on hold: your files are kept, but nothing can list, read or download them, and share links stop opening. Requests are refused with `402 storage_on_hold`, and the answer's `delete_after` says when the held files will be deleted if no credit is added. Adding credit releases the hold at once.
 
 The console warns you when your credit is running low, with an estimate of how long it will last.
 

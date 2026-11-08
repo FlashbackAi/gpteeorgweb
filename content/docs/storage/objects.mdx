@@ -1,7 +1,9 @@
 ---
 title: Upload and download
-description: Create buckets, put and get files, list them, and rename, copy or delete them.
+description: Create buckets, upload and download files one at a time or many at once, list them, and rename, copy or delete them.
 ---
+
+Uploads and downloads go through an SDK or the console: files are encrypted on your device and sent straight to the storage network. The examples use `client.storage` (Python), `teepin.storage` (Node) and `client.Storage` (Go). See the [SDKs](/docs/sdks/python) to set one up. Python's `AsyncClient` has the same methods, awaited.
 
 ## Buckets
 
@@ -48,61 +50,288 @@ err = client.Storage.DeleteBucket(ctx, "old-bucket") // only when it is empty
 </Tab>
 </Tabs>
 
-## Put and get
+## Upload
 
-<Tabs items={["curl", "Python", "Node", "Go"]}>
-<Tab value="curl">
-
-```bash
-curl -X PUT "https://api.teepin.com/v1/storage/buckets/my-bucket/object?key=notes/hello.txt" \
-  -H "Authorization: Bearer $TEEPIN_API_KEY" \
-  -H "Content-Type: text/plain" \
-  --data-binary @hello.txt
-
-curl "https://api.teepin.com/v1/storage/buckets/my-bucket/object/content?key=notes/hello.txt" \
-  -H "Authorization: Bearer $TEEPIN_API_KEY" -o hello.txt
-```
-
-</Tab>
+<Tabs items={["Python", "Node", "Go"]}>
 <Tab value="Python">
 
 ```python
 s = client.storage
-s.upload("my-bucket", "notes/hello.txt", b"hello", content_type="text/plain")
-s.upload_file("my-bucket", "videos/launch.mp4", "launch.mp4")   # any size
+s.put_object("my-bucket", "notes/hello.txt", "hello", content_type="text/plain")
+s.upload("my-bucket", "data.bin", b"...", metadata={"owner": "ana"})
+s.upload_file("my-bucket", "videos/launch.mp4", "launch.mp4")        # any size
 
-data = s.download_bytes("my-bucket", "notes/hello.txt")
-s.download_file("my-bucket", "videos/launch.mp4", "copy.mp4")
-info = s.stat_object("my-bucket", "notes/hello.txt")              # size, etag, content type
+# Only if nothing is at the key yet (else PreconditionFailedError).
+s.put_object("my-bucket", "config.json", b"{}", if_none_match=True)
 ```
 
 </Tab>
 <Tab value="Node">
 
 ```typescript
-await teepin.storage.upload('my-bucket', 'notes/hello.txt', 'hello');
-const { object, data } = await teepin.storage.download('my-bucket', 'notes/hello.txt');
-const info = await teepin.storage.statObject('my-bucket', 'notes/hello.txt');
+import { uploadFile } from '@teepin/sdk/node';
+
+await teepin.storage.putObject('my-bucket', 'notes/hello.txt', 'hello', { contentType: 'text/plain' });
+await teepin.storage.upload('my-bucket', 'data.bin', new Uint8Array([1, 2, 3]), { metadata: { owner: 'ana' } });
+await uploadFile(teepin.storage, 'my-bucket', 'videos/launch.mp4', './launch.mp4'); // any size
+
+// Only if nothing is at the key yet (else PreconditionFailedError).
+await teepin.storage.putObject('my-bucket', 'config.json', '{}', { ifNoneMatch: true });
 ```
 
 </Tab>
 <Tab value="Go">
 
 ```go
-obj, err := client.Storage.PutObject(ctx, "my-bucket", "notes/hello.txt", strings.NewReader("hello"), 5, nil)
+obj, err := client.Storage.PutObject(ctx, "my-bucket", "notes/hello.txt", strings.NewReader("hello"), 5,
+	&teepin.PutObjectOptions{ContentType: "text/plain"})
+obj, err = client.Storage.UploadFile(ctx, "my-bucket", "videos/launch.mp4", "launch.mp4", nil) // any size
 
-r, err := client.Storage.GetObject(ctx, "my-bucket", "notes/hello.txt", nil)
-if err != nil {
-	return err
-}
-defer r.Close()
-data, err := io.ReadAll(r)
+// Only if nothing is at the key yet (else teepin.IsPreconditionFailed(err)).
+obj, err = client.Storage.PutObject(ctx, "my-bucket", "config.json", strings.NewReader("{}"), 2,
+	&teepin.PutObjectOptions{IfNoneMatch: true})
 ```
 
 </Tab>
 </Tabs>
 
-Downloads support HTTP `Range` requests, so you can read part of a file or resume a download.
+- **A call returns once the object is saved.** An upload is reported saved only after Teepin has checked that the storage network holds it. Each step is retried on its own after a passing failure.
+- **Small files are packed.** Up to 16 MiB, an object is packed into one write with others waiting at the same moment. Calls made at the same time share packs, and each still gets its own result. Larger files go in parts: see [Large files](/docs/storage/large-files).
+- **When the storage network is unavailable, an upload waits.** It waits up to the client's upload wait (10 minutes by default), then fails with `StorageUnavailableError`. Nothing is reported saved that isn't.
+- **Empty files** are stored without sending any bytes.
+- **Metadata** names are lowercase letters, digits, `-` and `_`.
+
+## Many files at once
+
+`upload_files` uploads a list of files as one run, and returns one result per file. One file's failure never fails another, and nothing is raised for it. A call raises only for what stops the whole run, such as a revoked key or no credit.
+
+<Tabs items={["Python", "Node", "Go"]}>
+<Tab value="Python">
+
+```python
+results = s.upload_files("my-bucket", ["a.jpg", "b.jpg"], prefix="photos/")   # photos/a.jpg, photos/b.jpg
+results = s.upload_files("my-bucket", {"reports/q3.pdf": "out/report.pdf"})   # keys you choose
+
+for r in results:
+    if not r.saved:
+        print(r.key, r.status, r.error)
+```
+
+</Tab>
+<Tab value="Node">
+
+```typescript
+import { uploadFiles } from '@teepin/sdk/node';
+
+const results = await uploadFiles(teepin.storage, 'my-bucket', ['a.jpg', 'b.jpg'], { prefix: 'photos/' });
+await uploadFiles(teepin.storage, 'my-bucket', { 'reports/q3.pdf': 'out/report.pdf' }); // keys you choose
+
+for (const r of results) if (r.status !== 'saved') console.log(r.key, r.status, r.error);
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+files, err := teepin.FilesToUpload([]string{"a.jpg", "b.jpg"}, "photos/", "") // photos/a.jpg, photos/b.jpg
+if err != nil {
+	return err
+}
+results, err := client.Storage.UploadFiles(ctx, "my-bucket", files, nil)
+if err != nil {
+	return err // the whole run stopped
+}
+for _, r := range results {
+	if !r.Saved() {
+		fmt.Println(r.Key, r.Status, r.Err)
+	}
+}
+
+// Keys you choose:
+_, err = client.Storage.UploadFiles(ctx, "my-bucket",
+	[]teepin.FileToUpload{{Key: "reports/q3.pdf", Path: "out/report.pdf"}}, nil)
+```
+
+</Tab>
+</Tabs>
+
+Each file has one of three results:
+
+| Status | Means |
+| --- | --- |
+| `saved` | The object is stored. |
+| `failed` | Final for this file: it changed while it was uploaded (`FileChangedError`), a condition failed, and so on. |
+| `pending` | Not uploaded yet because of a passing problem, such as the storage network staying unavailable past the upload wait. It stays in the run's journal for `resume_uploads`. |
+
+With a list of paths, each key is `prefix` plus the file's name, or plus its path below `root` when you give one. Each file is hashed when it's queued and checked again as it's sent, so a file that changes meanwhile fails instead of being stored half old and half new.
+
+### Resume and clean up
+
+A run is journaled on disk, in the SDK's [state directory](/docs/sdks/python#local-state), so a crash or a lost connection doesn't lose it. A file over 16 MiB sent with `upload_file` is journaled the same way, as a run of one.
+
+<Tabs items={["Python", "Node", "Go"]}>
+<Tab value="Python">
+
+```python
+from datetime import timedelta
+
+s.resume_uploads()                       # finish the runs an earlier process left
+
+for run in s.list_upload_runs():
+    print(run.id, run.bucket, run.saved, run.failed, run.pending, run.expired)
+
+s.clean_uploads(older_than=timedelta(days=7))
+```
+
+</Tab>
+<Tab value="Node">
+
+```typescript
+import { cleanUploads, listUploadRuns, resumeUploads } from '@teepin/sdk/node';
+
+await resumeUploads(teepin.storage); // finish the runs an earlier process left
+
+for (const run of await listUploadRuns(teepin.storage)) {
+  console.log(run.id, run.bucket, run.saved, run.failed, run.pending, run.expired);
+}
+
+await cleanUploads(teepin.storage, { olderThan: 7 * 24 * 3600 * 1000 }); // milliseconds
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+results, err := client.Storage.ResumeUploads(ctx, nil) // finish the runs an earlier process left
+
+runs, err := client.Storage.ListUploadRuns(ctx)
+for _, run := range runs {
+	fmt.Println(run.ID, run.Bucket, run.Saved, run.Failed, run.Pending, run.Expired)
+}
+
+cleaned, err := client.Storage.CleanUploads(ctx, 7*24*time.Hour)
+```
+
+</Tab>
+</Tabs>
+
+- `resume_uploads` takes every run no live process is working on, and finishes it from its journal. A file that changed since is `failed`, never uploaded mixed with its old bytes.
+- A run resumes only on the machine that started it, and only with the SDK that started it.
+- `list_upload_runs` shows each run: how many files are saved, failed and pending. A run untouched for 7 days is **expired**: its pending files were not uploaded.
+- `clean_uploads` removes the local state of runs untouched for longer than `older_than` (7 days by default), and cancels their open uploads. It logs a warning for each run, since their pending files are not uploaded. Nothing is ever cleaned silently.
+- A finished run removes its own state. A one-line summary of each run is kept in `uploads/history.log` in the state directory.
+- To keep a run in memory instead of on disk, pass `journal=False` (`journal: false` in Node, `NoJournal: true` in Go). It can't be resumed after a crash.
+
+## Download
+
+<Tabs items={["Python", "Node", "Go"]}>
+<Tab value="Python">
+
+```python
+data = s.download_bytes("my-bucket", "notes/hello.txt")
+s.download_file("my-bucket", "videos/launch.mp4", "copy.mp4")
+
+with s.get_object("my-bucket", "logs/app.log", range=(0, 1023)) as r:   # the first KiB
+    head = r.read()
+
+with s.open_object("my-bucket", "videos/launch.mp4") as f:               # seekable, read-only
+    f.seek(1 << 20)
+    chunk = f.read(4096)
+```
+
+</Tab>
+<Tab value="Node">
+
+```typescript
+import { downloadFile } from '@teepin/sdk/node';
+
+const { object, data } = await teepin.storage.download('my-bucket', 'notes/hello.txt');
+await downloadFile(teepin.storage, 'my-bucket', 'videos/launch.mp4', './copy.mp4');
+
+const res = await teepin.storage.getObject('my-bucket', 'logs/app.log', { range: { start: 0, end: 1023 } });
+const head = await res?.bytes(); // null only when ifNoneMatch matched
+
+const f = await teepin.storage.openObject('my-bucket', 'videos/launch.mp4');
+const chunk = await f.read(1 << 20, 4096); // 4 KiB from 1 MiB in
+f.close();
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+r, err := client.Storage.GetObject(ctx, "my-bucket", "logs/app.log",
+	&teepin.GetObjectOptions{Range: &teepin.ByteRange{Start: 0, End: 1023}})
+if err != nil {
+	return err
+}
+defer r.Close()
+head, err := io.ReadAll(r)
+
+_, err = client.Storage.DownloadFile(ctx, "my-bucket", "videos/launch.mp4", "copy.mp4", nil)
+
+f, err := client.Storage.OpenObject(ctx, "my-bucket", "videos/launch.mp4", nil) // io.ReaderAt and io.ReadSeeker
+if err != nil {
+	return err
+}
+defer f.Close()
+chunk := make([]byte, 4096)
+_, err = f.ReadAt(chunk, 1<<20)
+```
+
+</Tab>
+</Tabs>
+
+- **Every byte is checked on your device before you get it,** and a whole download is checked against the object's SHA-256. Unchecked bytes never reach your file.
+- **A download to a file** goes to a temporary file beside it, renamed into place only when the whole object has been checked.
+- **Large objects** are fetched in parallel windows of 64 MiB, all from the same version of the object. If the object is replaced while it's being read, the read fails with `ObjectChangedError`.
+- **`open_object`** gives a seekable, read-only file. Reading straight on fetches a window at a time with the next ones ahead; a read somewhere else fetches only what it needs.
+- **A range** of a large object fetches, and is billed for, only the 64 KiB segments it covers. A small object is fetched whole.
+
+## Many objects at once
+
+<Tabs items={["Python", "Node", "Go"]}>
+<Tab value="Python">
+
+```python
+results = s.download_files("my-bucket", ["a.jpg", "b.jpg"], "out/")              # out/a.jpg, out/b.jpg
+results = s.download_prefix("my-bucket", "photos/", "out/", skip_existing=True)  # photos/x.jpg to out/x.jpg
+
+for r in results:
+    if r.status in ("failed", "pending"):
+        print(r.key, r.status, r.error)
+```
+
+</Tab>
+<Tab value="Node">
+
+```typescript
+import { downloadFiles, downloadPrefix } from '@teepin/sdk/node';
+
+await downloadFiles(teepin.storage, 'my-bucket', ['a.jpg', 'b.jpg'], './out');
+const results = await downloadPrefix(teepin.storage, 'my-bucket', 'photos/', './out', { skipExisting: true });
+
+for (const r of results) if (r.status === 'failed' || r.status === 'pending') console.log(r.key, r.status, r.error);
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+results, err := client.Storage.DownloadFiles(ctx, "my-bucket", []string{"a.jpg", "b.jpg"}, "out", nil)
+results, err = client.Storage.DownloadPrefix(ctx, "my-bucket", "photos/", "out",
+	&teepin.DownloadFilesOptions{SkipExisting: true})
+```
+
+</Tab>
+</Tabs>
+
+- Each object has its own result: `saved`, `skipped`, `failed` or `pending`. One object's failure never fails another.
+- Each file is written as `<name>.teepin-part` beside its target, and renamed when it's whole and checked.
+- A download stopped part way, by a passing error or by the process ending, is `pending`. Run the same call again to go on from what was written, unless the object has changed since.
+- `skip_existing` leaves a file that already has the object's size and SHA-256, and signs and bills nothing for it. ETags are never used for this.
+- A key that isn't a safe path under the destination (`..`, an absolute path) fails. A key ending in `/` is a folder marker, and is skipped.
+- In Go, `DownloadFilesOptions.Paths` can name the path each key is written to, and `ResumeDownloads`, `ListDownloadRuns` and `CleanDownloads` finish, list and clean download runs.
 
 ## List
 
@@ -150,7 +379,9 @@ for o, err := range client.Storage.Objects(ctx, "my-bucket", "photos/") {
 
 ## Rename, copy and delete
 
-Renaming only changes the catalog, so it is instant at any size. Copy duplicates the bytes.
+Renaming only changes the catalog, so it is instant at any size and moves no bytes.
+
+A copy is made by the SDK, on the machine running your code. It reads the source, checking every byte, and uploads it as a new object with the same content type and metadata. So a copy is billed as a download as well as the stored copy. It is pinned to the version it first read: if the source is replaced meanwhile, the copy fails and nothing is written.
 
 <Tabs items={["Python", "Node", "Go"]}>
 <Tab value="Python">
@@ -177,7 +408,7 @@ await teepin.storage.deleteObjects('my-bucket', ['a.txt', 'b.txt']);
 
 ```go
 _, err = client.Storage.RenameObject(ctx, "my-bucket", "draft.txt", "final.txt", false)
-_, err = client.Storage.CopyObject(ctx, "backup", "final.txt", "my-bucket", "final.txt", nil)
+_, err = client.Storage.CopyObject(ctx, "backup", "final.txt", "my-bucket", "final.txt", nil) // to backup/final.txt
 err = client.Storage.DeleteObject(ctx, "my-bucket", "old.txt")
 res, err := client.Storage.DeleteObjects(ctx, "my-bucket", []string{"a.txt", "b.txt"})
 ```
@@ -185,6 +416,62 @@ res, err := client.Storage.DeleteObjects(ctx, "my-bucket", []string{"a.txt", "b.
 </Tab>
 </Tabs>
 
+Deleting an object removes it for good. For an object encrypted on a device, its key is erased, so its bytes can never be read again.
+
 ## ETags
 
-An object's ETag is the SHA-256 of its bytes. For an object uploaded in parts it is the SHA-256 of the parts' SHA-256s, followed by `-` and the number of parts. Use it to check that a local file matches what is stored.
+An object's ETag is the SHA-256 of its bytes, however it was uploaded, in one request or in parts. ETags are unquoted in JSON and in the SDKs. Use one to check that a local file matches what is stored.
+
+The SHA-256 is computed on the device that uploaded the file. Teepin never sees the bytes, so it can't check it.
+
+Objects uploaded in parts before files were encrypted on the device keep their older ETag: the SHA-256 of the parts' SHA-256s, then `-` and the number of parts. To match one of those, give the part size it was uploaded with. Earlier SDK releases used `part_size_for(size)` (`partSize(size)` in Node, `PartSize(size, 0)` in Go) unless told otherwise.
+
+<Tabs items={["Python", "Node", "Go"]}>
+<Tab value="Python">
+
+```python
+from teepin import compute_etag, part_size_for
+
+obj = s.stat_object("my-bucket", "big.iso")
+same = compute_etag("big.iso") == obj.etag
+
+# An object uploaded in parts by an earlier release (its ETag ends in -<parts>):
+same = compute_etag("big.iso", part_size_for(obj.size), obj.part_count) == obj.etag
+```
+
+</Tab>
+<Tab value="Node">
+
+```typescript
+import { computeETag } from '@teepin/sdk';
+import { fileSource } from '@teepin/sdk/node';
+
+const obj = await teepin.storage.statObject('my-bucket', 'report.pdf');
+const src = await fileSource('report.pdf');
+const same = (await computeETag(src, 0, 0)) === obj.etag;
+await src.close();
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+f, err := os.Open("big.iso")
+if err != nil {
+	return err
+}
+defer f.Close()
+st, err := f.Stat()
+if err != nil {
+	return err
+}
+etag, err := teepin.ComputeETag(f, st.Size(), 0, 0)
+if err != nil {
+	return err
+}
+obj, err := client.Storage.StatObject(ctx, "my-bucket", "big.iso")
+same := err == nil && etag == obj.ETag
+```
+
+</Tab>
+</Tabs>

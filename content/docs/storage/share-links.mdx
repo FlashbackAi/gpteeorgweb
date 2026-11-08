@@ -1,0 +1,112 @@
+---
+title: Share links
+description: Let someone download one file in their browser, for a limited time, without an account or your API key.
+---
+
+Your API key must stay on your servers. To let someone else download one file, make a **share link** to it and hand over only the link.
+
+A share link opens a page on the console. The page reads the file straight from the storage network and decrypts it in the browser, as the SDKs do. No file passes through Teepin's servers, and the person opening it needs no account.
+
+## Make a link
+
+<Tabs items={["curl", "Python", "Node", "Go"]}>
+<Tab value="curl">
+
+```bash
+curl -X POST https://api.teepin.com/v1/storage/buckets/my-bucket/object/link \
+  -H "Authorization: Bearer $TEEPIN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"key": "report.pdf", "ttl_seconds": 900, "disposition": "attachment"}'
+```
+
+The answer:
+
+```json
+{ "url": "https://console.teepin.com/l#...", "expires_at": "2026-11-06T12:15:00Z" }
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+link = client.storage.create_link("my-bucket", "report.pdf", expires_in=900, disposition="attachment")
+print(link.url, link.expires_at)
+```
+
+</Tab>
+<Tab value="Node">
+
+```typescript
+const link = await teepin.storage.createLink('my-bucket', 'report.pdf', { expiresIn: 900, disposition: 'attachment' });
+console.log(link.url, link.expiresAt);
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+link, err := client.Storage.CreateLink(ctx, "my-bucket", "report.pdf", &teepin.CreateLinkOptions{
+	ExpiresIn:   15 * time.Minute,
+	Disposition: "attachment",
+})
+fmt.Println(link.URL, link.ExpiresAt)
+```
+
+</Tab>
+</Tabs>
+
+In the console, open an object's details and use the link button.
+
+| Option | Values |
+| --- | --- |
+| `ttl_seconds` (`expires_in` in Python, `expiresIn` in Node) | How long the link opens: 1 second to 24 hours. Default 15 minutes. |
+| `disposition` | `inline` (the default): the page previews the file where it safely can. `attachment`: the page saves the file. |
+
+- Making a link needs an API key with `storage:read`. The object must exist when the link is made.
+- The page previews images and plain text. Anything else, PDFs and web pages included, is offered as a download, so a shared file can never run as a page.
+- Each read through a link is billed as a download, to the account that made the link.
+
+## What a link holds
+
+- A link looks like `https://console.teepin.com/l#<token>`. The token is in the part after `#`, which browsers never send to a server. So it doesn't reach server logs, or other sites through the `Referer` header.
+- The token is sealed. The bucket and key can't be read from it. Someone holding it can see only the opaque ids of the account, project and bucket, never their names or the file's path.
+
+## What a link opens
+
+- A link opens **whatever file is at its key now**. If you replace the file, the link opens the new one.
+- It stops opening when it expires, when the file is deleted or renamed, or while the account's stored data is on hold.
+- There are **no upload links**. Share links are for downloads only.
+
+## Downloads that outlast the link
+
+A download that starts while the link is valid can finish after the link expires:
+
+- It continues for as long as it keeps reading, with pauses of at most 30 minutes.
+- It stays on the version of the file it started with.
+- It never runs past 24 hours after the link's expiry.
+- If the file is replaced, renamed or deleted meanwhile, the download stops.
+
+## Links are for browsers
+
+A share link is a web page, not a file address. Tools such as curl, and `<img>` or `<video>` tags, can't fetch the file from it.
+
+To read a file in code, use the SDK with your API key. To open a link someone gave you, the Node SDK's `openLink` reads it with no API key:
+
+```typescript
+import { openLink } from '@teepin/sdk';
+
+const shared = await openLink('https://console.teepin.com/l#...');
+console.log(shared.name, shared.size, shared.contentType);
+const data = await shared.read(0, shared.size); // every byte checked before it's returned
+shared.close();
+```
+
+`openLink` fails with `InvalidLinkError` for a damaged or expired link, `NotFoundError` for a file deleted since, `ObjectChangedError` if the file is replaced while it's read, and `PaymentRequiredError` while the owner's data is on hold.
+
+## Older links
+
+Download links made before share links (`https://api.teepin.com/v1/storage/d/...`) and upload links no longer work. Make a new share link instead.
+
+<Callout title="Links can't be taken back">
+A link works until it expires, even if you change your mind. To stop it sooner, delete or rename the file: that also stops downloads under way. Opening a link gives the browser the file's key, so anyone who opened it keeps whatever they saved. Keep lifetimes as short as the job allows, and share links only with people who may read the file.
+</Callout>

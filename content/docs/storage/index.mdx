@@ -1,15 +1,49 @@
 ---
 title: Teepin Storage
-description: Buckets and files over a REST API and an S3 endpoint, billed by what you keep and what you download.
+description: Buckets and files, encrypted on your device and sent straight to the storage network, billed by what you keep and what you download.
 ---
 
-Teepin Storage keeps your files in buckets inside a project. You reach them three ways, all showing the same buckets:
+Teepin Storage keeps your files in buckets inside a project. You reach them these ways, all showing the same buckets:
 
 | Way in | For |
 | --- | --- |
-| **The console** | Browsing, uploading folders, quick downloads |
-| **The REST API and SDKs** | Your applications, with resumable large uploads and signed links |
-| **The S3 endpoint** | The AWS CLI, boto3, the AWS SDKs, rclone and other S3 tools |
+| **The console** | Browsing, uploading files and folders, previews and share links |
+| **The SDKs** (Python, Node, Go) | Your applications: uploads of any size that resume after a crash, many files at once, verified downloads |
+| **The REST API** | Buckets, listings, renames, deletes and share links, from any HTTP client |
+
+## How files move
+
+<Steps>
+<Step>
+
+### Encrypted on your device
+
+The SDK or the console encrypts each file with its own key before any byte leaves your device.
+
+</Step>
+<Step>
+
+### Signed by Teepin
+
+Teepin's API reserves the upload and signs a request for exactly those bytes. The API only reserves, signs and records: it never receives your files.
+
+</Step>
+<Step>
+
+### Sent straight to the storage network
+
+Your device sends the encrypted bytes straight to the storage network. Teepin then checks that the network holds exactly what was signed, and records the object. Only then is the upload reported as saved.
+
+</Step>
+</Steps>
+
+Downloads work the same way in reverse. Teepin checks access and signs the read, your device fetches the bytes from the storage network, and every byte is checked on your device before you get it.
+
+Small files (up to 16 MiB) are packed together into one write. Larger files go in parts, sent in parallel. See [Large files](/docs/storage/large-files), and [Security](/docs/storage/security) for what is encrypted and what Teepin can see.
+
+<Callout title="Uploads and downloads need an SDK or the console">
+Files are encrypted and checked on your device, so plain HTTP clients such as curl can't upload or download file bytes. They can still manage buckets, list, rename and delete objects, and make share links.
+</Callout>
 
 ## Concepts
 
@@ -18,7 +52,12 @@ Teepin Storage keeps your files in buckets inside a project. You reach them thre
 - **Folders.** Keys with `/` read as folders in the console and in listings with a delimiter. There is nothing else to create.
 - **Versions.** Writing to an existing key replaces the object. The previous version is not kept.
 
-Your files are stored on Shelby, a decentralised storage network. The bucket and file names you choose stay in Teepin's own catalog: the network only ever sees opaque IDs.
+Your files are stored encrypted on a decentralised storage network. The bucket and file names you choose stay in Teepin's own catalog: the network only ever sees random names and encrypted bytes.
+
+## Your network
+
+- Your device connects to `api.teepin.com` and to the storage network's host, which the API gives in each signed request. If your network only allows listed hosts, ask [support@teepin.com](mailto:support@teepin.com) for the storage network's current host.
+- The storage network is reached over IPv4. On a network with IPv6 only, the network needs NAT64 and DNS64, which most mobile networks provide.
 
 ## The REST API at a glance
 
@@ -27,20 +66,21 @@ All routes are under `https://api.teepin.com/v1/storage` and need an API key wit
 | Method and path | Does |
 | --- | --- |
 | `POST /buckets`, `GET /buckets`, `GET /buckets/{bucket}`, `DELETE /buckets/{bucket}` | Create, list, read and delete buckets. A bucket must be empty to delete. |
-| `PUT /buckets/{bucket}/object?key=` | Upload an object in one request. |
-| `GET /buckets/{bucket}/object?key=` | An object's details: size, type, ETag, metadata. |
-| `GET /buckets/{bucket}/object/content?key=` | Download. Supports `Range`. |
 | `GET /buckets/{bucket}/objects?prefix=&delimiter=&cursor=&limit=` | List, a page at a time. |
+| `GET /buckets/{bucket}/object?key=` | An object's details: size, type, ETag, metadata. |
 | `DELETE /buckets/{bucket}/object?key=`, `POST /buckets/{bucket}/objects/delete` | Delete one, or up to 1,000 at once. |
-| `POST /buckets/{bucket}/object/rename`, `POST /buckets/{bucket}/object/copy` | Rename (instant at any size) and copy. |
-| `POST /buckets/{bucket}/uploads` and the part routes | Large files in parts. See [Large files](/docs/storage/large-files). |
-| `POST /buckets/{bucket}/object/download-url`, `POST /buckets/{bucket}/object/upload-url` | Signed links. See [Signed links](/docs/storage/signed-links). |
+| `POST /buckets/{bucket}/object/rename` | Rename. Instant at any size. |
+| `POST /buckets/{bucket}/object/link` | Make a share link. See [Share links](/docs/storage/share-links). |
+| `GET /buckets/{bucket}/uploads`, `DELETE /buckets/{bucket}/uploads/{upload}` | List and cancel unfinished uploads in parts. |
+| `GET /hold` | Whether your stored data is on hold for lack of credit. |
+
+The routes that move files (reserving, signing and committing uploads, and signing reads) are meant for the SDKs, since each needs the encryption done on your device. Every route is described in the API's OpenAPI document at `https://api.teepin.com/v1/openapi.json`.
 
 ## Next
 
 <Cards>
-  <Card title="Upload and download" href="/docs/storage/objects">Put, get, list, rename and delete.</Card>
-  <Card title="Large files" href="/docs/storage/large-files">Parallel parts, resume and verification.</Card>
-  <Card title="Signed links" href="/docs/storage/signed-links">Let a browser upload or download one file.</Card>
-  <Card title="S3 endpoint" href="/docs/storage/s3">Use the AWS CLI, boto3 and rclone.</Card>
+  <Card title="Upload and download" href="/docs/storage/objects">Put, get, many files at once, list, rename and delete.</Card>
+  <Card title="Large files" href="/docs/storage/large-files">Parallel parts, resume after a crash, and streams.</Card>
+  <Card title="Share links" href="/docs/storage/share-links">Let someone download one file in a browser.</Card>
+  <Card title="Security" href="/docs/storage/security">What is encrypted, and what Teepin can and can't see.</Card>
 </Cards>

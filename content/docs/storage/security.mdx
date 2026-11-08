@@ -1,0 +1,73 @@
+---
+title: Security
+description: How Teepin Storage encrypts files on your device, what Teepin and the storage network can and can't see, and the limits of each promise.
+---
+
+This page covers files uploaded with the SDKs and the console. [Objects stored before](#older-objects) files were encrypted on the device are different, and are covered at the end.
+
+## Encrypted on your device
+
+- **Each file gets its own random 256-bit key.** The SDK or the console encrypts the file with it before any byte leaves your device: AES-256-GCM, in segments of 64 KiB, with a key commitment, so the encrypted bytes open under that one key only.
+- **The file's key is wrapped to your account's public key** with HPKE (RFC 9180, X25519). Only the wrapped key is sent to Teepin.
+- **The storage network encrypts what it stores as well,** a second layer.
+- **Uploads are checked before they're reported saved.** Small files are decrypted back on your device and compared with the source before they're sent. Teepin then checks that the storage network holds exactly the bytes it signed, by size and checksum.
+- **Downloads are checked before you get them.** Every segment is authenticated on your device, and a whole download is checked against the file's SHA-256. Unchecked bytes never reach your file.
+
+## How requests are allowed
+
+- **Your API key goes only to Teepin's API.** It is never sent to the storage network.
+- **Teepin signs one request at a time, for exactly its bytes,** by their size and checksum. A signed upload can store only those bytes.
+- **Nothing on the storage network is written over.** Every upload is stored under a new random name, and a write to a name already in use is refused.
+- **A read signature covers one object's bytes,** and lasts up to about 15 minutes.
+- **Names on the storage network are random.** They carry no account, bucket or file name.
+- **Your account's public key is pinned.** The SDKs keep the first key they see for each version in the state directory, and refuse a different key under the same version (`DataIntegrityError`). The connection to `api.teepin.com` over TLS is the root of trust.
+
+## What Teepin can and can't see
+
+| | Sees | Doesn't receive |
+| --- | --- | --- |
+| **Teepin's API** | Bucket names, keys, sizes, content types and metadata. Each file's SHA-256, which is its ETag. When each object was written and read, and by which API key. | Your files' bytes. They go between your device and the storage network only. |
+| **The storage network** | Encrypted bytes under random names, their sizes, when they're written and read, and the IP address of the device that sends or fetches them. | Your file names, your keys, and your files' contents. |
+
+Things to know:
+
+- **Teepin holds what's needed to decrypt.** Your account's private key is kept by Teepin, sealed by a key-management service. When a reader you allow asks to read an object (an API key with `storage:read`, your console session, or a share link), Teepin checks access, unwraps that object's key, and sends it to the reader over TLS. Keys are never logged. So the encryption keeps your files' contents away from the storage network and out of Teepin's servers, but it is not end-to-end encryption from Teepin.
+- **The SHA-256 of each file is visible to Teepin.** Anyone who can see an object's ETag can tell whether it's a copy of a file they already have.
+- **Teepin can't check the SHA-256.** It is computed on the device that uploaded the file, since Teepin never sees the bytes.
+
+## Keys on your device
+
+- An SDK keeps an object's key in memory for 10 minutes after a read (`key_cache_ttl` in Python and `keyCacheTtl` in Node, where 0 keeps none; `KeyCacheTTL` in Go, where a negative value keeps none), so reading the same object again needs only a new signature.
+- Keys are zeroed when they expire and when the client is closed, as far as the language allows. Python, Node and Go may copy memory, so this is best effort.
+- The SDKs never log keys or signatures.
+
+## Deleting and revoking
+
+- **A delete, a revoked API key or a removed permission takes effect at once** for new reads.
+- **A reader that already holds a key and a live signature** can keep reading for that signature's remaining life: up to about 15 minutes.
+- **Copies already made aren't recalled.** A downloaded file, or a key cached with the encrypted bytes, stays with whoever has it, as with any storage service.
+- Deleting an object erases its key: its bytes can never be read again.
+
+## Share links
+
+- A link's token is in the part of the URL after `#`, which browsers never send to a server, so it doesn't reach server logs or a `Referer` header.
+- The token is sealed: the bucket and key can't be read from it.
+- Opening a [share link](/docs/storage/share-links) gives the browser the key of the file it opens, since the page decrypts it.
+- A link can't be revoked before it expires. Deleting or renaming the file stops it opening.
+- A download that started while the link was valid can go on after it expires: while it keeps reading (pauses of at most 30 minutes), on the version it started with, and never past 24 hours after the link's expiry. Replacing, renaming or deleting the file stops it.
+- Anyone who opened a link keeps what they saved. Keep lifetimes short, and share links only with people who may read the file.
+
+## Unfinished uploads keep a key on disk
+
+- To resume after a crash, an unfinished large upload keeps its file's key in the SDK's [state directory](/docs/sdks/python#local-state) until the upload completes, is cancelled, or is removed by `clean_uploads`.
+- The state directory is readable only by your user: the folder is created with mode `0700` and its files `0600`. On Windows it keeps the user-only access of your profile folder.
+- On macOS, the system's backup includes `~/Library/Application Support`, where the state directory is. So the key of an upload that's still unfinished can reach a backup.
+- Such a key opens only that one upload's encrypted bytes, which can't be fetched without storage access.
+
+## Older objects
+
+Objects uploaded before files were encrypted on the device were stored by Teepin's servers. Small objects stored from 3 November 2026 were encrypted by those servers. The rest were stored as sent, protected by the storage network's own encryption.
+
+- They stay readable with every SDK and the console, unchanged.
+- A leaked read signature for an object stored as sent would expose its contents for up to about 15 minutes. For an encrypted object, a leaked signature reveals nothing without the key.
+- To have an older object encrypted on your device, upload it again with a current SDK, or copy it to a new key: a copy is uploaded anew.

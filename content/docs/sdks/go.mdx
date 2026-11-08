@@ -1,6 +1,6 @@
 ---
 title: Go SDK
-description: The teepin package for Go 1.23 and newer.
+description: The teepin package for Go 1.26 and newer, built on the standard library alone.
 ---
 
 ```bash
@@ -8,6 +8,8 @@ go get github.com/FlashbackAi/teepin-go/teepin
 ```
 
 [Source](https://github.com/FlashbackAi/teepin-go)
+
+Go 1.26 or newer. The package uses the standard library alone, including its HPKE for the encryption. With an older Go, the `go` command fetches a newer toolchain by itself unless `GOTOOLCHAIN=local` is set.
 
 ## Configure
 
@@ -23,6 +25,20 @@ client = teepin.NewClient(teepin.Config{
 	MaxRetries: 4,                // negative turns retries off
 })
 ```
+
+| Field | Environment | Default |
+| --- | --- | --- |
+| `APIKey` | `TEEPIN_API_KEY` | none |
+| `BaseURL` | `TEEPIN_BASE_URL` | `https://api.teepin.com` |
+| `Timeout` | | 60 s per call that isn't a transfer |
+| `MaxRetries` | | 4 (negative turns retries off) |
+| `StateDir` | `TEEPIN_STATE_DIR` | the system's state directory (see [Local state](#local-state)) |
+| `UploadWait` | `TEEPIN_UPLOAD_WAIT` (in seconds) | 10 minutes an upload waits for an unavailable storage network (negative fails at once) |
+| `UploadConcurrency` | `TEEPIN_UPLOAD_CONCURRENCY` | 32 packs or parts in flight at most |
+| `KeyCacheTTL` | | 10 minutes a read keeps an object's key in memory (negative keeps none) |
+| `HTTPClient` | | a client that keeps connections open for parallel transfers |
+
+The default `HTTPClient` follows the usual `HTTPS_PROXY` and `NO_PROXY` variables.
 
 ## Inference
 
@@ -43,12 +59,46 @@ Streaming uses `client.Inference.ChatStream`, read with `Next`, `Chunk` and `Err
 
 ## Storage
 
+Files are encrypted on this machine and sent straight to the storage network, and read straight back from it, every byte checked before you get it. No file byte passes through Teepin's API.
+
 ```go
 _, err = client.Storage.CreateBucket(ctx, "my-bucket")
-obj, err := client.Storage.UploadFile(ctx, "my-bucket", "videos/a.mp4", "a.mp4", &teepin.UploadOptions{Resume: true})
+obj, err := client.Storage.UploadFile(ctx, "my-bucket", "videos/a.mp4", "a.mp4", nil) // any size, in parts above 16 MiB
+
+files, err := teepin.FilesToUpload([]string{"a.jpg", "b.jpg"}, "photos/", "")
+results, err := client.Storage.UploadFiles(ctx, "my-bucket", files, nil) // one result per file
+results, err = client.Storage.ResumeUploads(ctx, nil)                    // after a crash
+
 _, err = client.Storage.DownloadFile(ctx, "my-bucket", "videos/a.mp4", "a-copy.mp4", nil)
-link, err := client.Storage.PresignDownload(ctx, "my-bucket", "videos/a.mp4", &teepin.PresignDownloadOptions{TTL: 15 * time.Minute})
+f, err := client.Storage.OpenObject(ctx, "my-bucket", "videos/a.mp4", nil) // io.ReaderAt, io.ReadSeeker, io.Closer
+
+link, err := client.Storage.CreateLink(ctx, "my-bucket", "videos/a.mp4", nil) // a share link, 15 minutes
 ```
+
+- Up to 16 MiB, `PutObject` packs an object with the other calls waiting at the same time into one write, and returns once it's saved. Larger objects go in parts, sent in parallel; how many are in flight adapts, up to `UploadConcurrency`.
+- Every call takes a `context.Context`. Cancelling it ends the call, and a cancelled run stays resumable.
+- `Download` writes to an `io.WriterAt`, `DownloadStream` to an `io.Writer` in order, and `GetObject` streams an object or one range.
+
+See [Upload and download](/docs/storage/objects) and [Large files](/docs/storage/large-files).
+
+## Local state
+
+Upload runs (`UploadFiles`, and `UploadFile` above 16 MiB) and batch downloads (`DownloadFiles`, `DownloadPrefix`) keep a journal on disk, so they can be resumed after a crash. It lives in the state directory:
+
+| System | State directory |
+| --- | --- |
+| Linux | `$XDG_STATE_HOME/teepin`, by default `~/.local/state/teepin` |
+| macOS | `~/Library/Application Support/teepin` |
+| Windows | `%LOCALAPPDATA%\teepin` |
+| Any | `TEEPIN_STATE_DIR`, or `StateDir` in the `Config` |
+
+- The directory is created readable only by you (`0700`, its files `0600`). See [Security](/docs/storage/security#unfinished-uploads-keep-a-key-on-disk).
+- Each run has its own folder under `uploads/` (or `downloads/`), with `run.go.json` and an `events.go.jsonl` journal. Each state is written to disk before the step that needs it.
+- A run in use is locked, so two processes never work on the same run. A lock left by a process that has ended is taken over.
+- A finished run removes its own folder. `ListUploadRuns` shows the rest, and `CleanUploads` removes old ones, with a warning for each.
+- Download runs have their own: `ResumeDownloads` finishes them (running the same download again does too), `ListDownloadRuns` lists them and `CleanDownloads` removes old ones.
+- `UploadFilesOptions{NoJournal: true}` and `DownloadFilesOptions{NoJournal: true}` keep a run in memory.
+- This SDK resumes only its own runs, not those of the Python or Node SDKs.
 
 ## Errors
 
@@ -56,9 +106,10 @@ Errors from the API are `*teepin.APIError` values with `Code`, `StatusCode`, `Me
 
 ```go
 switch {
-case teepin.IsNotFound(err):
-case teepin.IsNoCredit(err):
+case teepin.IsNotFound(err): // also an erased key: teepin.IsKeyErased(err)
+case teepin.IsNoCredit(err), teepin.IsOnHold(err):
 case teepin.IsRateLimited(err):
+case errors.Is(err, teepin.ErrObjectChanged): // replaced while it was read
 case err != nil:
 	var ae *teepin.APIError
 	if errors.As(err, &ae) {
@@ -66,5 +117,43 @@ case err != nil:
 	}
 }
 ```
+
+| Error | When |
+| --- | --- |
+| `teepin.ErrObjectChanged` | the object was replaced while it was read |
+| `*teepin.DataIntegrityError` | data that failed a check after a retry; `Reason` says which |
+| `teepin.ErrChecksumMismatch` | bytes that don't match the object's SHA-256 (a `*DataIntegrityError` with `Reason` `"checksum"`) |
+| `teepin.ErrKeyErased`, `IsKeyErased` | 410 `key_erased`: the object's key was erased, so it can never be read |
+| `teepin.ErrObjectStaged` | an object still being moved into the storage network: try again later |
+| `teepin.ErrNotModified` | `GetObject`'s answer when `IfNoneMatch` matched |
+| `*teepin.StorageUnavailableError` | the storage network didn't come back within `UploadWait` |
+| `*teepin.FileChangedError` | a file changed while it was uploaded; `Path` names it |
+| `*teepin.UnsafePathError`, `teepin.ErrUnsafePath` | a batch download's key that isn't a safe path under its destination |
+| `teepin.IsTooLarge` | 413: an object over the limit, or a stream past its last allowed part (`too_many_parts`) |
+
+Use `errors.Is` for the `Err...` values and `errors.As` for the types. `UploadFiles`, `ResumeUploads` and the batch downloads don't fail for one file: each result carries its own `Err`. See [Errors](/docs/reference/errors).
+
+## Upgrading from v0.2
+
+Files are now encrypted on your machine and sent straight to the storage network. The old upload and download routes are gone, so earlier versions no longer work for storage. v0.2.1 is retracted.
+
+**Removed:**
+
+| Removed | Use instead |
+| --- | --- |
+| `PresignDownload` | `CreateLink`, which makes a share link: see [Share links](/docs/storage/share-links) |
+| `PresignUpload` | Nothing: there are no upload links |
+| `CreateUpload`, `UploadPart`, `ListParts`, `CompleteUpload` | `Upload`, `UploadFile` or `UploadStream`, which send parts for you |
+| `UploadOptions.Resume` | `ResumeUploads`, on the machine that started the upload |
+
+`ListUploads` and `AbortUpload` stay.
+
+**Changed:**
+
+- `PutObject` and the uploads return once the object is saved. While the storage network is unavailable they wait, up to `UploadWait`.
+- An object uploaded in parts now has the SHA-256 of its bytes as its ETag, with no `-<parts>`.
+- An upload has at most 3,000 parts. A stream's parts are 64 MiB unless you give `UploadOptions.ExpectedSize`.
+- `CopyObject` is made on your machine: it reads the source and uploads it again, so it's billed as a download too.
+- Go 1.26 is now the oldest supported version.
 
 The full reference is in the [README](https://github.com/FlashbackAi/teepin-go#readme).

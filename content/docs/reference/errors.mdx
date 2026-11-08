@@ -1,6 +1,6 @@
 ---
 title: Errors
-description: The error format, the codes you can expect, and which errors are safe to retry.
+description: The error format, the codes you can expect, the SDKs' storage errors, and which errors are safe to retry.
 ---
 
 Inference errors use OpenAI's envelope, so OpenAI-compatible clients understand them:
@@ -35,16 +35,47 @@ In both, `code` is stable: branch on it, not on the message, which can be reword
 | 402 | `insufficient_credit` | The account has no credit left. Add credit in the console. |
 | 402 | `storage_on_hold` | Stored data is held because the balance ran out. `delete_after` says when it will be deleted. Add credit to release it. |
 | 403 | `missing_scope`, `forbidden` | The key lacks the permission, for example `inference:invoke` or `storage:write`. |
+| 403 | `invalid_link` | A share link is damaged or has expired. Ask its owner for a new one. |
 | 404 | `model_not_found` | No such model, or this key may not call it. |
 | 404 | `attestation_not_supported` | The model is real but not confidential. |
 | 404 | `object_not_found` and others | A bucket, object or upload does not exist. |
 | 409 | `bucket_exists`, `bucket_not_empty`, `object_exists` | A conflict with what is already there. |
-| 412 | | A condition such as `If-Match` failed. |
+| 409 | `upload_completing` | An upload in parts can't be cancelled while it is being completed. |
+| 410 | `key_erased` | The object's key has been erased, so it can never be read. |
+| 410 | `old_storage_route_retired` | A route that carried file bytes through Teepin's API, which is gone. Use an SDK or the console. |
+| 412 | `precondition_failed` | A condition such as `if_match` or `if_none_match` failed. |
 | 413 | `body_too_large`, `object_too_large` | The request or object is over the limit. |
-| 429 | `rate_limit_exceeded`, `too_many_concurrent_requests`, `rate_limited` | Slow down. `Retry-After` says when to try again. |
+| 429 | `rate_limit_exceeded`, `too_many_concurrent_requests`, `rate_limited` | Slow down. `Retry-After` says when to try again. Outside inference the body is the flat shape, `{"error": "...", "code": "rate_limit_exceeded"}`, plus `retry_after` in seconds. |
+| 429 | `too_many_pending_uploads` | Too many uploads are waiting to be committed. The SDKs wait and carry on. |
 | 500 | `internal_error` | Something failed on Teepin's side. |
+| 500 | `object_unreadable` | This object's stored record is damaged, and Teepin has been alerted. |
 | 502 | `upstream_error` | The model's server returned an error. |
 | 503 | `model_unavailable`, `billing_unavailable` | Temporarily unavailable. `Retry-After` says when to try again. |
+
+The routes the SDKs use to upload files have codes of their own, such as `reservation_abandoned` or `part_mismatch`. The SDKs handle them, so you won't normally see them.
+
+## Storage errors in the SDKs
+
+Beyond the API's own answers, the SDKs raise these while they move files:
+
+| What happened | Python | Node | Go |
+| --- | --- | --- | --- |
+| The storage network didn't come back within the upload wait | `StorageUnavailableError` | `StorageUnavailableError` | `*teepin.StorageUnavailableError` |
+| A file changed while it was uploaded | `FileChangedError` (`path`) | `FileChangedError` (`path`) | `*teepin.FileChangedError` (`Path`) |
+| Data failed a check after a retry | `DataIntegrityError` (`reason`) | `DataIntegrityError` (`reason`) | `*teepin.DataIntegrityError` (`Reason`) |
+| Bytes don't match the object's SHA-256 | `ChecksumMismatchError` | `ChecksumMismatchError` | `teepin.ErrChecksumMismatch` |
+| The object was replaced while it was read | `ObjectChangedError` | `ObjectChangedError` | `teepin.ErrObjectChanged` |
+| The object's key was erased (410 `key_erased`) | `KeyErasedError` | `KeyErasedError` | `teepin.ErrKeyErased` |
+| A share link is damaged or expired (403 `invalid_link`) | | `InvalidLinkError` | |
+| A stream went past its last allowed part (413 `too_many_parts`) | `TooLargeError` | `TooLargeError` | `teepin.IsTooLarge` |
+| A batch download's key isn't a safe path under its destination | `ValueError` | `UnsafePathError` | `*teepin.UnsafePathError` |
+| The object is still being moved into the storage network | `TeepinError`, saying so | `TeepinError`, saying so | `teepin.ErrObjectStaged` |
+
+- `ChecksumMismatchError` is a kind of `DataIntegrityError`, and `KeyErasedError` a kind of `NotFoundError`, so code that handles the wider error handles these too. `InvalidLinkError` is a `ForbiddenError`.
+- A `DataIntegrityError` means unchecked bytes were never written to your file. Its reason says which check failed, such as `segment`, `commitment` or `checksum`.
+- On a slow connection, the SDKs shrink packs and parts so each request stays under about 4 minutes. A file that can't be sent even then, because 5 MiB parts would be too slow or it would need more than 3,000 parts, fails with `TooLargeError` and the reason `connection_speed` before anything is sent.
+- An object still being moved into the storage network was uploaded through the old server path just before files were encrypted on the device. It can be read once it has moved: try again later.
+- Batch calls (`upload_files`, `resume_uploads`, `download_files`, `download_prefix` and their Node and Go forms) don't raise for one file's failure. Each file's result carries its own error. They raise only for what stops the whole run, such as a revoked key or no credit.
 
 ## Streams
 
@@ -58,6 +89,6 @@ Once a stream has started, its status is already `200`. A failure part way throu
 | 500, 502 from Teepin (one of the JSON shapes above) | Yes, with backoff. Nothing was billed. |
 | A connection that never reached the server | Yes. |
 | A timeout or a connection that dropped after the request was sent | **Not a chat request**: the model may have answered and been billed. Storage reads are safe to retry. |
-| 400, 401, 402, 403, 404, 409, 413 | No. Fix the request or the account first. |
+| 400, 401, 402, 403, 404, 409, 410, 413 | No. Fix the request or the account first. |
 
-The SDKs follow these rules for you, so a chat request is never billed twice.
+The SDKs follow these rules for you, so a chat request is never billed twice. Every step of an SDK upload is safe to repeat, so an upload whose answer was lost is never stored twice: the SDK asks whether it was saved before it sends anything again.

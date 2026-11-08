@@ -117,34 +117,45 @@ fmt.Println(resp.Text())
 
 ## Store a file
 
-The same key works for storage when it has storage access.
+The same key works for storage when it has storage access. Files are encrypted on your device and sent straight to the storage network, so uploads and downloads go through an SDK or the console.
 
-<Tabs items={["curl", "Python"]}>
-<Tab value="curl">
-
-```bash
-curl -X POST https://api.teepin.com/v1/storage/buckets \
-  -H "Authorization: Bearer $TEEPIN_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"name": "my-bucket"}'
-
-curl -X PUT "https://api.teepin.com/v1/storage/buckets/my-bucket/object?key=hello.txt" \
-  -H "Authorization: Bearer $TEEPIN_API_KEY" \
-  -H "Content-Type: text/plain" \
-  --data-binary "hello from Teepin"
-
-curl "https://api.teepin.com/v1/storage/buckets/my-bucket/object/content?key=hello.txt" \
-  -H "Authorization: Bearer $TEEPIN_API_KEY"
-```
-
-</Tab>
+<Tabs items={["Python", "Node", "Go"]}>
 <Tab value="Python">
 
 ```python
 client.storage.create_bucket("my-bucket")
-client.storage.upload("my-bucket", "hello.txt", b"hello from Teepin", content_type="text/plain")
+client.storage.put_object("my-bucket", "hello.txt", "hello from Teepin", content_type="text/plain")
 print(client.storage.download_bytes("my-bucket", "hello.txt"))
 ```
 
 </Tab>
+<Tab value="Node">
+
+```typescript
+await teepin.storage.createBucket('my-bucket');
+await teepin.storage.putObject('my-bucket', 'hello.txt', 'hello from Teepin', { contentType: 'text/plain' });
+const { data } = await teepin.storage.download('my-bucket', 'hello.txt');
+console.log(new TextDecoder().decode(data));
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+_, err = client.Storage.CreateBucket(ctx, "my-bucket")
+_, err = client.Storage.PutObject(ctx, "my-bucket", "hello.txt", strings.NewReader("hello from Teepin"), 17,
+	&teepin.PutObjectOptions{ContentType: "text/plain"})
+
+r, err := client.Storage.GetObject(ctx, "my-bucket", "hello.txt", nil)
+if err != nil {
+	return err
+}
+defer r.Close()
+data, err := io.ReadAll(r)
+fmt.Println(string(data))
+```
+
+</Tab>
 </Tabs>
+
+Next: [Upload and download](/docs/storage/objects) for many files at once, and [Large files](/docs/storage/large-files).
