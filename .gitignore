@@ -57,3 +57,6 @@ next-env.d.ts
 
 # fumadocs-mdx output (generated from content/docs at build time)
 /.source
+
+# The email wordmark images are served from teepin.com/email/ and must be committed (teepin-core pkg/email).
+!public/email/*.png
