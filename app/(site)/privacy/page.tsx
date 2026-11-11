@@ -202,8 +202,10 @@ const SECTIONS: LegalSection[] = [
           </li>
           <li>
             <strong>Your organization.</strong> On an organization’s account, its owner and admins can see members,
-            seats, usage and billing. They manage the organization’s agents, and can transfer a member’s agents to the
-            owner.
+            seats, usage and billing, and they manage the organization’s team agents. While you’re a member, your own
+            Teepin, its chats and its memory are private to you: admins see only your seat and usage. Your work in an
+            organization’s Teepin belongs to the organization, so if you leave, it’s handed to an admin, and your
+            sign-ins and connected apps are removed.
           </li>
           <li>
             <strong>Authorities</strong>, when the law requires it.
@@ -338,7 +340,7 @@ export default function PrivacyPage() {
     <LegalDocument
       label="Privacy"
       title="Privacy Policy"
-      updated="2026-11-10"
+      updated="2026-11-11"
       summary={[
         "We never sell your data, use it for ads, or train AI models on it.",
         "Your agents act only for you, and anything with real effects waits for your yes.",
