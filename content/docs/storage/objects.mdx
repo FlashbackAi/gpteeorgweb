@@ -96,7 +96,8 @@ obj, err = client.Storage.PutObject(ctx, "my-bucket", "config.json", strings.New
 </Tabs>
 
 - **A call returns once the object is saved.** An upload is reported saved only after Teepin has checked that the storage network holds it. Each step is retried on its own after a passing failure.
-- **Small files are packed.** Up to 16 MiB, an object is packed into one write with others waiting at the same moment. Calls made at the same time share packs, and each still gets its own result. Larger files go in parts: see [Large files](/docs/storage/large-files).
+- **Small files are packed.** Up to 16 MiB, an object is packed with others into one write of 10 to 20 MiB. A save waits a moment (at most about 5 seconds) while others are arriving, so they share a pack, and goes after a fraction of a second when nothing else is being saved. Calls made at the same time share packs, and each still gets its own result. Larger files go in parts: see [Large files](/docs/storage/large-files).
+- **A file saved long ago and since deleted.** A run resumed from an old journal (one restored from a backup, say) may name a pack that was committed, all of whose objects have since been deleted. Its files are reported saved, with the object's status `deleted`, and are never uploaded again.
 - **When the storage network is unavailable, an upload waits.** It waits up to the client's upload wait (10 minutes by default), then fails with `StorageUnavailableError`. Nothing is reported saved that isn't.
 - **Empty files** are stored without sending any bytes.
 - **Metadata** names are lowercase letters, digits, `-` and `_`.

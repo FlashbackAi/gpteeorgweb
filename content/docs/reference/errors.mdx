@@ -31,6 +31,7 @@ In both, `code` is stable: branch on it, not on the message, which can be reword
 | Status | Code | Meaning |
 | --- | --- | --- |
 | 400 | `invalid_request` | The request is malformed or a field is invalid. |
+| 400 | `pack_too_small` | A pack of small files under 10 MiB, sent with no reason. SDKs before 0.4.0 send these: upgrade. |
 | 401 | `unauthorized` | No key, or the key is not valid. |
 | 402 | `insufficient_credit` | The account has no credit left. Add credit in the console. |
 | 402 | `storage_on_hold` | Stored data is held because the balance ran out. `delete_after` says when it will be deleted. Add credit to release it. |
@@ -51,6 +52,7 @@ In both, `code` is stable: branch on it, not on the message, which can be reword
 | 500 | `object_unreadable` | This object's stored record is damaged, and Teepin has been alerted. |
 | 502 | `upstream_error` | The model's server returned an error. |
 | 503 | `model_unavailable`, `billing_unavailable` | Temporarily unavailable. `Retry-After` says when to try again. |
+| 503 | `busy` | The server is handling other large packs. The SDKs wait for `Retry-After` and carry on. |
 
 The routes the SDKs use to upload files have codes of their own, such as `reservation_abandoned` or `part_mismatch`. The SDKs handle them, so you won't normally see them.
 

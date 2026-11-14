@@ -32,7 +32,7 @@ const other = new TeepinClient({
 | `timeout` | | 60,000 ms for a call that isn't a transfer |
 | `maxRetries` | | 4 (storage), 2 (inference) |
 | `stateDir` | `TEEPIN_STATE_DIR` | the system's state directory (see [Local state](#local-state)) |
-| `uploadWait` | `TEEPIN_UPLOAD_WAIT` (in seconds) | 600,000 ms an upload waits for an unavailable storage network (0 fails at once) |
+| `uploadWait` | `TEEPIN_UPLOAD_WAIT` (in seconds) | 600,000 ms an upload waits for an unavailable storage network (0: no waiting) |
 | `uploadConcurrency` | `TEEPIN_UPLOAD_CONCURRENCY` | 32 packs or parts in flight at most |
 | `keyCacheTtl` | | 600,000 ms a read keeps an object's key in memory (0 keeps none) |
 | `fetch` | | the global `fetch` |
@@ -79,7 +79,7 @@ const link = await teepin.storage.createLink('my-bucket', 'videos/a.mp4', { expi
 
 - **The main entry** works in Node and in browsers: `putObject`, `upload` (bytes, Blobs, streams), `getObject`, `download`, `downloadTo`, `openObject`, `copyObject`, `createLink` and `openLink`.
 - **`@teepin/sdk/node`** adds files on disk: `uploadFile`, `uploadFiles`, `resumeUploads`, `listUploadRuns`, `cleanUploads`, `downloadFile`, `downloadFiles`, `downloadPrefix` and `fileSource`.
-- Up to 16 MiB, objects are packed together into one write. `putObject` calls made at the same time share packs, and each gets its own result. Larger files go in parts, sent in parallel; how many are in flight adapts, up to `uploadConcurrency`. On a slow connection, packs and parts shrink: see [Large files](/docs/storage/large-files#parts).
+- Up to 16 MiB, objects are packed together into writes of 10 to 20 MiB. A save waits a moment (at most about 5 seconds) while others are arriving, so they share a pack, and goes after a fraction of a second when nothing else is being saved. `putObject` calls made at the same time share packs, and each gets its own result. Larger files go in parts, sent in parallel; how many are in flight adapts, up to `uploadConcurrency`. On a slow connection, packs and parts shrink: see [Large files](/docs/storage/large-files#parts).
 - Calls take an `AbortSignal` to stop them. Aborting a run leaves it resumable.
 
 See [Upload and download](/docs/storage/objects), [Large files](/docs/storage/large-files) and [Share links](/docs/storage/share-links).
@@ -133,6 +133,13 @@ try {
 ```
 
 `uploadFiles`, `resumeUploads` and the batch downloads don't throw for one file's failure: each result carries its own `error`. See [Errors](/docs/reference/errors).
+
+## Upgrading from 0.3
+
+Uploads now share packs of at least 10 MiB, and the service refuses 0.3's small uploads, so upgrade. Your code doesn't change. Version 0.4.0 also:
+
+- sends `X-Teepin-Client: teepin-node/<version>` with every call;
+- reports a file saved long ago whose object was since deleted (in a run resumed from an old journal) as saved, with status `deleted`, and passes one line about it to `storage.directUploads.info` (`console.info` unless you replace it, as `warn`).
 
 ## Upgrading from 0.2
 

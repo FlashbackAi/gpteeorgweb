@@ -29,7 +29,7 @@ client = Client(api_key="tpk_...")    # or pass it
 | `max_retries` | | 4 (storage) |
 | `inference_max_retries` | | 2 (inference) |
 | `state_dir` | `TEEPIN_STATE_DIR` | the system's state directory (see [Local state](#local-state)) |
-| `upload_wait` | `TEEPIN_UPLOAD_WAIT` | 600 s an upload waits for an unavailable storage network (0 fails at once) |
+| `upload_wait` | `TEEPIN_UPLOAD_WAIT` | 600 s an upload waits for an unavailable storage network (0: no waiting) |
 | `upload_concurrency` | `TEEPIN_UPLOAD_CONCURRENCY` | 32 packs or parts in flight at most |
 | `key_cache_ttl` | | 600 s a read keeps an object's key in memory (0 keeps none) |
 
@@ -75,7 +75,7 @@ with s.open_object("my-bucket", "videos/launch.mp4") as f:         # seekable, r
 
 How the engine works:
 
-- Up to 16 MiB, objects are packed together into one write. `put_object` calls made at the same time, from any thread, share packs, and each gets its own result.
+- Up to 16 MiB, objects are packed together into writes of 10 to 20 MiB. A save waits a moment (at most about 5 seconds) while others are arriving, so they share a pack, and goes after a fraction of a second when nothing else is being saved. `put_object` calls made at the same time, from any thread, share packs, and each gets its own result.
 - Larger files go in parts, sent in parallel. Packs and parts in flight start at 4 and grow while throughput rises, up to `upload_concurrency`. They halve when the storage network slows requests down.
 - Every step is retried on its own, and an upload is reported saved only once Teepin has checked the storage network holds it.
 - On a slow connection, packs and parts shrink so each request takes at most about 4 minutes. See [Large files](/docs/storage/large-files#parts).
@@ -124,6 +124,13 @@ Every error is a `teepin.TeepinError`. API answers raise a subclass with `status
 | `APIConnectionError` | no answer: the network or a timeout |
 
 `upload_files`, `resume_uploads` and the batch downloads don't raise for one file's failure: each result carries its own error. See [Errors](/docs/reference/errors).
+
+## Upgrading from 0.3
+
+Uploads now share packs of at least 10 MiB, and the service refuses 0.3's small uploads, so upgrade. Your code doesn't change. Version 0.4.0 also:
+
+- sends `X-Teepin-Client: teepin-python/<version>` with every call;
+- reports a file saved long ago whose object was since deleted (in a run resumed from an old journal) as saved, with status `deleted`, and logs one line about it on the `teepin.storage` logger.
 
 ## Upgrading from 0.2
 

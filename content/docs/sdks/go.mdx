@@ -33,7 +33,7 @@ client = teepin.NewClient(teepin.Config{
 | `Timeout` | | 60 s per call that isn't a transfer |
 | `MaxRetries` | | 4 (negative turns retries off) |
 | `StateDir` | `TEEPIN_STATE_DIR` | the system's state directory (see [Local state](#local-state)) |
-| `UploadWait` | `TEEPIN_UPLOAD_WAIT` (in seconds) | 10 minutes an upload waits for an unavailable storage network (negative fails at once) |
+| `UploadWait` | `TEEPIN_UPLOAD_WAIT` (in seconds) | 10 minutes an upload waits for an unavailable storage network (negative: no waiting) |
 | `UploadConcurrency` | `TEEPIN_UPLOAD_CONCURRENCY` | 32 packs or parts in flight at most |
 | `KeyCacheTTL` | | 10 minutes a read keeps an object's key in memory (negative keeps none) |
 | `HTTPClient` | | a client that keeps connections open for parallel transfers |
@@ -75,7 +75,7 @@ f, err := client.Storage.OpenObject(ctx, "my-bucket", "videos/a.mp4", nil) // io
 link, err := client.Storage.CreateLink(ctx, "my-bucket", "videos/a.mp4", nil) // a share link, 15 minutes
 ```
 
-- Up to 16 MiB, `PutObject` packs an object with the other calls waiting at the same time into one write, and returns once it's saved. Larger objects go in parts, sent in parallel; how many are in flight adapts, up to `UploadConcurrency`.
+- Up to 16 MiB, `PutObject` packs an object with others into one write of 10 to 20 MiB, and returns once it's saved. A save waits a moment (at most about 5 seconds) while others are arriving, so they share a pack, and goes after a fraction of a second when nothing else is being saved. Larger objects go in parts, sent in parallel; how many are in flight adapts, up to `UploadConcurrency`.
 - Every call takes a `context.Context`. Cancelling it ends the call, and a cancelled run stays resumable.
 - `Download` writes to an `io.WriterAt`, `DownloadStream` to an `io.Writer` in order, and `GetObject` streams an object or one range.
 
@@ -132,6 +132,13 @@ case err != nil:
 | `teepin.IsTooLarge` | 413: an object over the limit, or a stream past its last allowed part (`too_many_parts`) |
 
 Use `errors.Is` for the `Err...` values and `errors.As` for the types. `UploadFiles`, `ResumeUploads` and the batch downloads don't fail for one file: each result carries its own `Err`. See [Errors](/docs/reference/errors).
+
+## Upgrading from v0.3
+
+Uploads now share packs of at least 10 MiB, and the service refuses v0.3's small uploads, so upgrade. v0.3.0 is retracted. Your code doesn't change. Version 0.4.0 also:
+
+- sends `X-Teepin-Client: teepin-go/<version>` with every call;
+- reports a file saved long ago whose object was since deleted (in a run resumed from an old journal) as saved, with status `deleted`, and logs one line about it with `slog.Info`.
 
 ## Upgrading from v0.2
 

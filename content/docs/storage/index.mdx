@@ -39,7 +39,7 @@ Your device sends the encrypted bytes straight to the storage network. Teepin th
 
 Downloads work the same way in reverse. Teepin checks access and signs the read, your device fetches the bytes from the storage network, and every byte is checked on your device before you get it.
 
-Small files (up to 16 MiB) are packed together into one write. Larger files go in parts, sent in parallel. See [Large files](/docs/storage/large-files), and [Security](/docs/storage/security) for what is encrypted and what Teepin can see.
+Small files (up to 16 MiB) are packed together into writes of 10 to 20 MiB. Larger files go in parts, sent in parallel. See [Large files](/docs/storage/large-files), and [Security](/docs/storage/security) for what is encrypted and what Teepin can see.
 
 <Callout title="Uploads and downloads need an SDK or the console">
 Files are encrypted and checked on your device, so plain HTTP clients such as curl can't upload or download file bytes. They can still manage buckets, list, rename and delete objects, and make share links.
