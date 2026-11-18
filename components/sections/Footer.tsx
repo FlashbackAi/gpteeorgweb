@@ -119,6 +119,7 @@ export default function Footer() {
               {[
                 { label: "Privacy",            href: "/privacy" },
                 { label: "Terms",              href: "/terms" },
+                { label: "Delete account",     href: "/delete-account" },
                 { label: "support@teepin.com", href: "mailto:support@teepin.com" },
               ].map(({ label, href }) => (
                 <a
