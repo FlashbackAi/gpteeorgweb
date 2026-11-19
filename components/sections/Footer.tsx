@@ -49,8 +49,6 @@ export default function Footer() {
                 {[
                   { label: "Products",     href: "/#products" },
                   { label: "Architecture", href: "/#infrastructure" },
-                  { label: "Docs",         href: "/docs" },
-                  { label: "Pricing",      href: "/pricing" },
                 ].map(({ label, href }) => (
                   <li key={label}>
                     <a

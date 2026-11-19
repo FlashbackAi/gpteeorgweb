@@ -234,12 +234,6 @@ export default function ClosingManifesto() {
             >
               Request Early Access
             </a>
-            <a
-              href="/pricing"
-              className="font-mono text-[12px] tracking-[0.12em] text-steel hover:text-ink transition-colors duration-220"
-            >
-              See The Pricing
-            </a>
           </div>
         </div>
       </div>

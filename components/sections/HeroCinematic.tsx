@@ -457,16 +457,6 @@ export default function HeroCinematic() {
                 <span aria-hidden="true" className="absolute top-0 right-0 w-2 h-2 border-t border-r border-paper-raised/40 pointer-events-none" />
                 <span style={{ display: "inline-block" }}>Request Early Access</span>
               </a>
-
-              <a
-                href="/pricing"
-                className="group relative inline-flex items-center justify-center px-8 py-3.5 font-mono text-[11px] tracking-[0.22em] uppercase overflow-hidden transition-colors duration-200 text-ink hover:text-paper-raised"
-                style={{ clipPath: "polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%)" }}
-              >
-                <span aria-hidden="true" className="absolute inset-0 border border-ink transition-colors duration-200 group-hover:border-ink pointer-events-none" style={{ clipPath: "inherit" }} />
-                <span aria-hidden="true" className="absolute inset-0 bg-ink translate-x-[-101%] group-hover:translate-x-0 transition-transform duration-300 ease-out pointer-events-none" />
-                <span className="relative z-10">See The Pricing</span>
-              </a>
             </div>
           </div>
         </div>

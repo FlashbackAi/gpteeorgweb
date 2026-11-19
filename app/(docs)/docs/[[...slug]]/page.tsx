@@ -37,5 +37,8 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     title: page.data.title,
     description: page.data.description,
     alternates: { canonical: page.url },
+    // Not public yet (owner, 2026-11-19): reachable by its address only, linked from nowhere on the site, and kept out
+    // of search results until it is shown on the landing page.
+    robots: { index: false, follow: false },
   };
 }

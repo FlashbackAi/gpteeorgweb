@@ -11,6 +11,9 @@ export const metadata: Metadata = {
   description:
     "Teepin plans for one person and for teams, and the cloud services on prepaid credit. What each costs, and what changing your plan costs, worked out with examples.",
   alternates: { canonical: "/pricing" },
+  // Not public yet (owner, 2026-11-19): reachable by its address only, linked from nowhere on the site, and kept out
+  // of search results until it is shown on the landing page.
+  robots: { index: false, follow: false },
 };
 
 const INCLUDED = [
